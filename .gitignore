@@ -1,0 +1,23 @@
+# WordPress runtime data
+wordpress_data/
+db_data/
+
+# Local working/source captures
+work/source.html
+work/oren-vniipo.html
+outputs/preview.html
+
+# Presentation scratch artifacts
+work/presentations/
+outputs/*.inspect.ndjson
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak

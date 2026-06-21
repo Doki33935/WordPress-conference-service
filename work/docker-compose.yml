@@ -1,0 +1,38 @@
+services:
+  wordpress:
+    image: wordpress:6.6-php8.2-apache
+    container_name: fyremezzonine-wordpress
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG', true);
+        define('WP_DEBUG_LOG', true);
+        define('WP_DEBUG_DISPLAY', false);
+    volumes:
+      - wordpress_data:/var/www/html
+      - ../outputs/fyremezzonine-wp-theme:/var/www/html/wp-content/themes/fyremezzonine-wp-theme
+      - ../outputs/fyremezzonine-conference-manager:/var/www/html/wp-content/plugins/fyremezzonine-conference-manager
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:11.4
+    container_name: fyremezzonine-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress
+      MARIADB_ROOT_PASSWORD: wordpress
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  wordpress_data:
+  db_data:

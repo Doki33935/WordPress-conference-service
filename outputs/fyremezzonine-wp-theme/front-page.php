@@ -1,0 +1,241 @@
+<?php
+/**
+ * One-page conference landing.
+ *
+ * @package Fyremezzonine
+ */
+
+$conference = fyremezzonine_next_conference_data();
+
+get_header();
+?>
+
+<main id="primary">
+    <section class="hero" id="top" style="--hero-image: url('<?php echo esc_url($conference['hero_image_url']); ?>');">
+        <div class="section-inner">
+            <div class="hero-content">
+                <div class="hero-kicker" aria-label="Дата и место">
+                    <span><?php echo esc_html($conference['date_range']); ?></span>
+                    <span>г. <?php echo esc_html($conference['city']); ?></span>
+                </div>
+                <p class="hero-label">Научно-практическая конференция</p>
+                <h1>«<?php echo esc_html($conference['title']); ?>»</h1>
+                <div class="hero-actions">
+                    <?php if ($conference['registration_closed']) : ?>
+                        <span class="button button-disabled" aria-disabled="true">Регистрация закрыта</span>
+                    <?php else : ?>
+                        <a class="button" href="<?php echo fyremezzonine_link('registration_url'); ?>">Принять участие</a>
+                    <?php endif; ?>
+                    <a class="button button-red" href="<?php echo esc_url($conference['program_url']); ?>">Программа конференции</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="participation">
+        <div class="section-inner">
+            <p class="section-eyebrow">Структура конференции</p>
+            <h2 class="section-title">Ключевые темы обсуждения</h2>
+            <p class="lead"><?php echo esc_html($conference['topic_intro']); ?></p>
+
+            <div class="topic-grid">
+                <?php foreach ($conference['topics'] as $index => $topic) : ?>
+                <article class="topic-card">
+                    <img class="topic-media" src="<?php echo esc_url($topic['image_url']); ?>" alt="">
+                    <span class="topic-number"><?php echo esc_html(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)); ?></span>
+                    <p><?php echo esc_html($topic['title']); ?></p>
+                </article>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+
+    <section class="section about-band" id="about">
+        <div class="section-inner about-layout">
+            <div>
+                <p class="section-eyebrow">О конференции</p>
+                <h2 class="section-title"><?php echo esc_html($conference['about_title']); ?></h2>
+                <p class="lead"><?php echo esc_html($conference['about_lead']); ?></p>
+
+                <ul class="benefits">
+                    <?php foreach ($conference['benefits'] as $benefit) : ?>
+                    <li><?php echo esc_html($benefit); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+
+                <p>
+                    <?php if ($conference['registration_closed']) : ?>
+                        <span class="button button-red button-pill button-disabled" aria-disabled="true">Регистрация закрыта</span>
+                    <?php else : ?>
+                        <a class="button button-red button-pill" href="<?php echo fyremezzonine_link('registration_url'); ?>">Принять участие</a>
+                    <?php endif; ?>
+                </p>
+            </div>
+
+            <aside class="meta-stack" aria-label="Информация о конференции">
+                <div class="info-card">
+                    <strong>Дата проведения</strong>
+                    <p><?php echo esc_html($conference['date_range']); ?></p>
+                </div>
+                <div class="info-card">
+                    <strong>Место проведения</strong>
+                    <p><?php echo esc_html($conference['venue']); ?></p>
+                </div>
+                <div class="info-card">
+                    <strong>Дедлайн регистрации</strong>
+                    <p><?php echo esc_html($conference['deadline'] ?: 'Уточняется'); ?></p>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section class="section materials" id="registration">
+        <div class="section-inner">
+            <p class="section-eyebrow">Информационное сообщение<?php echo $conference['deadline'] ? ' до ' . esc_html($conference['deadline']) : ''; ?></p>
+            <h2 class="section-title">Требования к оформлению материалов</h2>
+            <p class="lead"><?php echo esc_html($conference['materials_intro']); ?></p>
+
+            <div class="materials-box">
+                <div>
+                    <h3>Конференция «<?php echo esc_html($conference['title']); ?>»</h3>
+                    <p><?php echo esc_html($conference['date_range']); ?>, <?php echo esc_html($conference['city']); ?></p>
+                </div>
+                <a class="button button-red" href="<?php echo esc_url($conference['materials_url']); ?>">Скачать требования к оформлению (.doc)</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="partners">
+        <div class="section-inner">
+            <p class="section-eyebrow">Организаторы и партнеры</p>
+            <h2 class="section-title">Участники конференции</h2>
+
+            <div class="partner-groups">
+                <section class="partner-group partner-group-featured" aria-label="Организатор конференции">
+                    <div class="partner-group-head">
+                        <span class="partner-label">Организатор</span>
+                        <h3>Оренбургский филиал ФГБУ ВНИИПО МЧС России</h3>
+                    </div>
+                    <a class="partner-logo partner-logo-wide" href="<?php echo fyremezzonine_link('branch_url'); ?>">
+                        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-vniipo.jpg'); ?>" alt="Оренбургский филиал ФГБУ ВНИИПО МЧС России">
+                    </a>
+                </section>
+
+                <section class="partner-group" aria-label="Генеральные партнеры конференции">
+                    <div class="partner-group-head">
+                        <span class="partner-label">Генеральные партнеры</span>
+                    </div>
+                    <div class="partner-logo-grid partner-logo-grid-two">
+                        <a class="partner-logo" href="https://fireproff.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-fireproff.png'); ?>" alt="Fireproff"></a>
+                        <a class="partner-logo" href="https://anti-fire.info/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-antifire.png'); ?>" alt="Anti-fire"></a>
+                    </div>
+                </section>
+
+                <section class="partner-group" aria-label="Партнеры конференции">
+                    <div class="partner-group-head">
+                        <span class="partner-label">Партнеры</span>
+                    </div>
+                    <div class="partner-logo-grid">
+                        <a class="partner-logo" href="https://pgs56.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-pgs56.png'); ?>" alt="Партнер конференции"></a>
+                        <a class="partner-logo" href="https://kalancha.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-kalancha.png'); ?>" alt="Каланча"></a>
+                    </div>
+                </section>
+
+                <section class="partner-group" aria-label="Информационные партнеры">
+                    <div class="partner-group-head">
+                        <span class="partner-label">Информационные партнеры</span>
+                    </div>
+                    <div class="partner-logo-grid">
+                        <a class="partner-logo" href="https://ru-bezh.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-rubezh.jpg'); ?>" alt="Рубеж"></a>
+                        <a class="partner-logo" href="https://takir.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-takir.png'); ?>" alt="Такир"></a>
+                        <a class="partner-logo" href="https://propb.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-propb.png'); ?>" alt="ПРО ПБ"></a>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <section class="section cta-band">
+        <div class="section-inner cta-layout">
+            <h2>Приглашаем стать официальным партнером, соорганизатором конференции или представителем СМИ</h2>
+            <a class="button button-blue" href="<?php echo fyremezzonine_link('partner_request_url'); ?>">Оставить заявку</a>
+        </div>
+    </section>
+
+    <section class="section venue">
+        <div class="section-inner venue-stack">
+            <div class="venue-copy">
+                <p class="section-eyebrow">Место проведения</p>
+                <h2 class="section-title"><?php echo esc_html($conference['venue_heading']); ?></h2>
+                <?php foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $conference['venue_intro']))) as $paragraph) : ?>
+                <p><?php echo esc_html($paragraph); ?></p>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="route-layout">
+                <div class="map-card" aria-label="Карта проезда к адресу Оренбургский район, Нижнепавловский сельсовет, Полигонная улица 1">
+                    <iframe src="<?php echo esc_url($conference['map_url']); ?>" loading="lazy" allowfullscreen></iframe>
+                </div>
+                <div class="route-card">
+                    <h3>Как добраться?</h3>
+                    <p>Адрес для Яндекс Карт: <?php echo esc_html($conference['route_address']); ?></p>
+                    <?php foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $conference['route_directions']))) as $paragraph) : ?>
+                    <p><?php echo esc_html($paragraph); ?></p>
+                    <?php endforeach; ?>
+                    <?php if ($conference['registration_closed']) : ?>
+                        <span class="button button-outline button-disabled" aria-disabled="true">Регистрация закрыта</span>
+                    <?php else : ?>
+                        <a class="button button-outline" href="<?php echo fyremezzonine_link('registration_url'); ?>">Зарегистрироваться</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="venue-gallery">
+                <figure class="venue-visual" aria-label="Место проведения" style="background-image: url('<?php echo esc_url($conference['venue_image_url']); ?>');"></figure>
+                <figure class="conference-collage">
+                    <img src="<?php echo esc_url($conference['collage_image_url']); ?>" alt="Дополнительное изображение конференции">
+                </figure>
+            </div>
+        </div>
+    </section>
+
+    <section class="section contact" id="contacts">
+        <div class="section-inner contact-grid">
+            <div>
+                <p class="section-eyebrow">Свяжитесь с нами</p>
+                <h2 class="section-title">Контакты</h2>
+                <p class="lead">Оренбургский филиал ФГБУ ВНИИПО МЧС России</p>
+            </div>
+
+            <dl class="contact-list">
+                <div>
+                    <dt>Официальные телефоны филиала</dt>
+                    <dd><a href="tel:+73532572295">+7 (3532) 57-22-95</a><br><a href="tel:+73532572484">+7 (3532) 57-24-84</a></dd>
+                </div>
+                <div>
+                    <dt>Адрес в Оренбурге</dt>
+                    <dd>г. Оренбург, ул. Советская, 97</dd>
+                </div>
+                <div>
+                    <dt>Дополнительный адрес института</dt>
+                    <dd>г. Оренбург, Селивановский переулок, 30/32<br><a href="tel:+73532572715">+7 (3532) 57-27-15</a></dd>
+                </div>
+                <div>
+                    <dt>Почта конференции</dt>
+                    <dd><a href="mailto:vniipo.conf@mail.ru">vniipo.conf@mail.ru</a></dd>
+                </div>
+                <div>
+                    <dt>Ответственное контактное лицо</dt>
+                    <dd>Мухамеджанов Владислав Нариманович<br><a href="mailto:muhamedganov_vn@vniipo.ru">muhamedganov_vn@vniipo.ru</a><br><a href="tel:+79011133696">+7 (901) 113-36-96</a></dd>
+                </div>
+                <div>
+                    <dt>Сайт филиала</dt>
+                    <dd><a href="<?php echo fyremezzonine_link('branch_url'); ?>">oren.vniipo.ru</a></dd>
+                </div>
+            </dl>
+        </div>
+    </section>
+</main>
+
+<?php
+get_footer();

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" role="img" aria-label="Conference testing ground">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#edf0ea"/>
+      <stop offset="1" stop-color="#bfc8b3"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="700" fill="url(#bg)"/>
+  <rect y="455" width="900" height="245" fill="#6d735f"/>
+  <path d="M0 490 C160 440 310 482 470 446 C620 413 710 444 900 398 L900 700 L0 700 Z" fill="#7d835f"/>
+  <g fill="#222">
+    <rect x="100" y="280" width="530" height="55"/>
+    <rect x="125" y="335" width="40" height="230"/>
+    <rect x="335" y="335" width="40" height="230"/>
+    <rect x="555" y="335" width="40" height="230"/>
+    <path d="M100 280 L215 180 H700 L630 280 Z"/>
+  </g>
+  <g fill="#fc5a52">
+    <rect x="690" y="380" width="102" height="126" rx="8"/>
+    <rect x="715" y="330" width="52" height="55" rx="4"/>
+  </g>
+  <g stroke="#ffffff" stroke-width="8" opacity=".75">
+    <path d="M200 620 C335 555 485 552 690 610"/>
+    <path d="M695 610 L654 582"/>
+    <path d="M695 610 L650 635"/>
+  </g>
+  <g fill="#525afc" opacity=".85">
+    <circle cx="190" cy="602" r="15"/>
+    <circle cx="310" cy="568" r="15"/>
+    <circle cx="442" cy="562" r="15"/>
+    <circle cx="590" cy="584" r="15"/>
+  </g>
+</svg>

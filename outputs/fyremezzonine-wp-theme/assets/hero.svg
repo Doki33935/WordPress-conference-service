@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="Industrial fire testing ground">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#373b40"/>
+      <stop offset="0.55" stop-color="#73736c"/>
+      <stop offset="1" stop-color="#d7c4a0"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff2a7"/>
+      <stop offset="0.42" stop-color="#fc5a52"/>
+      <stop offset="1" stop-color="#781c19"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <rect y="635" width="1600" height="365" fill="#22251f"/>
+  <path d="M0 650 C250 610 430 680 650 630 C840 585 1050 610 1600 570 L1600 1000 L0 1000 Z" fill="#35382d"/>
+  <g opacity=".42">
+    <rect x="110" y="455" width="690" height="55" fill="#141414"/>
+    <rect x="146" y="510" width="38" height="250" fill="#121212"/>
+    <rect x="388" y="510" width="38" height="250" fill="#121212"/>
+    <rect x="640" y="510" width="38" height="250" fill="#121212"/>
+    <path d="M110 455 L220 365 L870 365 L800 455 Z" fill="#222"/>
+    <rect x="220" y="395" width="610" height="18" fill="#3a3a3a"/>
+  </g>
+  <g opacity=".74">
+    <path d="M1035 812 C940 710 1014 628 983 544 C1088 624 1104 705 1064 812 Z" fill="url(#flame)"/>
+    <path d="M1138 812 C1040 690 1168 590 1112 458 C1278 600 1289 711 1214 812 Z" fill="url(#flame)"/>
+    <path d="M1265 812 C1195 716 1262 650 1257 552 C1352 660 1382 735 1335 812 Z" fill="url(#flame)"/>
+  </g>
+  <g opacity=".36" fill="#f0ede4">
+    <circle cx="1060" cy="310" r="150"/>
+    <circle cx="1188" cy="250" r="190"/>
+    <circle cx="1330" cy="315" r="140"/>
+    <circle cx="1220" cy="380" r="170"/>
+  </g>
+  <g opacity=".28" stroke="#f5f5f1" stroke-width="3">
+    <path d="M106 764 H1510"/>
+    <path d="M226 700 H1420"/>
+    <path d="M370 640 H1280"/>
+  </g>
+</svg>
