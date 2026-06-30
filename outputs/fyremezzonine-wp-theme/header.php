@@ -39,7 +39,18 @@
             }
             ?>
 
-            <a class="login-link" href="<?php echo esc_url(admin_url()); ?>">Войти</a>
+            <?php if (current_user_can('edit_posts')) : ?>
+                <details class="editor-menu">
+                    <summary>Редактор</summary>
+                    <div class="editor-menu-panel">
+                        <a href="<?php echo esc_url(home_url('/editor/new-conference/')); ?>">Создать конференцию</a>
+                        <a href="<?php echo esc_url(home_url('/editor/registrations/')); ?>">Заявки и экспорт</a>
+                        <a href="<?php echo esc_url(admin_url()); ?>">Админка</a>
+                    </div>
+                </details>
+            <?php else : ?>
+                <a class="login-link" href="<?php echo esc_url(admin_url()); ?>">Войти</a>
+            <?php endif; ?>
         </div>
     </div>
 </header>

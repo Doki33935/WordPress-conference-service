@@ -110,48 +110,7 @@ get_header();
             <p class="section-eyebrow">Организаторы и партнеры</p>
             <h2 class="section-title">Участники конференции</h2>
 
-            <div class="partner-groups">
-                <section class="partner-group partner-group-featured" aria-label="Организатор конференции">
-                    <div class="partner-group-head">
-                        <span class="partner-label">Организатор</span>
-                        <h3>Оренбургский филиал ФГБУ ВНИИПО МЧС России</h3>
-                    </div>
-                    <a class="partner-logo partner-logo-wide" href="<?php echo fyremezzonine_link('branch_url'); ?>">
-                        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-vniipo.jpg'); ?>" alt="Оренбургский филиал ФГБУ ВНИИПО МЧС России">
-                    </a>
-                </section>
-
-                <section class="partner-group" aria-label="Генеральные партнеры конференции">
-                    <div class="partner-group-head">
-                        <span class="partner-label">Генеральные партнеры</span>
-                    </div>
-                    <div class="partner-logo-grid partner-logo-grid-two">
-                        <a class="partner-logo" href="https://fireproff.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-fireproff.png'); ?>" alt="Fireproff"></a>
-                        <a class="partner-logo" href="https://anti-fire.info/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-antifire.png'); ?>" alt="Anti-fire"></a>
-                    </div>
-                </section>
-
-                <section class="partner-group" aria-label="Партнеры конференции">
-                    <div class="partner-group-head">
-                        <span class="partner-label">Партнеры</span>
-                    </div>
-                    <div class="partner-logo-grid">
-                        <a class="partner-logo" href="https://pgs56.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-pgs56.png'); ?>" alt="Партнер конференции"></a>
-                        <a class="partner-logo" href="https://kalancha.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-kalancha.png'); ?>" alt="Каланча"></a>
-                    </div>
-                </section>
-
-                <section class="partner-group" aria-label="Информационные партнеры">
-                    <div class="partner-group-head">
-                        <span class="partner-label">Информационные партнеры</span>
-                    </div>
-                    <div class="partner-logo-grid">
-                        <a class="partner-logo" href="https://ru-bezh.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-rubezh.jpg'); ?>" alt="Рубеж"></a>
-                        <a class="partner-logo" href="https://takir.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-takir.png'); ?>" alt="Такир"></a>
-                        <a class="partner-logo" href="https://propb.ru/"><img src="<?php echo esc_url(get_template_directory_uri() . '/assets/logo-propb.png'); ?>" alt="ПРО ПБ"></a>
-                    </div>
-                </section>
-            </div>
+            <?php fyremezzonine_render_partner_groups($conference['partner_groups']); ?>
         </div>
     </section>
 

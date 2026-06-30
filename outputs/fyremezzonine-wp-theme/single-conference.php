@@ -1,52 +1,155 @@
 <?php
 /**
- * Single conference template.
+ * Single conference landing template.
  *
  * @package Fyremezzonine
  */
 
 get_header();
-?>
 
-<main id="primary">
-    <?php while (have_posts()) : the_post(); ?>
-        <article class="section about-band">
+while (have_posts()) :
+    the_post();
+    $conference = fyremezzonine_next_conference_data(get_the_ID());
+    $registration_url = add_query_arg('conference_id', get_the_ID(), fyremezzonine_link('registration_url'));
+    ?>
+
+    <main id="primary">
+        <section class="hero conference-hero" id="top" style="--hero-image: url('<?php echo esc_url($conference['hero_image_url']); ?>');">
+            <div class="section-inner">
+                <div class="hero-content">
+                    <div class="hero-kicker" aria-label="Дата и место">
+                        <span><?php echo esc_html($conference['date_range']); ?></span>
+                        <span>г. <?php echo esc_html($conference['city']); ?></span>
+                    </div>
+                    <p class="hero-label">Конференция</p>
+                    <h1>«<?php echo esc_html($conference['title']); ?>»</h1>
+                    <div class="hero-actions">
+                        <?php if ($conference['registration_closed']) : ?>
+                            <span class="button button-disabled">Регистрация закрыта</span>
+                        <?php else : ?>
+                            <a class="button" href="<?php echo esc_url($registration_url); ?>">Зарегистрироваться</a>
+                        <?php endif; ?>
+                        <a class="button button-red" href="<?php echo esc_url($conference['program_url']); ?>">Программа конференции</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="participation">
+            <div class="section-inner">
+                <p class="section-eyebrow">Структура конференции</p>
+                <h2 class="section-title">Ключевые темы обсуждения</h2>
+                <p class="lead"><?php echo esc_html($conference['topic_intro']); ?></p>
+
+                <div class="topic-grid">
+                    <?php foreach ($conference['topics'] as $index => $topic) : ?>
+                        <article class="topic-card">
+                            <img class="topic-media" src="<?php echo esc_url($topic['image_url']); ?>" alt="">
+                            <span class="topic-number"><?php echo esc_html(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)); ?></span>
+                            <p><?php echo esc_html($topic['title']); ?></p>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </section>
+
+        <section class="section about-band" id="about">
             <div class="section-inner about-layout">
                 <div>
-                    <p class="section-eyebrow">Конференция</p>
-                    <h1 class="section-title"><?php the_title(); ?></h1>
-                    <div class="lead"><?php the_excerpt(); ?></div>
-                    <?php the_content(); ?>
+                    <p class="section-eyebrow">О конференции</p>
+                    <h2 class="section-title"><?php echo esc_html($conference['about_title']); ?></h2>
+                    <p class="lead"><?php echo esc_html($conference['about_lead']); ?></p>
+                    <?php if ($conference['content']) : ?>
+                        <div class="conference-copy"><?php echo wp_kses_post(wpautop($conference['content'])); ?></div>
+                    <?php endif; ?>
+
+                    <ul class="benefits">
+                        <?php foreach ($conference['benefits'] as $benefit) : ?>
+                            <li><?php echo esc_html($benefit); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
                 </div>
 
-                <aside class="meta-stack" aria-label="Данные конференции">
-                    <?php
-                    $fields = array(
-                        '_conference_start_date' => 'Дата начала',
-                        '_conference_end_date' => 'Дата окончания',
-                        '_conference_city' => 'Город',
-                        '_conference_venue' => 'Место проведения',
-                        '_conference_registration_deadline' => 'Дедлайн регистрации',
-                    );
-                    foreach ($fields as $key => $label) :
-                        $value = get_post_meta(get_the_ID(), $key, true);
-                        if (!$value) {
-                            continue;
-                        }
-                        if (in_array($key, array('_conference_start_date', '_conference_end_date', '_conference_registration_deadline'), true)) {
-                            $value = fyremezzonine_format_conference_date($value);
-                        }
-                        ?>
-                        <div class="info-card">
-                            <strong><?php echo esc_html($label); ?></strong>
-                            <p><?php echo esc_html($value); ?></p>
-                        </div>
-                    <?php endforeach; ?>
+                <aside class="meta-stack" aria-label="Информация о конференции">
+                    <div class="info-card">
+                        <strong>Дата проведения</strong>
+                        <p><?php echo esc_html($conference['date_range']); ?></p>
+                    </div>
+                    <div class="info-card">
+                        <strong>Место проведения</strong>
+                        <p><?php echo esc_html($conference['venue']); ?></p>
+                    </div>
+                    <div class="info-card">
+                        <strong>Дедлайн регистрации</strong>
+                        <p><?php echo esc_html($conference['deadline'] ?: 'Уточняется'); ?></p>
+                    </div>
                 </aside>
             </div>
-        </article>
-    <?php endwhile; ?>
-</main>
+        </section>
+
+        <section class="section materials" id="materials">
+            <div class="section-inner">
+                <p class="section-eyebrow">Информационное сообщение<?php echo $conference['deadline'] ? ' до ' . esc_html($conference['deadline']) : ''; ?></p>
+                <h2 class="section-title">Требования к оформлению материалов</h2>
+                <p class="lead"><?php echo esc_html($conference['materials_intro']); ?></p>
+
+                <div class="materials-box">
+                    <div>
+                        <h3>Конференция «<?php echo esc_html($conference['title']); ?>»</h3>
+                        <p><?php echo esc_html($conference['date_range']); ?>, <?php echo esc_html($conference['city']); ?></p>
+                    </div>
+                    <a class="button button-red" href="<?php echo esc_url($conference['materials_url']); ?>">Скачать требования к оформлению (.doc)</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="partners">
+            <div class="section-inner">
+                <p class="section-eyebrow">Организаторы и партнеры</p>
+                <h2 class="section-title">Участники конференции</h2>
+                <?php fyremezzonine_render_partner_groups($conference['partner_groups']); ?>
+            </div>
+        </section>
+
+        <section class="section venue">
+            <div class="section-inner venue-stack">
+                <div class="venue-copy">
+                    <p class="section-eyebrow">Место проведения</p>
+                    <h2 class="section-title"><?php echo esc_html($conference['venue_heading']); ?></h2>
+                    <?php foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $conference['venue_intro']))) as $paragraph) : ?>
+                        <p><?php echo esc_html($paragraph); ?></p>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="route-layout">
+                    <div class="map-card" aria-label="Карта проезда к адресу <?php echo esc_attr($conference['route_address']); ?>">
+                        <iframe src="<?php echo esc_url($conference['map_url']); ?>" loading="lazy" allowfullscreen></iframe>
+                    </div>
+                    <div class="route-card">
+                        <h3>Как добраться?</h3>
+                        <p>Адрес для Яндекс Карт: <?php echo esc_html($conference['route_address']); ?></p>
+                        <?php foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $conference['route_directions']))) as $paragraph) : ?>
+                            <p><?php echo esc_html($paragraph); ?></p>
+                        <?php endforeach; ?>
+                        <?php if ($conference['registration_closed']) : ?>
+                            <span class="button button-disabled">Регистрация закрыта</span>
+                        <?php else : ?>
+                            <a class="button button-outline" href="<?php echo esc_url($registration_url); ?>">Зарегистрироваться</a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="venue-gallery">
+                    <figure class="venue-visual" aria-label="Место проведения" style="background-image: url('<?php echo esc_url($conference['venue_image_url']); ?>');"></figure>
+                    <figure class="conference-collage">
+                        <img src="<?php echo esc_url($conference['collage_image_url']); ?>" alt="Дополнительное изображение конференции">
+                    </figure>
+                </div>
+            </div>
+        </section>
+    </main>
 
 <?php
+endwhile;
+
 get_footer();

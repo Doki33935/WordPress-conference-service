@@ -206,8 +206,113 @@ function fyremezzonine_conference_date_range($conference_id) {
     return fyremezzonine_format_conference_date($start);
 }
 
-function fyremezzonine_next_conference_data() {
-    $conference_id = fyremezzonine_next_conference_id();
+function fyremezzonine_default_partner_groups() {
+    return array(
+        'organizers' => array(
+            'label' => 'Организатор',
+            'featured' => true,
+            'items' => array(
+                array('name' => 'Оренбургский филиал ФГБУ ВНИИПО МЧС России', 'url' => fyremezzonine_link('branch_url'), 'logo_url' => fyremezzonine_asset('logo-vniipo.jpg')),
+            ),
+        ),
+        'general_partners' => array(
+            'label' => 'Генеральные партнеры',
+            'wide' => true,
+            'items' => array(
+                array('name' => 'Fireproff', 'url' => 'https://fireproff.ru/', 'logo_url' => fyremezzonine_asset('logo-fireproff.png')),
+                array('name' => 'Anti-fire', 'url' => 'https://anti-fire.info/', 'logo_url' => fyremezzonine_asset('logo-antifire.png')),
+            ),
+        ),
+        'partners' => array(
+            'label' => 'Партнеры',
+            'items' => array(
+                array('name' => 'Партнер конференции', 'url' => 'https://pgs56.ru/', 'logo_url' => fyremezzonine_asset('logo-pgs56.png')),
+                array('name' => 'Каланча', 'url' => 'https://kalancha.ru/', 'logo_url' => fyremezzonine_asset('logo-kalancha.png')),
+            ),
+        ),
+        'media_partners' => array(
+            'label' => 'Информационные партнеры',
+            'items' => array(
+                array('name' => 'Рубеж', 'url' => 'https://ru-bezh.ru/', 'logo_url' => fyremezzonine_asset('logo-rubezh.jpg')),
+                array('name' => 'Такир', 'url' => 'https://takir.ru/', 'logo_url' => fyremezzonine_asset('logo-takir.png')),
+                array('name' => 'ПРО ПБ', 'url' => 'https://propb.ru/', 'logo_url' => fyremezzonine_asset('logo-propb.png')),
+            ),
+        ),
+    );
+}
+
+function fyremezzonine_parse_partner_list($raw) {
+    $items = array();
+    foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $raw))) as $line) {
+        $parts = array_map('trim', explode('|', $line));
+        if (empty($parts[0])) {
+            continue;
+        }
+        $items[] = array(
+            'name' => $parts[0],
+            'url' => $parts[1] ?? '',
+            'logo_url' => $parts[2] ?? '',
+        );
+    }
+
+    return $items;
+}
+
+function fyremezzonine_conference_partner_groups($conference_id) {
+    $groups = fyremezzonine_default_partner_groups();
+    $meta_map = array(
+        'organizers' => '_conference_organizers',
+        'general_partners' => '_conference_general_partners',
+        'partners' => '_conference_partners',
+        'media_partners' => '_conference_media_partners',
+    );
+
+    foreach ($meta_map as $group_key => $meta_key) {
+        $items = fyremezzonine_parse_partner_list(fyremezzonine_conference_meta($conference_id, $meta_key));
+        if ($items) {
+            $groups[$group_key]['items'] = $items;
+        }
+    }
+
+    return $groups;
+}
+
+function fyremezzonine_render_partner_groups($partner_groups) {
+    ?>
+    <div class="partner-groups">
+        <?php foreach ($partner_groups as $group) : ?>
+            <?php if (empty($group['items'])) : ?>
+                <?php continue; ?>
+            <?php endif; ?>
+            <section class="partner-group<?php echo !empty($group['featured']) ? ' partner-group-featured' : ''; ?>" aria-label="<?php echo esc_attr($group['label']); ?>">
+                <div class="partner-group-head">
+                    <span class="partner-label"><?php echo esc_html($group['label']); ?></span>
+                    <?php if (!empty($group['featured']) && !empty($group['items'][0]['name'])) : ?>
+                        <h3><?php echo esc_html($group['items'][0]['name']); ?></h3>
+                    <?php endif; ?>
+                </div>
+                <div class="partner-logo-grid<?php echo !empty($group['wide']) ? ' partner-logo-grid-two' : ''; ?>">
+                    <?php foreach ($group['items'] as $item) : ?>
+                        <?php
+                        $logo_url = $item['logo_url'] ?: fyremezzonine_asset('logo-vniipo.jpg');
+                        $name = $item['name'] ?: 'Партнер конференции';
+                        $url = $item['url'] ?: '#';
+                        ?>
+                        <a class="partner-logo<?php echo !empty($group['featured']) ? ' partner-logo-wide' : ''; ?>" href="<?php echo esc_url($url); ?>">
+                            <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr($name); ?>">
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endforeach; ?>
+    </div>
+    <?php
+}
+
+function fyremezzonine_next_conference_data($conference_id = 0) {
+    if (!$conference_id) {
+        $conference_id = fyremezzonine_next_conference_id();
+    }
 
     if (!$conference_id) {
         return array(
@@ -244,6 +349,7 @@ function fyremezzonine_next_conference_data() {
             'map_url' => fyremezzonine_yandex_map_url('', '', '', 'Нижняя Павловка, улица Полигонная, д. 1'),
             'venue_image_url' => fyremezzonine_asset('venue-original.jpg'),
             'collage_image_url' => fyremezzonine_asset('collage.jpg'),
+            'partner_groups' => fyremezzonine_default_partner_groups(),
         );
     }
 
@@ -289,14 +395,14 @@ function fyremezzonine_next_conference_data() {
         'deadline' => fyremezzonine_format_conference_date(fyremezzonine_conference_meta($conference_id, '_conference_registration_deadline')),
         'registration_closed' => fyremezzonine_registration_closed($conference_id),
         'program_url' => fyremezzonine_conference_meta($conference_id, '_conference_program_url', fyremezzonine_link('program_url')),
-        'materials_url' => fyremezzonine_conference_meta($conference_id, '_conference_materials_url', fyremezzonine_link('materials_url')),
+        'materials_url' => fyremezzonine_link('materials_url'),
         'hero_image_url' => fyremezzonine_conference_meta($conference_id, '_conference_hero_image_url', fyremezzonine_asset('hero-original.png')),
         'topic_intro' => fyremezzonine_conference_meta($conference_id, '_conference_topic_intro', 'На конференции «' . get_the_title($conference_id) . '» обсудят практические вопросы профилактики, оценки рисков и взаимодействия специалистов отрасли.'),
         'topics' => $topics,
         'about_title' => fyremezzonine_conference_meta($conference_id, '_conference_about_title', get_the_title($conference_id)),
         'about_lead' => fyremezzonine_conference_meta($conference_id, '_conference_about_lead', has_excerpt($conference_id) ? get_the_excerpt($conference_id) : wp_trim_words(wp_strip_all_tags($post->post_content), 34)),
         'benefits' => $benefits,
-        'materials_intro' => fyremezzonine_conference_meta($conference_id, '_conference_materials_intro', 'Материалы конференции будут публиковаться в сборнике с индексацией в РИНЦ (Elibrary). Выпуск запланирован на август-сентябрь 2026 года.'),
+        'materials_intro' => 'Материалы конференции будут публиковаться в сборнике с индексацией в РИНЦ (Elibrary). Выпуск запланирован на август-сентябрь 2026 года.',
         'venue_heading' => fyremezzonine_conference_meta($conference_id, '_conference_venue_heading', 'Испытательный учебно-тренировочный полигон'),
         'venue_intro' => fyremezzonine_conference_meta($conference_id, '_conference_venue_intro', 'На два дня площадка превратится в единую динамичную площадку научно-практической выставки технологий пожарно-спасательной отрасли.'),
         'route_address' => $route_address,
@@ -304,6 +410,7 @@ function fyremezzonine_next_conference_data() {
         'map_url' => fyremezzonine_yandex_map_url($map_embed_url, $map_lat, $map_lon, $route_address),
         'venue_image_url' => fyremezzonine_conference_meta($conference_id, '_conference_venue_image_url', fyremezzonine_asset('venue-original.jpg')),
         'collage_image_url' => fyremezzonine_conference_meta($conference_id, '_conference_collage_image_url', fyremezzonine_asset('collage.jpg')),
+        'partner_groups' => fyremezzonine_conference_partner_groups($conference_id),
     );
 }
 

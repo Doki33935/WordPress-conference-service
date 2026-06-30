@@ -99,6 +99,7 @@ img {
   display: flex;
   align-items: center;
   gap: 14px;
+  min-width: 0;
 }
 
 .brand {
@@ -145,6 +146,7 @@ img {
 .primary-nav {
   font-size: 15px;
   font-weight: 700;
+  min-width: 0;
 }
 
 .primary-nav ul {
@@ -186,6 +188,63 @@ img {
 
 .login-link:hover {
   background: var(--fm-blue);
+}
+
+.editor-menu {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.editor-menu summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--fm-red);
+  color: var(--fm-white);
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: var(--fm-soft-shadow);
+  cursor: pointer;
+  list-style: none;
+}
+
+.editor-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.editor-menu summary:hover {
+  background: #d71f17;
+  color: var(--fm-white);
+}
+
+.editor-menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 60;
+  display: grid;
+  min-width: 230px;
+  padding: 8px;
+  border: 1px solid var(--fm-line);
+  border-radius: var(--fm-radius);
+  background: var(--fm-white);
+  box-shadow: var(--fm-soft-shadow);
+}
+
+.editor-menu-panel a {
+  padding: 11px 12px;
+  border-radius: 8px;
+  color: var(--fm-ink);
+  font-weight: 800;
+}
+
+.editor-menu-panel a:hover {
+  background: rgba(252, 90, 82, 0.1);
+  color: var(--fm-red);
 }
 
 .section {
@@ -302,6 +361,13 @@ img {
 
 .button-pill {
   border-radius: 30px;
+}
+
+.single-conference-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
 }
 
 .section-eyebrow {
@@ -506,6 +572,10 @@ img {
 
 .partner-logo-grid-two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.partner-group-featured .partner-logo-grid {
+  grid-template-columns: 1fr;
 }
 
 .partner-logo {
@@ -744,6 +814,127 @@ img {
   font: inherit;
 }
 
+.conference-submission-form {
+  display: grid;
+  gap: 26px;
+  max-width: 860px;
+  margin-top: 36px;
+  padding: 28px;
+  border: 1px solid var(--fm-line);
+  border-radius: var(--fm-radius);
+  background: var(--fm-white);
+}
+
+.conference-submission-form fieldset {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0 0 24px;
+  border: 0;
+  border-bottom: 1px solid var(--fm-line);
+}
+
+.conference-submission-form legend {
+  margin-bottom: 6px;
+  color: var(--fm-ink);
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.conference-submission-help {
+  margin: 0;
+  color: var(--fm-muted);
+  line-height: 1.55;
+}
+
+.conference-submission-field {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.conference-submission-field label {
+  color: var(--fm-ink);
+  font-weight: 800;
+}
+
+.conference-submission-field input,
+.conference-submission-field textarea,
+.conference-submission-field select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--fm-line);
+  border-radius: 8px;
+  color: var(--fm-ink);
+  background: var(--fm-white);
+  font: inherit;
+}
+
+.conference-submission-actions {
+  margin: 0;
+}
+
+.editor-page .conference-submission-form,
+.editor-page .registration-message {
+  max-width: none;
+}
+
+.conference-editor-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 14px;
+  margin: 24px 0;
+}
+
+.conference-editor-filter p {
+  display: grid;
+  gap: 8px;
+  min-width: min(100%, 340px);
+  margin: 0;
+}
+
+.conference-editor-filter select {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid var(--fm-line);
+  border-radius: 8px;
+  color: var(--fm-ink);
+  background: var(--fm-white);
+  font: inherit;
+}
+
+.conference-registrations-scroll {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 18px;
+}
+
+.conference-registrations-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  background: var(--fm-white);
+  box-shadow: var(--fm-soft-shadow);
+}
+
+.conference-registrations-table th,
+.conference-registrations-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--fm-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.conference-registrations-table th {
+  color: var(--fm-muted);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .registration-message {
   max-width: 720px;
   margin: 24px 0;
@@ -801,8 +992,14 @@ img {
     white-space: nowrap;
   }
 
-  .login-link {
+  .login-link,
+  .editor-menu {
     align-self: flex-start;
+  }
+
+  .editor-menu-panel {
+    right: auto;
+    left: 0;
   }
 
   .hero,
