@@ -12,6 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('FYREMEZZONINE_MANAGER_VERSION', '1.0.0');
+define('FYREMEZZONINE_MANAGER_SCHEMA_VERSION', '1.1.0');
 
 function fyremezzonine_manager_table_name() {
     global $wpdb;
@@ -31,10 +32,12 @@ function fyremezzonine_manager_activate() {
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         conference_id bigint(20) unsigned NOT NULL,
         full_name varchar(190) NOT NULL,
+        job_position varchar(190) NOT NULL DEFAULT '',
         email varchar(190) NOT NULL,
         phone varchar(60) NOT NULL DEFAULT '',
         organization varchar(190) NOT NULL DEFAULT '',
         comment text NULL,
+        privacy_consent tinyint(1) NOT NULL DEFAULT 0,
         status varchar(40) NOT NULL DEFAULT 'new',
         ip_address varchar(80) NOT NULL DEFAULT '',
         created_at datetime NOT NULL,
@@ -46,8 +49,16 @@ function fyremezzonine_manager_activate() {
     ) {$charset_collate};";
 
     dbDelta($sql);
+    update_option('fyremezzonine_manager_schema_version', FYREMEZZONINE_MANAGER_SCHEMA_VERSION);
 }
 register_activation_hook(__FILE__, 'fyremezzonine_manager_activate');
+
+function fyremezzonine_manager_maybe_upgrade_schema() {
+    if (get_option('fyremezzonine_manager_schema_version') !== FYREMEZZONINE_MANAGER_SCHEMA_VERSION) {
+        fyremezzonine_manager_activate();
+    }
+}
+add_action('plugins_loaded', 'fyremezzonine_manager_maybe_upgrade_schema');
 
 function fyremezzonine_manager_register_post_type() {
     register_post_type(
@@ -82,6 +93,8 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_venue' => array('label' => 'Место проведения', 'type' => 'text'),
         '_conference_registration_deadline' => array('label' => 'Дедлайн регистрации', 'type' => 'date'),
         '_conference_program_url' => array('label' => 'Ссылка на программу', 'type' => 'url'),
+        '_conference_chat_1_url' => array('label' => 'Ссылка на чат участников', 'type' => 'url'),
+        '_conference_chat_2_url' => array('label' => 'Ссылка на чат оргкомитета', 'type' => 'url'),
         '_conference_hero_image_url' => array('label' => 'Фон первого экрана: URL изображения', 'type' => 'url'),
         '_conference_topic_intro' => array('label' => 'Описание блока тем', 'type' => 'textarea'),
         '_conference_topic_1_title' => array('label' => 'Тема 1: текст', 'type' => 'text'),
@@ -109,6 +122,41 @@ function fyremezzonine_manager_meta_keys() {
     );
 }
 
+function fyremezzonine_manager_image_meta_keys() {
+    return array(
+        '_conference_hero_image_url',
+        '_conference_topic_1_image_url',
+        '_conference_topic_2_image_url',
+        '_conference_topic_3_image_url',
+        '_conference_venue_image_url',
+        '_conference_collage_image_url',
+    );
+}
+
+function fyremezzonine_manager_upload_image_for_field($field_name, $post_id = 0) {
+    $file_key = $field_name . '_file';
+
+    if (empty($_FILES[$file_key]) || !isset($_FILES[$file_key]['error']) || (int) $_FILES[$file_key]['error'] === UPLOAD_ERR_NO_FILE) {
+        return '';
+    }
+
+    if ((int) $_FILES[$file_key]['error'] !== UPLOAD_ERR_OK) {
+        return '';
+    }
+
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    require_once ABSPATH . 'wp-admin/includes/media.php';
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+
+    $attachment_id = media_handle_upload($file_key, $post_id);
+
+    if (is_wp_error($attachment_id)) {
+        return '';
+    }
+
+    return wp_get_attachment_url($attachment_id) ?: '';
+}
+
 function fyremezzonine_manager_add_meta_boxes() {
     add_meta_box(
         'fyremezzonine_conference_details',
@@ -125,6 +173,8 @@ function fyremezzonine_manager_render_meta_box($post) {
     wp_nonce_field('fyremezzonine_manager_save_meta', 'fyremezzonine_manager_meta_nonce');
 
     echo '<p><em>Эти поля управляют главной страницей, страницей конференции, формой регистрации и атмосферой события. Изображения можно загрузить в "Медиафайлы" и вставить сюда URL.</em></p>';
+
+    $image_fields = fyremezzonine_manager_image_meta_keys();
 
     foreach (fyremezzonine_manager_meta_keys() as $key => $field) {
         $value = get_post_meta($post->ID, $key, true);
@@ -143,6 +193,13 @@ function fyremezzonine_manager_render_meta_box($post) {
                 esc_attr($field['type']),
                 esc_attr($key),
                 esc_attr($value)
+            );
+        }
+
+        if (in_array($key, $image_fields, true)) {
+            printf(
+                '<br><label for="%1$s_file">Загрузить новое изображение</label><br><input type="file" id="%1$s_file" name="%1$s_file" accept="image/*" class="widefat">',
+                esc_attr($key)
             );
         }
 
@@ -166,6 +223,12 @@ function fyremezzonine_manager_save_meta($post_id) {
     foreach (fyremezzonine_manager_meta_keys() as $key => $field) {
         if (!isset($_POST[$key])) {
             update_post_meta($post_id, $key, '');
+            continue;
+        }
+
+        $uploaded_url = in_array($key, fyremezzonine_manager_image_meta_keys(), true) ? fyremezzonine_manager_upload_image_for_field($key, $post_id) : '';
+        if ($uploaded_url) {
+            update_post_meta($post_id, $key, esc_url_raw($uploaded_url));
             continue;
         }
 
@@ -225,6 +288,8 @@ function fyremezzonine_manager_submission_field_groups() {
             'description' => 'Файлы можно загрузить в "Медиафайлы", затем вставить сюда URL файла.',
             'fields' => array(
                 '_conference_program_url',
+                '_conference_chat_1_url',
+                '_conference_chat_2_url',
                 '_conference_hero_image_url',
                 '_conference_topic_1_image_url',
                 '_conference_topic_2_image_url',
@@ -269,6 +334,7 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
     $required = !empty($field['required']) ? ' required' : '';
     $label = isset($field['label']) ? $field['label'] : $name;
     $type = isset($field['type']) ? $field['type'] : 'text';
+    $is_image_field = in_array($name, fyremezzonine_manager_image_meta_keys(), true);
 
     echo '<p class="conference-submission-field">';
     printf('<label for="%1$s">%2$s</label>', esc_attr($name), esc_html($label));
@@ -287,6 +353,13 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
             esc_attr($type),
             esc_attr($value),
             $required
+        );
+    }
+
+    if ($is_image_field) {
+        printf(
+            '<span class="conference-submission-note">Можно вставить готовый URL или загрузить новый файл ниже.</span><input id="%1$s_file" type="file" name="%1$s_file" accept="image/*">',
+            esc_attr($name)
         );
     }
 
@@ -311,34 +384,44 @@ function fyremezzonine_manager_handle_conference_submission() {
         return '<div class="registration-message registration-error">Заполните название конференции.</div>';
     }
 
-    $status = 'draft';
+    $editing_post_id = isset($_POST['conference_id']) ? absint($_POST['conference_id']) : 0;
+    if ($editing_post_id && (!get_post($editing_post_id) || !current_user_can('edit_post', $editing_post_id))) {
+        return '<div class="registration-message registration-error">У вас нет прав для редактирования этой конференции.</div>';
+    }
+
+    $status = $editing_post_id ? get_post_status($editing_post_id) : 'draft';
     if (isset($_POST['conference_status']) && $_POST['conference_status'] === 'publish' && current_user_can('publish_posts')) {
         $status = 'publish';
     }
 
-    $post_id = wp_insert_post(
-        array(
-            'post_type' => 'conference',
-            'post_status' => $status,
-            'post_title' => $title,
-            'post_excerpt' => isset($_POST['conference_excerpt']) ? sanitize_textarea_field(wp_unslash($_POST['conference_excerpt'])) : '',
-            'post_content' => isset($_POST['conference_content']) ? wp_kses_post(wp_unslash($_POST['conference_content'])) : '',
-        ),
-        true
+    $post_data = array(
+        'post_type' => 'conference',
+        'post_status' => $status,
+        'post_title' => $title,
+        'post_excerpt' => isset($_POST['conference_excerpt']) ? sanitize_textarea_field(wp_unslash($_POST['conference_excerpt'])) : '',
+        'post_content' => isset($_POST['conference_content']) ? wp_kses_post(wp_unslash($_POST['conference_content'])) : '',
     );
+
+    if ($editing_post_id) {
+        $post_data['ID'] = $editing_post_id;
+        $post_id = wp_update_post($post_data, true);
+    } else {
+        $post_id = wp_insert_post($post_data, true);
+    }
 
     if (is_wp_error($post_id)) {
         return '<div class="registration-message registration-error">Конференцию не удалось сохранить. Попробуйте еще раз.</div>';
     }
 
     foreach (fyremezzonine_manager_meta_keys() as $key => $field) {
-        $value = isset($_POST[$key]) ? fyremezzonine_manager_sanitize_submission_value($_POST[$key], $field['type']) : '';
+        $uploaded_url = in_array($key, fyremezzonine_manager_image_meta_keys(), true) ? fyremezzonine_manager_upload_image_for_field($key, $post_id) : '';
+        $value = $uploaded_url ?: (isset($_POST[$key]) ? fyremezzonine_manager_sanitize_submission_value($_POST[$key], $field['type']) : '');
         update_post_meta($post_id, $key, $value);
     }
 
     $edit_link = get_edit_post_link($post_id, '');
     $view_link = get_permalink($post_id);
-    $message = $status === 'publish' ? 'Конференция опубликована.' : 'Конференция сохранена как черновик.';
+    $message = $editing_post_id ? 'Конференция обновлена.' : ($status === 'publish' ? 'Конференция опубликована.' : 'Конференция сохранена как черновик.');
 
     $links = array();
     if ($edit_link) {
@@ -365,17 +448,33 @@ function fyremezzonine_manager_conference_submission_shortcode() {
     }
 
     $message = fyremezzonine_manager_handle_conference_submission();
+    $editing_conference_id = isset($_GET['conference_id']) ? absint($_GET['conference_id']) : 0;
+    if (isset($_POST['conference_id'])) {
+        $editing_conference_id = absint($_POST['conference_id']);
+    }
+
+    if ($editing_conference_id && (!get_post($editing_conference_id) || !current_user_can('edit_post', $editing_conference_id))) {
+        return '<div class="registration-message registration-error">У вас нет прав для редактирования этой конференции.</div>';
+    }
+
+    if (!$editing_conference_id && trim((string) wp_parse_url(wp_unslash($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH), '/') === 'editor/edit-conference') {
+        return fyremezzonine_manager_render_edit_picker();
+    }
+
     $meta_fields = fyremezzonine_manager_meta_keys();
     $groups = fyremezzonine_manager_submission_field_groups();
 
     ob_start();
     echo wp_kses_post($message);
     ?>
-    <form class="conference-submission-form" method="post">
+    <form class="conference-submission-form" method="post" enctype="multipart/form-data">
         <?php wp_nonce_field('fyremezzonine_create_conference', 'fyremezzonine_conference_submission_nonce'); ?>
+        <?php if ($editing_conference_id) : ?>
+            <input type="hidden" name="conference_id" value="<?php echo esc_attr($editing_conference_id); ?>">
+        <?php endif; ?>
         <div class="registration-conference-title">
-            <span>Новая конференция</span>
-            <strong>Заполните форму, как анкету</strong>
+            <span><?php echo $editing_conference_id ? 'Редактирование конференции' : 'Новая конференция'; ?></span>
+            <strong><?php echo $editing_conference_id ? esc_html(get_the_title($editing_conference_id)) : 'Заполните форму, как анкету'; ?></strong>
         </div>
 
         <?php foreach ($groups as $group) : ?>
@@ -393,7 +492,7 @@ function fyremezzonine_manager_conference_submission_shortcode() {
                         continue;
                     }
 
-                    $value = isset($_POST[$field_name]) ? wp_unslash($_POST[$field_name]) : '';
+                    $value = fyremezzonine_manager_submission_value($field_name, $editing_conference_id);
                     fyremezzonine_manager_render_submission_field($field_name, $field, $value);
                     ?>
                 <?php endforeach; ?>
@@ -405,9 +504,10 @@ function fyremezzonine_manager_conference_submission_shortcode() {
             <p class="conference-submission-field">
                 <label for="conference_status">Как сохранить</label>
                 <select id="conference_status" name="conference_status">
-                    <option value="draft">Черновик для проверки</option>
+                    <?php $current_status = $editing_conference_id ? get_post_status($editing_conference_id) : 'draft'; ?>
+                    <option value="draft" <?php selected($current_status, 'draft'); ?>>Черновик для проверки</option>
                     <?php if (current_user_can('publish_posts')) : ?>
-                        <option value="publish">Опубликовать сразу</option>
+                        <option value="publish" <?php selected($current_status, 'publish'); ?>>Опубликовать сразу</option>
                     <?php endif; ?>
                 </select>
             </p>
@@ -424,6 +524,63 @@ add_shortcode('conference_submission_form', 'fyremezzonine_manager_conference_su
 
 function fyremezzonine_manager_editor_page_url($page = 'new-conference') {
     return home_url('/editor/' . trim($page, '/') . '/');
+}
+
+function fyremezzonine_manager_submission_value($field_name, $conference_id = 0) {
+    if (isset($_POST[$field_name])) {
+        return wp_unslash($_POST[$field_name]);
+    }
+
+    if (!$conference_id) {
+        return '';
+    }
+
+    $post = get_post($conference_id);
+    if (!$post) {
+        return '';
+    }
+
+    if ($field_name === 'conference_title') {
+        return $post->post_title;
+    }
+
+    if ($field_name === 'conference_excerpt') {
+        return $post->post_excerpt;
+    }
+
+    if ($field_name === 'conference_content') {
+        return $post->post_content;
+    }
+
+    return get_post_meta($conference_id, $field_name, true);
+}
+
+function fyremezzonine_manager_render_edit_picker() {
+    $conferences = fyremezzonine_manager_get_conference_options();
+
+    ob_start();
+    ?>
+    <div class="conference-editor-picker">
+        <p>Выберите конференцию, которую нужно изменить. После выбора откроется такая же анкета, но уже с заполненными данными.</p>
+        <?php if ($conferences) : ?>
+            <div class="conference-editor-picker-list">
+                <?php foreach ($conferences as $conference) : ?>
+                    <?php
+                    $status_object = get_post_status_object(get_post_status($conference));
+                    $status_label = $status_object ? $status_object->label : get_post_status($conference);
+                    ?>
+                    <a class="conference-editor-picker-item" href="<?php echo esc_url(add_query_arg('conference_id', $conference->ID, fyremezzonine_manager_editor_page_url('edit-conference'))); ?>">
+                        <strong><?php echo esc_html(get_the_title($conference)); ?></strong>
+                        <span><?php echo esc_html($status_label); ?></span>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php else : ?>
+            <div class="registration-message registration-error">Пока нет конференций для редактирования.</div>
+        <?php endif; ?>
+    </div>
+    <?php
+    return ob_get_clean();
 }
 
 function fyremezzonine_manager_format_date($date) {
@@ -447,6 +604,12 @@ function fyremezzonine_manager_closed_registration_message($conference_id) {
     $text = $deadline_text ? 'Дедлайн регистрации: ' . $deadline_text . '.' : 'Прием заявок на эту конференцию завершен.';
 
     return '<div class="registration-message registration-closed"><strong>Регистрация закрыта</strong><br>' . esc_html($text) . '</div>';
+}
+
+function fyremezzonine_manager_privacy_policy_url() {
+    $policy_url = function_exists('get_privacy_policy_url') ? get_privacy_policy_url() : '';
+
+    return $policy_url ?: home_url('/privacy-policy/');
 }
 
 function fyremezzonine_manager_registration_shortcode($atts) {
@@ -506,6 +669,11 @@ function fyremezzonine_manager_registration_shortcode($atts) {
             </label>
         </p>
         <p>
+            <label>Должность<br>
+                <input type="text" name="job_position" placeholder="Например: генеральный директор">
+            </label>
+        </p>
+        <p>
             <label>Телефон<br>
                 <input type="tel" name="phone">
             </label>
@@ -518,6 +686,12 @@ function fyremezzonine_manager_registration_shortcode($atts) {
         <p>
             <label>Комментарий<br>
                 <textarea name="comment" rows="4"></textarea>
+            </label>
+        </p>
+        <p class="registration-consent">
+            <label>
+                <input type="checkbox" name="privacy_consent" value="1" required>
+                <span>Я согласен(а) с <a href="<?php echo esc_url(fyremezzonine_manager_privacy_policy_url()); ?>" target="_blank" rel="noopener">политикой обработки персональных данных</a>.</span>
             </label>
         </p>
         <p><button class="button button-red" type="submit">Отправить заявку</button></p>
@@ -583,12 +757,18 @@ function fyremezzonine_manager_handle_registration($fallback_conference_id) {
 
     $full_name = isset($_POST['full_name']) ? sanitize_text_field(wp_unslash($_POST['full_name'])) : '';
     $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
+    $job_position = isset($_POST['job_position']) ? sanitize_text_field(wp_unslash($_POST['job_position'])) : '';
     $phone = isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '';
     $organization = isset($_POST['organization']) ? sanitize_text_field(wp_unslash($_POST['organization'])) : '';
     $comment = isset($_POST['comment']) ? sanitize_textarea_field(wp_unslash($_POST['comment'])) : '';
+    $privacy_consent = isset($_POST['privacy_consent']) && $_POST['privacy_consent'] === '1';
 
     if (!$full_name || !$email || !is_email($email)) {
         return '<div class="registration-message registration-error">Заполните ФИО и корректный email.</div>';
+    }
+
+    if (!$privacy_consent) {
+        return '<div class="registration-message registration-error">Подтвердите согласие с политикой обработки персональных данных.</div>';
     }
 
     $ip_address = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
@@ -598,15 +778,17 @@ function fyremezzonine_manager_handle_registration($fallback_conference_id) {
         array(
             'conference_id' => $conference_id,
             'full_name' => $full_name,
+            'job_position' => $job_position,
             'email' => $email,
             'phone' => $phone,
             'organization' => $organization,
             'comment' => $comment,
+            'privacy_consent' => 1,
             'status' => 'new',
             'ip_address' => $ip_address,
             'created_at' => current_time('mysql'),
         ),
-        array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
+        array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s')
     );
 
     return '<div class="registration-message registration-success">Спасибо! Заявка отправлена.</div>';
@@ -768,7 +950,7 @@ function fyremezzonine_manager_export_registrations() {
     fwrite($output, "\xEF\xBB\xBF");
     fputcsv(
         $output,
-        array('ID', 'Дата', 'Конференция', 'ФИО', 'Email', 'Телефон', 'Организация', 'Комментарий', 'Статус', 'IP'),
+        array('ID', 'Дата', 'Конференция', 'ФИО', 'Должность', 'Email', 'Телефон', 'Организация', 'Комментарий', 'Согласие', 'Статус', 'IP'),
         ';'
     );
 
@@ -780,10 +962,12 @@ function fyremezzonine_manager_export_registrations() {
                 $item->created_at,
                 $item->conference_title,
                 $item->full_name,
+                $item->job_position,
                 $item->email,
                 $item->phone,
                 $item->organization,
                 $item->comment,
+                $item->privacy_consent ? 'Да' : 'Нет',
                 $item->status,
                 $item->ip_address,
             ),
@@ -843,10 +1027,12 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
                     <th>Дата</th>
                     <th>Конференция</th>
                     <th>ФИО</th>
+                    <th>Должность</th>
                     <th>Email</th>
                     <th>Телефон</th>
                     <th>Организация</th>
                     <th>Комментарий</th>
+                    <th>Согласие</th>
                     <th>Статус</th>
                 </tr>
             </thead>
@@ -857,15 +1043,17 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
                             <td><?php echo esc_html($item->created_at); ?></td>
                             <td><?php echo esc_html($item->conference_title); ?></td>
                             <td><?php echo esc_html($item->full_name); ?></td>
+                            <td><?php echo esc_html($item->job_position); ?></td>
                             <td><a href="mailto:<?php echo esc_attr($item->email); ?>"><?php echo esc_html($item->email); ?></a></td>
                             <td><?php echo esc_html($item->phone); ?></td>
                             <td><?php echo esc_html($item->organization); ?></td>
                             <td><?php echo esc_html($item->comment); ?></td>
+                            <td><?php echo $item->privacy_consent ? 'Да' : 'Нет'; ?></td>
                             <td><?php echo esc_html($item->status); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
-                    <tr><td colspan="8">Пока заявок нет.</td></tr>
+                    <tr><td colspan="10">Пока заявок нет.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -916,6 +1104,10 @@ function fyremezzonine_manager_frontend_editor_routes() {
 
     if ($path === 'editor/new-conference') {
         fyremezzonine_manager_render_frontend_editor_page('Создать конференцию', '[conference_submission_form]');
+    }
+
+    if ($path === 'editor/edit-conference') {
+        fyremezzonine_manager_render_frontend_editor_page('Изменить конференцию', '[conference_submission_form]');
     }
 
     if ($path === 'editor/registrations') {

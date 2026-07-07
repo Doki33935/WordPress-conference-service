@@ -359,6 +359,11 @@ img {
   background: transparent;
 }
 
+.button-light {
+  border-color: rgba(255, 255, 255, 0.72);
+  color: var(--fm-white);
+}
+
 .button-pill {
   border-radius: 30px;
 }
@@ -804,6 +809,29 @@ img {
   font-weight: 800;
 }
 
+.registration-consent label {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  color: var(--fm-muted);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.registration-consent input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}
+
+.registration-consent a {
+  color: var(--fm-blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .conference-registration-form input,
 .conference-registration-form textarea {
   width: 100%;
@@ -817,25 +845,28 @@ img {
 .conference-submission-form {
   display: grid;
   gap: 26px;
-  max-width: 860px;
+  max-width: 1040px;
   margin-top: 36px;
   padding: 28px;
   border: 1px solid var(--fm-line);
   border-radius: var(--fm-radius);
   background: var(--fm-white);
+  box-shadow: var(--fm-soft-shadow);
 }
 
 .conference-submission-form fieldset {
   display: grid;
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 18px;
   margin: 0;
-  padding: 0 0 24px;
-  border: 0;
-  border-bottom: 1px solid var(--fm-line);
+  padding: 22px;
+  border: 1px solid var(--fm-line);
+  border-radius: var(--fm-radius);
+  background: #fbfcfa;
 }
 
 .conference-submission-form legend {
-  margin-bottom: 6px;
+  padding: 0 10px;
   color: var(--fm-ink);
   font-size: 24px;
   font-weight: 900;
@@ -843,7 +874,8 @@ img {
 }
 
 .conference-submission-help {
-  margin: 0;
+  grid-column: 1 / -1;
+  margin: 0 0 4px;
   color: var(--fm-muted);
   line-height: 1.55;
 }
@@ -871,8 +903,87 @@ img {
   font: inherit;
 }
 
+.conference-registration-form .registration-consent input {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+}
+
+.conference-registration-form .registration-consent label {
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  color: var(--fm-muted);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.conference-submission-field textarea,
+.conference-submission-field:has(textarea),
+.conference-submission-field:has(input[type="file"]) {
+  grid-column: 1 / -1;
+}
+
+.conference-submission-field input[type="file"] {
+  padding: 12px;
+  border-style: dashed;
+  background: #f7fafc;
+}
+
+.conference-submission-note {
+  color: var(--fm-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .conference-submission-actions {
   margin: 0;
+}
+
+.conference-editor-picker {
+  display: grid;
+  gap: 22px;
+  margin-top: 30px;
+}
+
+.conference-editor-picker > p {
+  margin: 0;
+  color: var(--fm-muted);
+  font-size: 22px;
+}
+
+.conference-editor-picker-list {
+  display: grid;
+  gap: 14px;
+}
+
+.conference-editor-picker-item {
+  display: grid;
+  gap: 6px;
+  padding: 20px 22px;
+  border: 1px solid var(--fm-line);
+  border-radius: var(--fm-radius);
+  background: var(--fm-white);
+  box-shadow: var(--fm-soft-shadow);
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.conference-editor-picker-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(82, 90, 252, 0.32);
+}
+
+.conference-editor-picker-item strong {
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.conference-editor-picker-item span {
+  color: var(--fm-muted);
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .editor-page .conference-submission-form,
@@ -914,7 +1025,7 @@ img {
 
 .conference-registrations-table {
   width: 100%;
-  min-width: 980px;
+  min-width: 1180px;
   border-collapse: collapse;
   background: var(--fm-white);
   box-shadow: var(--fm-soft-shadow);
@@ -1016,7 +1127,8 @@ img {
   .about-layout,
   .contact-grid,
   .cta-layout,
-  .materials-box {
+  .materials-box,
+  .conference-submission-form fieldset {
     grid-template-columns: 1fr;
   }
 
