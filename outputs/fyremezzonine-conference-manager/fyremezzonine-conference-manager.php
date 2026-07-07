@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('FYREMEZZONINE_MANAGER_VERSION', '1.0.0');
-define('FYREMEZZONINE_MANAGER_SCHEMA_VERSION', '1.1.0');
+define('FYREMEZZONINE_MANAGER_SCHEMA_VERSION', '1.2.0');
 
 function fyremezzonine_manager_table_name() {
     global $wpdb;
@@ -32,6 +32,9 @@ function fyremezzonine_manager_activate() {
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
         conference_id bigint(20) unsigned NOT NULL,
         full_name varchar(190) NOT NULL,
+        last_name varchar(190) NOT NULL DEFAULT '',
+        first_name varchar(190) NOT NULL DEFAULT '',
+        middle_name varchar(190) NOT NULL DEFAULT '',
         job_position varchar(190) NOT NULL DEFAULT '',
         email varchar(190) NOT NULL,
         phone varchar(60) NOT NULL DEFAULT '',
@@ -95,6 +98,7 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_program_url' => array('label' => 'Ссылка на программу', 'type' => 'url'),
         '_conference_chat_1_url' => array('label' => 'Ссылка на чат участников', 'type' => 'url'),
         '_conference_chat_2_url' => array('label' => 'Ссылка на чат оргкомитета', 'type' => 'url'),
+        '_conference_partner_form_url' => array('label' => 'Google форма заявки на партнерство: ссылка', 'type' => 'url'),
         '_conference_hero_image_url' => array('label' => 'Фон первого экрана: URL изображения', 'type' => 'url'),
         '_conference_topic_intro' => array('label' => 'Описание блока тем', 'type' => 'textarea'),
         '_conference_topic_1_title' => array('label' => 'Тема 1: текст', 'type' => 'text'),
@@ -113,8 +117,8 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_map_embed_url' => array('label' => 'Яндекс.Карта: готовый embed URL iframe', 'type' => 'url'),
         '_conference_map_lat' => array('label' => 'Широта метки карты', 'type' => 'text'),
         '_conference_map_lon' => array('label' => 'Долгота метки карты', 'type' => 'text'),
-        '_conference_venue_image_url' => array('label' => 'Фото места проведения: URL изображения', 'type' => 'url'),
-        '_conference_collage_image_url' => array('label' => 'Коллаж/доп. изображение: URL изображения', 'type' => 'url'),
+        '_conference_venue_image_url' => array('label' => 'Фото под картой 1: URL изображения', 'type' => 'url'),
+        '_conference_collage_image_url' => array('label' => 'Фото под картой 2: URL изображения', 'type' => 'url'),
         '_conference_organizers' => array('label' => 'Организаторы: название | ссылка | URL логотипа', 'type' => 'textarea'),
         '_conference_general_partners' => array('label' => 'Генеральные партнеры: название | ссылка | URL логотипа', 'type' => 'textarea'),
         '_conference_partners' => array('label' => 'Партнеры: название | ссылка | URL логотипа', 'type' => 'textarea'),
@@ -290,6 +294,7 @@ function fyremezzonine_manager_submission_field_groups() {
                 '_conference_program_url',
                 '_conference_chat_1_url',
                 '_conference_chat_2_url',
+                '_conference_partner_form_url',
                 '_conference_hero_image_url',
                 '_conference_topic_1_image_url',
                 '_conference_topic_2_image_url',
@@ -299,6 +304,12 @@ function fyremezzonine_manager_submission_field_groups() {
                 '_conference_map_embed_url',
                 '_conference_map_lat',
                 '_conference_map_lon',
+            ),
+        ),
+        'venue_photos' => array(
+            'title' => 'Фотографии под картой',
+            'description' => 'Эти два изображения показываются сразу под Яндекс.Картой. Можно вставить URL или загрузить файл в этом же поле.',
+            'fields' => array(
                 '_conference_venue_image_url',
                 '_conference_collage_image_url',
             ),
@@ -658,11 +669,23 @@ function fyremezzonine_manager_registration_shortcode($atts) {
             <span>Регистрация на конференцию</span>
             <strong><?php echo esc_html(get_the_title($conference_id)); ?></strong>
         </div>
-        <p>
-            <label>ФИО<br>
-                <input type="text" name="full_name" required>
-            </label>
-        </p>
+        <div class="registration-name-grid">
+            <p>
+                <label>Фамилия<br>
+                    <input type="text" name="last_name" required>
+                </label>
+            </p>
+            <p>
+                <label>Имя<br>
+                    <input type="text" name="first_name" required>
+                </label>
+            </p>
+            <p>
+                <label>Отчество<br>
+                    <input type="text" name="middle_name">
+                </label>
+            </p>
+        </div>
         <p>
             <label>Email<br>
                 <input type="email" name="email" required>
@@ -755,7 +778,10 @@ function fyremezzonine_manager_handle_registration($fallback_conference_id) {
         return fyremezzonine_manager_closed_registration_message($conference_id);
     }
 
-    $full_name = isset($_POST['full_name']) ? sanitize_text_field(wp_unslash($_POST['full_name'])) : '';
+    $last_name = isset($_POST['last_name']) ? sanitize_text_field(wp_unslash($_POST['last_name'])) : '';
+    $first_name = isset($_POST['first_name']) ? sanitize_text_field(wp_unslash($_POST['first_name'])) : '';
+    $middle_name = isset($_POST['middle_name']) ? sanitize_text_field(wp_unslash($_POST['middle_name'])) : '';
+    $full_name = trim(preg_replace('/\s+/', ' ', $last_name . ' ' . $first_name . ' ' . $middle_name));
     $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
     $job_position = isset($_POST['job_position']) ? sanitize_text_field(wp_unslash($_POST['job_position'])) : '';
     $phone = isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '';
@@ -763,8 +789,8 @@ function fyremezzonine_manager_handle_registration($fallback_conference_id) {
     $comment = isset($_POST['comment']) ? sanitize_textarea_field(wp_unslash($_POST['comment'])) : '';
     $privacy_consent = isset($_POST['privacy_consent']) && $_POST['privacy_consent'] === '1';
 
-    if (!$full_name || !$email || !is_email($email)) {
-        return '<div class="registration-message registration-error">Заполните ФИО и корректный email.</div>';
+    if (!$last_name || !$first_name || !$email || !is_email($email)) {
+        return '<div class="registration-message registration-error">Заполните фамилию, имя и корректный email.</div>';
     }
 
     if (!$privacy_consent) {
@@ -778,6 +804,9 @@ function fyremezzonine_manager_handle_registration($fallback_conference_id) {
         array(
             'conference_id' => $conference_id,
             'full_name' => $full_name,
+            'last_name' => $last_name,
+            'first_name' => $first_name,
+            'middle_name' => $middle_name,
             'job_position' => $job_position,
             'email' => $email,
             'phone' => $phone,
@@ -788,7 +817,7 @@ function fyremezzonine_manager_handle_registration($fallback_conference_id) {
             'ip_address' => $ip_address,
             'created_at' => current_time('mysql'),
         ),
-        array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s')
+        array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s')
     );
 
     return '<div class="registration-message registration-success">Спасибо! Заявка отправлена.</div>';
@@ -950,18 +979,22 @@ function fyremezzonine_manager_export_registrations() {
     fwrite($output, "\xEF\xBB\xBF");
     fputcsv(
         $output,
-        array('ID', 'Дата', 'Конференция', 'ФИО', 'Должность', 'Email', 'Телефон', 'Организация', 'Комментарий', 'Согласие', 'Статус', 'IP'),
+        array('ID', 'Дата', 'Конференция', 'Фамилия', 'Имя', 'Отчество', 'Должность', 'Email', 'Телефон', 'Организация', 'Комментарий', 'Согласие', 'Статус', 'IP'),
         ';'
     );
 
     foreach ($items as $item) {
+        list($last_name, $first_name, $middle_name) = fyremezzonine_manager_registration_name_parts($item);
+
         fputcsv(
             $output,
             array(
                 $item->id,
                 $item->created_at,
                 $item->conference_title,
-                $item->full_name,
+                $last_name,
+                $first_name,
+                $middle_name,
                 $item->job_position,
                 $item->email,
                 $item->phone,
@@ -979,6 +1012,21 @@ function fyremezzonine_manager_export_registrations() {
     exit;
 }
 add_action('admin_post_fyremezzonine_export_registrations', 'fyremezzonine_manager_export_registrations');
+
+function fyremezzonine_manager_registration_name_parts($item) {
+    $last_name = isset($item->last_name) ? trim((string) $item->last_name) : '';
+    $first_name = isset($item->first_name) ? trim((string) $item->first_name) : '';
+    $middle_name = isset($item->middle_name) ? trim((string) $item->middle_name) : '';
+
+    if (!$last_name && !$first_name && !$middle_name && !empty($item->full_name)) {
+        $parts = preg_split('/\s+/', trim((string) $item->full_name), 3);
+        $last_name = $parts[0] ?? '';
+        $first_name = $parts[1] ?? '';
+        $middle_name = $parts[2] ?? '';
+    }
+
+    return array($last_name, $first_name, $middle_name);
+}
 
 function fyremezzonine_manager_registrations_interface($admin_mode = false) {
     $conference_id = isset($_GET['conference_id']) ? absint($_GET['conference_id']) : 0;
@@ -1026,7 +1074,9 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
                 <tr>
                     <th>Дата</th>
                     <th>Конференция</th>
-                    <th>ФИО</th>
+                    <th>Фамилия</th>
+                    <th>Имя</th>
+                    <th>Отчество</th>
                     <th>Должность</th>
                     <th>Email</th>
                     <th>Телефон</th>
@@ -1039,10 +1089,13 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
             <tbody>
                 <?php if ($items) : ?>
                     <?php foreach ($items as $item) : ?>
+                        <?php list($last_name, $first_name, $middle_name) = fyremezzonine_manager_registration_name_parts($item); ?>
                         <tr>
                             <td><?php echo esc_html($item->created_at); ?></td>
                             <td><?php echo esc_html($item->conference_title); ?></td>
-                            <td><?php echo esc_html($item->full_name); ?></td>
+                            <td><?php echo esc_html($last_name); ?></td>
+                            <td><?php echo esc_html($first_name); ?></td>
+                            <td><?php echo esc_html($middle_name); ?></td>
                             <td><?php echo esc_html($item->job_position); ?></td>
                             <td><a href="mailto:<?php echo esc_attr($item->email); ?>"><?php echo esc_html($item->email); ?></a></td>
                             <td><?php echo esc_html($item->phone); ?></td>
@@ -1053,7 +1106,7 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
                         </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
-                    <tr><td colspan="10">Пока заявок нет.</td></tr>
+                    <tr><td colspan="12">Пока заявок нет.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

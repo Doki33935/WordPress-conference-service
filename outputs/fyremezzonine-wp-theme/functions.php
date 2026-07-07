@@ -62,8 +62,8 @@ function fyremezzonine_customize_register($wp_customize) {
             'default' => 'https://disk.yandex.ru/d/tqGzlf1dG7btsg',
         ),
         'partner_request_url' => array(
-            'label' => __('Partner request URL', 'fyremezzonine'),
-            'default' => '/sponsorship',
+            'label' => __('Default partner Google Form URL', 'fyremezzonine'),
+            'default' => '',
         ),
         'branch_url' => array(
             'label' => __('Branch website URL', 'fyremezzonine'),
@@ -107,7 +107,7 @@ function fyremezzonine_link($setting_id) {
         'registration_url' => '/registration',
         'program_url' => 'https://disk.yandex.ru/i/WLLXTWGAA6FwAA',
         'materials_url' => 'https://disk.yandex.ru/d/tqGzlf1dG7btsg',
-        'partner_request_url' => '/sponsorship',
+        'partner_request_url' => '',
         'branch_url' => 'https://oren.vniipo.ru/',
     );
 
@@ -328,6 +328,7 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
             'program_url' => fyremezzonine_link('program_url'),
             'chat_1_url' => '',
             'chat_2_url' => '',
+            'partner_form_url' => fyremezzonine_link('partner_request_url'),
             'materials_url' => fyremezzonine_link('materials_url'),
             'hero_image_url' => fyremezzonine_asset('hero-original.png'),
             'topic_intro' => 'На конференции обсудят практические вопросы профилактики, оценки рисков и взаимодействия специалистов отрасли.',
@@ -399,6 +400,7 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
         'program_url' => fyremezzonine_conference_meta($conference_id, '_conference_program_url', fyremezzonine_link('program_url')),
         'chat_1_url' => fyremezzonine_conference_meta($conference_id, '_conference_chat_1_url'),
         'chat_2_url' => fyremezzonine_conference_meta($conference_id, '_conference_chat_2_url'),
+        'partner_form_url' => fyremezzonine_conference_meta($conference_id, '_conference_partner_form_url', fyremezzonine_link('partner_request_url')),
         'materials_url' => fyremezzonine_link('materials_url'),
         'hero_image_url' => fyremezzonine_conference_meta($conference_id, '_conference_hero_image_url', fyremezzonine_asset('hero-original.png')),
         'topic_intro' => fyremezzonine_conference_meta($conference_id, '_conference_topic_intro', 'На конференции «' . get_the_title($conference_id) . '» обсудят практические вопросы профилактики, оценки рисков и взаимодействия специалистов отрасли.'),

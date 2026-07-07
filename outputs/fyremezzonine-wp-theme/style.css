@@ -636,6 +636,13 @@ img {
   line-height: 1;
 }
 
+.cta-note {
+  max-width: 320px;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
 .venue {
   background: var(--fm-soft);
 }
@@ -801,6 +808,12 @@ img {
   color: var(--fm-ink);
   font-size: 24px;
   line-height: 1.15;
+}
+
+.registration-name-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .conference-registration-form label {
@@ -1129,6 +1142,10 @@ img {
   .cta-layout,
   .materials-box,
   .conference-submission-form fieldset {
+    grid-template-columns: 1fr;
+  }
+
+  .registration-name-grid {
     grid-template-columns: 1fr;
   }
 
