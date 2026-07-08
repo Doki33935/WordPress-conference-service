@@ -95,6 +95,31 @@ get_header();
         </div>
     </section>
 
+    <?php if (!empty($conference['speakers'])) : ?>
+    <section class="section speakers">
+        <div class="section-inner">
+            <p class="section-eyebrow">Эксперты</p>
+            <h2 class="section-title">Спикеры конференции</h2>
+            <div class="speaker-grid">
+                <?php foreach ($conference['speakers'] as $speaker) : ?>
+                    <article class="speaker-card">
+                        <img class="speaker-photo" src="<?php echo esc_url($speaker['photo_url'] ?: fyremezzonine_asset('vniipo-logo.jpg')); ?>" alt="<?php echo esc_attr($speaker['name']); ?>">
+                        <div class="speaker-body">
+                            <h3><?php echo esc_html($speaker['name']); ?></h3>
+                            <?php if (!empty($speaker['position'])) : ?>
+                                <p class="speaker-position"><?php echo esc_html($speaker['position']); ?></p>
+                            <?php endif; ?>
+                            <?php if (!empty($speaker['quote'])) : ?>
+                                <blockquote><?php echo esc_html($speaker['quote']); ?></blockquote>
+                            <?php endif; ?>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
     <section class="section materials" id="registration">
         <div class="section-inner">
             <p class="section-eyebrow">Информационное сообщение<?php echo $conference['deadline'] ? ' до ' . esc_html($conference['deadline']) : ''; ?></p>

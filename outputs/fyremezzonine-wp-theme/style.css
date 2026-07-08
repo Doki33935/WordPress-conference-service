@@ -502,6 +502,69 @@ img {
   background: var(--fm-red);
 }
 
+.speakers {
+  background: #f8fafc;
+}
+
+.speaker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 30px;
+}
+
+.speaker-card {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(16, 24, 40, 0.1);
+  border-radius: var(--fm-radius);
+  background: var(--fm-white);
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.07);
+}
+
+.speaker-photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--fm-soft);
+}
+
+.speaker-body {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+}
+
+.speaker-body h3 {
+  margin: 0;
+  color: var(--fm-ink);
+  font-size: 22px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.speaker-position {
+  margin: 0;
+  color: var(--fm-blue);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.35;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.speaker-body blockquote {
+  margin: 4px 0 0;
+  padding-left: 14px;
+  border-left: 3px solid var(--fm-red);
+  color: var(--fm-muted);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
 .materials {
   background: var(--fm-dark);
   color: var(--fm-white);
@@ -1110,6 +1173,17 @@ img {
   min-width: 0;
 }
 
+.conference-speaker-fields textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--fm-line);
+  border-radius: 8px;
+  color: var(--fm-ink);
+  background: var(--fm-white);
+  font: inherit;
+}
+
 .conference-partner-row label {
   display: grid;
   gap: 7px;
@@ -1330,6 +1404,7 @@ img {
   }
 
   .topic-grid,
+  .speaker-grid,
   .partner-logo-grid,
   .partner-logo-grid-two,
   .partner-group-featured,

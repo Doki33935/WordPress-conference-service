@@ -269,6 +269,24 @@ function fyremezzonine_parse_topic_list($raw) {
     return $items;
 }
 
+function fyremezzonine_parse_speaker_list($raw) {
+    $items = array();
+    foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $raw))) as $line) {
+        $parts = array_map('trim', explode('|', $line));
+        if (empty($parts[0])) {
+            continue;
+        }
+        $items[] = array(
+            'name' => $parts[0],
+            'position' => $parts[1] ?? '',
+            'quote' => $parts[2] ?? '',
+            'photo_url' => $parts[3] ?? '',
+        );
+    }
+
+    return $items;
+}
+
 function fyremezzonine_conference_partner_groups($conference_id) {
     $groups = fyremezzonine_default_partner_groups();
     $meta_map = array(
@@ -350,6 +368,7 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
             ),
             'about_title' => 'Пожарная безопасность складских помещений с мезонинным хранением',
             'about_lead' => 'Научно-практическая конференция Оренбургского филиала ФГБУ ВНИИПО МЧС России.',
+            'speakers' => array(),
             'benefits' => array(
                 'Разбор практических сценариев предупреждения опасных ситуаций до наступления аварии.',
                 'Обсуждение современных подходов к мониторингу, оценке рисков и подготовке персонала.',
@@ -420,6 +439,7 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
         'topics' => $topics,
         'about_title' => fyremezzonine_conference_meta($conference_id, '_conference_about_title', get_the_title($conference_id)),
         'about_lead' => fyremezzonine_conference_meta($conference_id, '_conference_about_lead', has_excerpt($conference_id) ? get_the_excerpt($conference_id) : wp_trim_words(wp_strip_all_tags($post->post_content), 34)),
+        'speakers' => fyremezzonine_parse_speaker_list(fyremezzonine_conference_meta($conference_id, '_conference_speakers')),
         'benefits' => $benefits,
         'materials_intro' => 'Материалы конференции будут публиковаться в сборнике с индексацией в РИНЦ (Elibrary). Выпуск запланирован на август-сентябрь 2026 года.',
         'venue_heading' => fyremezzonine_conference_meta($conference_id, '_conference_venue_heading', 'Испытательный учебно-тренировочный полигон'),

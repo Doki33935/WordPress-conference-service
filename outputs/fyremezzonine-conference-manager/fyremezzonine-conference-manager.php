@@ -139,6 +139,7 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_about_title' => array('label' => 'Заголовок блока "О конференции"', 'type' => 'text'),
         '_conference_about_lead' => array('label' => 'Лид блока "О конференции"', 'type' => 'textarea'),
         '_conference_benefits' => array('label' => 'Преимущества/тезисы: по одному пункту на строку', 'type' => 'textarea'),
+        '_conference_speakers' => array('label' => 'Спикеры конференции', 'type' => 'speakers'),
         '_conference_venue_heading' => array('label' => 'Заголовок блока места проведения', 'type' => 'text'),
         '_conference_venue_intro' => array('label' => 'Описание места проведения', 'type' => 'textarea'),
         '_conference_route_address' => array('label' => 'Адрес для карты/маршрута', 'type' => 'text'),
@@ -282,6 +283,54 @@ function fyremezzonine_manager_topic_rows_from_request($key) {
         }
 
         $rows[] = $title . ' | ' . $image_url;
+    }
+
+    return implode("\n", $rows);
+}
+
+function fyremezzonine_manager_parse_speaker_rows($raw) {
+    $items = array();
+
+    foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $raw))) as $line) {
+        $parts = array_map('trim', explode('|', $line));
+        if (empty($parts[0])) {
+            continue;
+        }
+
+        $items[] = array(
+            'name' => $parts[0],
+            'position' => $parts[1] ?? '',
+            'quote' => $parts[2] ?? '',
+            'photo_url' => $parts[3] ?? '',
+        );
+    }
+
+    return $items;
+}
+
+function fyremezzonine_manager_speaker_rows_from_request($key) {
+    $names = isset($_POST[$key . '_name']) && is_array($_POST[$key . '_name']) ? wp_unslash($_POST[$key . '_name']) : array();
+    $positions = isset($_POST[$key . '_position']) && is_array($_POST[$key . '_position']) ? wp_unslash($_POST[$key . '_position']) : array();
+    $quotes = isset($_POST[$key . '_quote']) && is_array($_POST[$key . '_quote']) ? wp_unslash($_POST[$key . '_quote']) : array();
+    $photos = isset($_POST[$key . '_photo_url']) && is_array($_POST[$key . '_photo_url']) ? wp_unslash($_POST[$key . '_photo_url']) : array();
+    $rows = array();
+    $total = max(count($names), count($positions), count($quotes), count($photos));
+
+    for ($index = 0; $index < $total; $index++) {
+        $name = isset($names[$index]) ? sanitize_text_field($names[$index]) : '';
+        $position = isset($positions[$index]) ? sanitize_text_field($positions[$index]) : '';
+        $quote = isset($quotes[$index]) ? sanitize_text_field($quotes[$index]) : '';
+        $photo_url = isset($photos[$index]) ? esc_url_raw($photos[$index]) : '';
+
+        if (!$name && !$position && !$quote && !$photo_url) {
+            continue;
+        }
+
+        if (!$name) {
+            $name = 'Спикер конференции';
+        }
+
+        $rows[] = $name . ' | ' . $position . ' | ' . $quote . ' | ' . $photo_url;
     }
 
     return implode("\n", $rows);
@@ -500,6 +549,60 @@ function fyremezzonine_manager_render_topic_repeater($key, $label, $value = '') 
     fyremezzonine_manager_render_partner_repeater_assets();
 }
 
+function fyremezzonine_manager_render_speaker_repeater($key, $label, $value = '') {
+    $items = fyremezzonine_manager_parse_speaker_rows($value);
+    if (!$items) {
+        $items = array(array('name' => '', 'position' => '', 'quote' => '', 'photo_url' => ''));
+    }
+
+    $render_row = static function($item) use ($key) {
+        ?>
+        <div class="conference-partner-row conference-speaker-row" data-repeater-row>
+            <div class="conference-partner-row-head">
+                <strong class="conference-partner-row-title">Спикер</strong>
+                <button type="button" class="button conference-partner-remove" data-repeater-remove>Удалить</button>
+            </div>
+            <div class="conference-partner-fields conference-speaker-fields">
+                <label>
+                    <span>Фото спикера</span>
+                    <input type="url" name="<?php echo esc_attr($key); ?>_photo_url[]" value="<?php echo esc_attr($item['photo_url'] ?? ''); ?>" placeholder="https://example.ru/speaker.jpg">
+                </label>
+                <label>
+                    <span>Имя и фамилия</span>
+                    <input type="text" name="<?php echo esc_attr($key); ?>_name[]" value="<?php echo esc_attr($item['name'] ?? ''); ?>" placeholder="Например: Иван Петров">
+                </label>
+                <label>
+                    <span>Должность</span>
+                    <input type="text" name="<?php echo esc_attr($key); ?>_position[]" value="<?php echo esc_attr($item['position'] ?? ''); ?>" placeholder="Например: руководитель направления">
+                </label>
+                <label>
+                    <span>Выдержка из слов</span>
+                    <textarea name="<?php echo esc_attr($key); ?>_quote[]" rows="3" placeholder="Короткая цитата или тезис выступления"><?php echo esc_textarea($item['quote'] ?? ''); ?></textarea>
+                </label>
+            </div>
+        </div>
+        <?php
+    };
+
+    echo '<div class="conference-submission-field conference-partner-repeater conference-speaker-repeater" data-repeater>';
+    echo '<div class="conference-partner-repeater-head">';
+    printf('<label>%s</label>', esc_html($label));
+    echo '<p class="conference-submission-note">Добавьте спикеров конференции: фото, имя, должность и короткую цитату.</p>';
+    echo '</div>';
+    echo '<div class="conference-partner-rows" data-repeater-rows>';
+    foreach ($items as $item) {
+        $render_row($item);
+    }
+    echo '</div>';
+    echo '<button type="button" class="button conference-partner-add" data-repeater-add>+ Добавить спикера</button>';
+    echo '<template>';
+    $render_row(array('name' => '', 'position' => '', 'quote' => '', 'photo_url' => ''));
+    echo '</template>';
+    echo '</div>';
+
+    fyremezzonine_manager_render_partner_repeater_assets();
+}
+
 function fyremezzonine_manager_add_meta_boxes() {
     add_meta_box(
         'fyremezzonine_conference_details',
@@ -578,6 +681,10 @@ function fyremezzonine_manager_save_meta($post_id) {
             update_post_meta($post_id, $key, fyremezzonine_manager_topic_rows_from_request($key));
             continue;
         }
+        if ($field['type'] === 'speakers') {
+            update_post_meta($post_id, $key, fyremezzonine_manager_speaker_rows_from_request($key));
+            continue;
+        }
 
         if (!isset($_POST[$key])) {
             update_post_meta($post_id, $key, '');
@@ -637,6 +744,7 @@ function fyremezzonine_manager_submission_field_groups() {
                 '_conference_about_title',
                 '_conference_about_lead',
                 '_conference_benefits',
+                '_conference_speakers',
             ),
         ),
         'links' => array(
@@ -683,6 +791,10 @@ function fyremezzonine_manager_sanitize_submission_value($value, $type) {
     }
 
     if ($type === 'topics') {
+        return sanitize_textarea_field($raw_value);
+    }
+
+    if ($type === 'speakers') {
         return sanitize_textarea_field($raw_value);
     }
 
@@ -737,6 +849,11 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
 
     if ($type === 'topics') {
         fyremezzonine_manager_render_topic_repeater($name, $label, $value);
+        return;
+    }
+
+    if ($type === 'speakers') {
+        fyremezzonine_manager_render_speaker_repeater($name, $label, $value);
         return;
     }
 
@@ -821,6 +938,10 @@ function fyremezzonine_manager_handle_conference_submission() {
         }
         if ($field['type'] === 'topics') {
             update_post_meta($post_id, $key, fyremezzonine_manager_topic_rows_from_request($key));
+            continue;
+        }
+        if ($field['type'] === 'speakers') {
+            update_post_meta($post_id, $key, fyremezzonine_manager_speaker_rows_from_request($key));
             continue;
         }
 
