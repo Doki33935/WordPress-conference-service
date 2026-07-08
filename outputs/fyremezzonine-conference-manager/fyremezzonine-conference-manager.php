@@ -226,28 +226,63 @@ function fyremezzonine_manager_render_partner_repeater_assets() {
     <style>
         .conference-partner-repeater {
             display: grid;
-            gap: 12px;
-            margin: 0 0 16px;
+            gap: 14px;
+            margin: 0 0 18px;
         }
         .conference-partner-rows {
             display: grid;
-            gap: 12px;
+            gap: 14px;
+            counter-reset: conference-partner;
         }
         .conference-partner-row {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
-            gap: 10px;
-            align-items: end;
-            padding: 12px;
+            gap: 14px;
+            padding: 16px;
             border: 1px solid #dcdcde;
             border-radius: 8px;
             background: #fff;
+            box-shadow: 0 10px 24px rgba(16, 24, 40, 0.06);
+            counter-increment: conference-partner;
+        }
+        .conference-partner-row-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f1;
+        }
+        .conference-partner-row-title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .conference-partner-row-title::after {
+            content: counter(conference-partner);
+            display: inline-grid;
+            min-width: 24px;
+            height: 24px;
+            margin-left: 8px;
+            place-items: center;
+            border-radius: 999px;
+            color: #fff;
+            background: #525afc;
+            font-size: 12px;
+        }
+        .conference-partner-fields {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
         }
         .conference-partner-row label {
             display: grid;
-            gap: 5px;
+            gap: 6px;
             margin: 0;
             font-weight: 600;
+        }
+        .conference-partner-row label span {
+            color: #1d2327;
+            font-size: 13px;
         }
         .conference-partner-row input {
             width: 100%;
@@ -256,8 +291,12 @@ function fyremezzonine_manager_render_partner_repeater_assets() {
             display: none;
         }
         @media (max-width: 900px) {
-            .conference-partner-row {
+            .conference-partner-fields {
                 grid-template-columns: 1fr;
+            }
+            .conference-partner-row-head {
+                align-items: flex-start;
+                flex-direction: column;
             }
         }
     </style>
@@ -289,26 +328,33 @@ function fyremezzonine_manager_render_partner_repeater($key, $label, $value = ''
     $render_row = static function($item) use ($key) {
         ?>
         <div class="conference-partner-row" data-partner-row>
-            <label>
-                <span>Название компании</span>
-                <input type="text" name="<?php echo esc_attr($key); ?>_name[]" value="<?php echo esc_attr($item['name'] ?? ''); ?>">
-            </label>
-            <label>
-                <span>Ссылка на сайт партнера</span>
-                <input type="url" name="<?php echo esc_attr($key); ?>_url[]" value="<?php echo esc_attr($item['url'] ?? ''); ?>">
-            </label>
-            <label>
-                <span>Ссылка на иконку/логотип</span>
-                <input type="url" name="<?php echo esc_attr($key); ?>_logo_url[]" value="<?php echo esc_attr($item['logo_url'] ?? ''); ?>">
-            </label>
-            <button type="button" class="button conference-partner-remove" data-partner-remove>Удалить</button>
+            <div class="conference-partner-row-head">
+                <strong class="conference-partner-row-title">Партнер</strong>
+                <button type="button" class="button conference-partner-remove" data-partner-remove>Удалить</button>
+            </div>
+            <div class="conference-partner-fields">
+                <label>
+                    <span>Название компании</span>
+                    <input type="text" name="<?php echo esc_attr($key); ?>_name[]" value="<?php echo esc_attr($item['name'] ?? ''); ?>" placeholder="Например: Fireproff">
+                </label>
+                <label>
+                    <span>Ссылка на сайт партнера</span>
+                    <input type="url" name="<?php echo esc_attr($key); ?>_url[]" value="<?php echo esc_attr($item['url'] ?? ''); ?>" placeholder="https://example.ru/">
+                </label>
+                <label>
+                    <span>Ссылка на иконку/логотип</span>
+                    <input type="url" name="<?php echo esc_attr($key); ?>_logo_url[]" value="<?php echo esc_attr($item['logo_url'] ?? ''); ?>" placeholder="https://example.ru/logo.png">
+                </label>
+            </div>
         </div>
         <?php
     };
 
     echo '<div class="conference-submission-field conference-partner-repeater" data-partner-repeater>';
+    echo '<div class="conference-partner-repeater-head">';
     printf('<label>%s</label>', esc_html($label));
-    echo '<p class="conference-submission-note">Можно оставить список пустым. Нажмите "+ Добавить партнера", чтобы создать еще одну строку.</p>';
+    echo '<p class="conference-submission-note">Можно оставить список пустым. Каждая карточка - один партнер с названием, сайтом и логотипом.</p>';
+    echo '</div>';
     echo '<div class="conference-partner-rows" data-partner-rows>';
     foreach ($items as $item) {
         $render_row($item);

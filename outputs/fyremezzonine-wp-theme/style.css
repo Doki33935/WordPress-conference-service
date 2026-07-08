@@ -857,31 +857,32 @@ img {
 
 .conference-submission-form {
   display: grid;
-  gap: 26px;
-  max-width: 1040px;
+  gap: 24px;
+  max-width: 1120px;
   margin-top: 36px;
-  padding: 28px;
-  border: 1px solid var(--fm-line);
-  border-radius: var(--fm-radius);
-  background: var(--fm-white);
-  box-shadow: var(--fm-soft-shadow);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .conference-submission-form fieldset {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px 18px;
+  gap: 18px 20px;
   margin: 0;
-  padding: 22px;
-  border: 1px solid var(--fm-line);
+  padding: 26px;
+  border: 1px solid rgba(16, 24, 40, 0.1);
   border-radius: var(--fm-radius);
-  background: #fbfcfa;
+  background: var(--fm-white);
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.07);
 }
 
 .conference-submission-form legend {
-  padding: 0 10px;
+  width: 100%;
+  padding: 0;
   color: var(--fm-ink);
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 900;
   line-height: 1.2;
 }
@@ -914,6 +915,13 @@ img {
   color: var(--fm-ink);
   background: var(--fm-white);
   font: inherit;
+}
+
+.conference-submission-field input:focus,
+.conference-submission-field textarea:focus,
+.conference-submission-field select:focus {
+  outline: 3px solid rgba(82, 90, 252, 0.16);
+  border-color: rgba(82, 90, 252, 0.58);
 }
 
 .conference-registration-form .registration-consent input {
@@ -949,27 +957,75 @@ img {
   color: var(--fm-muted);
   font-size: 14px;
   font-weight: 600;
+  line-height: 1.45;
 }
 
 .conference-partner-repeater {
   display: grid;
-  gap: 14px;
+  gap: 16px;
+}
+
+.conference-partner-repeater-head {
+  display: grid;
+  gap: 6px;
+}
+
+.conference-partner-repeater-head > label {
+  font-size: 20px;
+  line-height: 1.2;
 }
 
 .conference-partner-rows {
   display: grid;
-  gap: 14px;
+  gap: 16px;
+  counter-reset: conference-partner;
 }
 
 .conference-partner-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
-  gap: 12px;
-  align-items: end;
-  padding: 16px;
-  border: 1px solid var(--fm-line);
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid rgba(16, 24, 40, 0.1);
   border-radius: 8px;
-  background: var(--fm-white);
+  background: #ffffff;
+  box-shadow: 0 10px 26px rgba(16, 24, 40, 0.06);
+  counter-increment: conference-partner;
+}
+
+.conference-partner-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--fm-line);
+}
+
+.conference-partner-row-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fm-ink);
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.conference-partner-row-title::after {
+  content: counter(conference-partner);
+  display: inline-grid;
+  min-width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--fm-white);
+  background: var(--fm-blue);
+  font-size: 13px;
+}
+
+.conference-partner-fields {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.9fr) minmax(220px, 1.05fr) minmax(220px, 1.05fr);
+  gap: 14px;
 }
 
 .conference-partner-row label {
@@ -980,12 +1036,26 @@ img {
 }
 
 .conference-partner-row label span {
+  color: var(--fm-muted);
   font-size: 14px;
+  line-height: 1.25;
 }
 
 .conference-partner-add,
 .conference-partner-remove {
   width: max-content;
+}
+
+.conference-partner-add {
+  justify-self: start;
+}
+
+.conference-partner-remove {
+  min-height: 38px;
+  padding: 8px 13px;
+  border-color: rgba(181, 24, 38, 0.28);
+  color: var(--fm-red);
+  background: #fff5f6;
 }
 
 .conference-submission-actions {
@@ -1187,8 +1257,13 @@ img {
     grid-template-columns: 1fr;
   }
 
-  .conference-partner-row {
+  .conference-partner-fields {
     grid-template-columns: 1fr;
+  }
+
+  .conference-partner-row-head {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .cta-layout {
