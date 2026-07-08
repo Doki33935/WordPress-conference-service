@@ -128,7 +128,7 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_program_url' => array('label' => 'Ссылка на программу', 'type' => 'url'),
         '_conference_chat_1_url' => array('label' => 'Ссылка на чат участников', 'type' => 'url'),
         '_conference_chat_2_url' => array('label' => 'Ссылка на чат оргкомитета', 'type' => 'url'),
-        '_conference_hero_image_url' => array('label' => 'Фон первого экрана: URL изображения', 'type' => 'url'),
+        '_conference_hero_image_url' => array('label' => 'Фон/заставка первого экрана: URL изображения или GIF', 'type' => 'url'),
         '_conference_topic_intro' => array('label' => 'Описание блока тем', 'type' => 'textarea'),
         '_conference_topic_1_title' => array('label' => 'Тема 1: текст', 'type' => 'text'),
         '_conference_topic_1_image_url' => array('label' => 'Тема 1: URL изображения', 'type' => 'url'),
@@ -650,7 +650,7 @@ function fyremezzonine_manager_render_meta_box($post) {
 
         if (in_array($key, $image_fields, true)) {
             printf(
-                '<br><label for="%1$s_file">Загрузить новое изображение</label><br><input type="file" id="%1$s_file" name="%1$s_file" accept="image/*" class="widefat">',
+                '<br><label for="%1$s_file">Загрузить новое изображение или GIF</label><br><input type="file" id="%1$s_file" name="%1$s_file" accept="image/*,.gif" class="widefat">',
                 esc_attr($key)
             );
         }
@@ -821,7 +821,7 @@ function fyremezzonine_manager_submission_placeholder($name) {
         '_conference_program_url' => 'https://...',
         '_conference_chat_1_url' => 'https://...',
         '_conference_chat_2_url' => 'https://...',
-        '_conference_hero_image_url' => 'https://.../image.jpg',
+        '_conference_hero_image_url' => 'https://.../hero.gif',
         '_conference_topic_1_image_url' => 'https://.../image.jpg',
         '_conference_topic_2_image_url' => 'https://.../image.jpg',
         '_conference_topic_3_image_url' => 'https://.../image.jpg',
@@ -880,9 +880,13 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
     }
 
     if ($is_image_field) {
+        $upload_note = $name === '_conference_hero_image_url'
+            ? 'Можно вставить URL изображения/GIF или загрузить новый файл ниже. GIF будет использоваться как анимированная заставка первого экрана.'
+            : 'Можно вставить готовый URL или загрузить новый файл ниже.';
         printf(
-            '<span class="conference-submission-note">Можно вставить готовый URL или загрузить новый файл ниже.</span><input id="%1$s_file" type="file" name="%1$s_file" accept="image/*">',
-            esc_attr($name)
+            '<span class="conference-submission-note">%2$s</span><input id="%1$s_file" type="file" name="%1$s_file" accept="image/*,.gif">',
+            esc_attr($name),
+            esc_html($upload_note)
         );
     }
 
