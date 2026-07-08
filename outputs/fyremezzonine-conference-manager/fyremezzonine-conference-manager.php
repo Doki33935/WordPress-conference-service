@@ -539,7 +539,7 @@ function fyremezzonine_manager_submission_field_groups() {
         ),
         'partners' => array(
             'title' => 'Спонсоры и партнеры',
-            'description' => 'Одна строка - один участник. Формат: Название | ссылка | URL логотипа.',
+            'description' => 'Добавляйте организации карточками: название, сайт и логотип. Список можно оставить пустым.',
             'fields' => array(
                 '_conference_organizers',
                 '_conference_general_partners',
@@ -722,8 +722,10 @@ function fyremezzonine_manager_conference_submission_shortcode() {
 
         <?php foreach ($groups as $group) : ?>
             <fieldset>
-                <legend><?php echo esc_html($group['title']); ?></legend>
-                <p class="conference-submission-help"><?php echo esc_html($group['description']); ?></p>
+                <div class="conference-submission-section-head">
+                    <h2><?php echo esc_html($group['title']); ?></h2>
+                    <p class="conference-submission-help"><?php echo esc_html($group['description']); ?></p>
+                </div>
                 <?php foreach ($group['fields'] as $field_name => $field) : ?>
                     <?php
                     if (is_int($field_name)) {
@@ -1045,30 +1047,45 @@ function fyremezzonine_manager_render_simple_create_page() {
     ?>
     <div class="wrap fyremezzonine-simple-create">
         <h1>Создать конференцию через форму</h1>
-        <p>Эта страница работает как анкета: заполните поля, выберите режим сохранения и отправьте форму.</p>
+        <p>Эта страница работает как анкета: заполните поля и нажмите "Сохранить".</p>
         <style>
             .fyremezzonine-simple-create .conference-submission-form {
                 display: grid;
                 gap: 22px;
                 max-width: 920px;
                 margin-top: 20px;
-                padding: 24px;
-                border: 1px solid #dcdcde;
-                border-radius: 8px;
-                background: #fff;
+                padding: 0;
+                border: 0;
+                background: transparent;
             }
             .fyremezzonine-simple-create fieldset {
                 display: grid;
-                gap: 14px;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 16px;
+                min-width: 0;
                 margin: 0;
-                padding: 0 0 22px;
-                border: 0;
-                border-bottom: 1px solid #dcdcde;
+                padding: 0 20px 20px;
+                border: 1px solid #dcdcde;
+                border-radius: 8px;
+                background: #fff;
+                overflow: hidden;
             }
-            .fyremezzonine-simple-create legend {
-                margin-bottom: 4px;
+            .fyremezzonine-simple-create .conference-submission-section-head {
+                display: grid;
+                grid-column: 1 / -1;
+                gap: 6px;
+                min-width: 0;
+                margin: 0 -20px 4px;
+                padding: 18px 20px 14px;
+                border-bottom: 1px solid #dcdcde;
+                background: #f6f7f7;
+            }
+            .fyremezzonine-simple-create .conference-submission-section-head h2 {
+                margin: 0;
                 font-size: 20px;
                 font-weight: 700;
+                line-height: 1.2;
+                overflow-wrap: anywhere;
             }
             .fyremezzonine-simple-create .registration-conference-title {
                 display: grid;
@@ -1087,20 +1104,35 @@ function fyremezzonine_manager_render_simple_create_page() {
             .fyremezzonine-simple-create .conference-submission-help {
                 margin: 0;
                 color: #646970;
+                overflow-wrap: anywhere;
             }
             .fyremezzonine-simple-create .conference-submission-field {
                 display: grid;
                 gap: 7px;
+                min-width: 0;
                 margin: 0;
+            }
+            .fyremezzonine-simple-create .conference-submission-field:has(textarea),
+            .fyremezzonine-simple-create .conference-submission-field:has(input[type="file"]),
+            .fyremezzonine-simple-create .conference-partner-repeater {
+                grid-column: 1 / -1;
             }
             .fyremezzonine-simple-create .conference-submission-field label {
                 font-weight: 700;
+                min-width: 0;
+                overflow-wrap: anywhere;
             }
             .fyremezzonine-simple-create input,
             .fyremezzonine-simple-create textarea,
             .fyremezzonine-simple-create select {
                 width: 100%;
+                min-width: 0;
                 max-width: 100%;
+            }
+            @media (max-width: 900px) {
+                .fyremezzonine-simple-create fieldset {
+                    grid-template-columns: 1fr;
+                }
             }
         </style>
         <?php echo do_shortcode('[conference_submission_form]'); ?>
