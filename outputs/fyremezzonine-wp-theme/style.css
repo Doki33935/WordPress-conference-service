@@ -934,7 +934,8 @@ img {
 
 .conference-submission-field textarea,
 .conference-submission-field:has(textarea),
-.conference-submission-field:has(input[type="file"]) {
+.conference-submission-field:has(input[type="file"]),
+.conference-partner-repeater {
   grid-column: 1 / -1;
 }
 
@@ -948,6 +949,43 @@ img {
   color: var(--fm-muted);
   font-size: 14px;
   font-weight: 600;
+}
+
+.conference-partner-repeater {
+  display: grid;
+  gap: 14px;
+}
+
+.conference-partner-rows {
+  display: grid;
+  gap: 14px;
+}
+
+.conference-partner-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 16px;
+  border: 1px solid var(--fm-line);
+  border-radius: 8px;
+  background: var(--fm-white);
+}
+
+.conference-partner-row label {
+  display: grid;
+  gap: 7px;
+  color: var(--fm-ink);
+  font-weight: 800;
+}
+
+.conference-partner-row label span {
+  font-size: 14px;
+}
+
+.conference-partner-add,
+.conference-partner-remove {
+  width: max-content;
 }
 
 .conference-submission-actions {
@@ -1146,6 +1184,10 @@ img {
   }
 
   .registration-name-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .conference-partner-row {
     grid-template-columns: 1fr;
   }
 

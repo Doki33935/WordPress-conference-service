@@ -120,9 +120,17 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_venue_image_url' => array('label' => 'Фото под картой 1: URL изображения', 'type' => 'url'),
         '_conference_collage_image_url' => array('label' => 'Фото под картой 2: URL изображения', 'type' => 'url'),
         '_conference_organizers' => array('label' => 'Организаторы: название | ссылка | URL логотипа', 'type' => 'textarea'),
-        '_conference_general_partners' => array('label' => 'Генеральные партнеры: название | ссылка | URL логотипа', 'type' => 'textarea'),
-        '_conference_partners' => array('label' => 'Партнеры: название | ссылка | URL логотипа', 'type' => 'textarea'),
-        '_conference_media_partners' => array('label' => 'Информационные партнеры: название | ссылка | URL логотипа', 'type' => 'textarea'),
+        '_conference_general_partners' => array('label' => 'Генеральные партнеры', 'type' => 'partners'),
+        '_conference_partners' => array('label' => 'Партнеры', 'type' => 'partners'),
+        '_conference_media_partners' => array('label' => 'Информационные партнеры', 'type' => 'partners'),
+    );
+}
+
+function fyremezzonine_manager_partner_meta_keys() {
+    return array(
+        '_conference_general_partners',
+        '_conference_partners',
+        '_conference_media_partners',
     );
 }
 
@@ -161,6 +169,160 @@ function fyremezzonine_manager_upload_image_for_field($field_name, $post_id = 0)
     return wp_get_attachment_url($attachment_id) ?: '';
 }
 
+function fyremezzonine_manager_parse_partner_rows($raw) {
+    $items = array();
+
+    foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $raw))) as $line) {
+        $parts = array_map('trim', explode('|', $line));
+        if (empty($parts[0])) {
+            continue;
+        }
+
+        $items[] = array(
+            'name' => $parts[0],
+            'url' => $parts[1] ?? '',
+            'logo_url' => $parts[2] ?? '',
+        );
+    }
+
+    return $items;
+}
+
+function fyremezzonine_manager_partner_rows_from_request($key) {
+    $names = isset($_POST[$key . '_name']) && is_array($_POST[$key . '_name']) ? wp_unslash($_POST[$key . '_name']) : array();
+    $urls = isset($_POST[$key . '_url']) && is_array($_POST[$key . '_url']) ? wp_unslash($_POST[$key . '_url']) : array();
+    $logos = isset($_POST[$key . '_logo_url']) && is_array($_POST[$key . '_logo_url']) ? wp_unslash($_POST[$key . '_logo_url']) : array();
+    $rows = array();
+    $total = max(count($names), count($urls), count($logos));
+
+    for ($index = 0; $index < $total; $index++) {
+        $name = isset($names[$index]) ? sanitize_text_field($names[$index]) : '';
+        $url = isset($urls[$index]) ? esc_url_raw($urls[$index]) : '';
+        $logo_url = isset($logos[$index]) ? esc_url_raw($logos[$index]) : '';
+
+        if (!$name && !$url && !$logo_url) {
+            continue;
+        }
+
+        if (!$name) {
+            $name = 'Партнер конференции';
+        }
+
+        $rows[] = $name . ' | ' . $url . ' | ' . $logo_url;
+    }
+
+    return implode("\n", $rows);
+}
+
+function fyremezzonine_manager_render_partner_repeater_assets() {
+    static $rendered = false;
+
+    if ($rendered) {
+        return;
+    }
+
+    $rendered = true;
+    ?>
+    <style>
+        .conference-partner-repeater {
+            display: grid;
+            gap: 12px;
+            margin: 0 0 16px;
+        }
+        .conference-partner-rows {
+            display: grid;
+            gap: 12px;
+        }
+        .conference-partner-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+            gap: 10px;
+            align-items: end;
+            padding: 12px;
+            border: 1px solid #dcdcde;
+            border-radius: 8px;
+            background: #fff;
+        }
+        .conference-partner-row label {
+            display: grid;
+            gap: 5px;
+            margin: 0;
+            font-weight: 600;
+        }
+        .conference-partner-row input {
+            width: 100%;
+        }
+        .conference-partner-repeater template {
+            display: none;
+        }
+        @media (max-width: 900px) {
+            .conference-partner-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script>
+        document.addEventListener('click', function(event) {
+            const addButton = event.target.closest('[data-partner-add]');
+            if (addButton) {
+                const repeater = addButton.closest('[data-partner-repeater]');
+                const rows = repeater.querySelector('[data-partner-rows]');
+                const template = repeater.querySelector('template');
+                rows.insertAdjacentHTML('beforeend', template.innerHTML);
+            }
+
+            const removeButton = event.target.closest('[data-partner-remove]');
+            if (removeButton) {
+                removeButton.closest('[data-partner-row]').remove();
+            }
+        });
+    </script>
+    <?php
+}
+
+function fyremezzonine_manager_render_partner_repeater($key, $label, $value = '') {
+    $items = fyremezzonine_manager_parse_partner_rows($value);
+    if (!$items) {
+        $items = array(array('name' => '', 'url' => '', 'logo_url' => ''));
+    }
+
+    $render_row = static function($item) use ($key) {
+        ?>
+        <div class="conference-partner-row" data-partner-row>
+            <label>
+                <span>Название компании</span>
+                <input type="text" name="<?php echo esc_attr($key); ?>_name[]" value="<?php echo esc_attr($item['name'] ?? ''); ?>">
+            </label>
+            <label>
+                <span>Ссылка на сайт партнера</span>
+                <input type="url" name="<?php echo esc_attr($key); ?>_url[]" value="<?php echo esc_attr($item['url'] ?? ''); ?>">
+            </label>
+            <label>
+                <span>Ссылка на иконку/логотип</span>
+                <input type="url" name="<?php echo esc_attr($key); ?>_logo_url[]" value="<?php echo esc_attr($item['logo_url'] ?? ''); ?>">
+            </label>
+            <button type="button" class="button conference-partner-remove" data-partner-remove>Удалить</button>
+        </div>
+        <?php
+    };
+
+    echo '<div class="conference-submission-field conference-partner-repeater" data-partner-repeater>';
+    printf('<label>%s</label>', esc_html($label));
+    echo '<p class="conference-submission-note">Можно оставить список пустым. Нажмите "+ Добавить партнера", чтобы создать еще одну строку.</p>';
+    echo '<div class="conference-partner-rows" data-partner-rows>';
+    foreach ($items as $item) {
+        $render_row($item);
+    }
+    echo '</div>';
+    echo '<button type="button" class="button conference-partner-add" data-partner-add>+ Добавить партнера</button>';
+    echo '<template>';
+    $render_row(array('name' => '', 'url' => '', 'logo_url' => ''));
+    echo '</template>';
+    echo '</div>';
+
+    fyremezzonine_manager_render_partner_repeater_assets();
+}
+
 function fyremezzonine_manager_add_meta_boxes() {
     add_meta_box(
         'fyremezzonine_conference_details',
@@ -184,6 +346,12 @@ function fyremezzonine_manager_render_meta_box($post) {
         $value = get_post_meta($post->ID, $key, true);
         echo '<p>';
         printf('<label for="%1$s"><strong>%2$s</strong></label><br>', esc_attr($key), esc_html($field['label']));
+
+        if ($field['type'] === 'partners') {
+            echo '</p>';
+            fyremezzonine_manager_render_partner_repeater($key, $field['label'], $value);
+            continue;
+        }
 
         if ($field['type'] === 'textarea') {
             printf(
@@ -225,6 +393,11 @@ function fyremezzonine_manager_save_meta($post_id) {
     }
 
     foreach (fyremezzonine_manager_meta_keys() as $key => $field) {
+        if ($field['type'] === 'partners') {
+            update_post_meta($post_id, $key, fyremezzonine_manager_partner_rows_from_request($key));
+            continue;
+        }
+
         if (!isset($_POST[$key])) {
             update_post_meta($post_id, $key, '');
             continue;
@@ -330,6 +503,10 @@ function fyremezzonine_manager_submission_field_groups() {
 function fyremezzonine_manager_sanitize_submission_value($value, $type) {
     $raw_value = wp_unslash($value);
 
+    if ($type === 'partners') {
+        return sanitize_textarea_field($raw_value);
+    }
+
     if ($type === 'textarea') {
         return sanitize_textarea_field($raw_value);
     }
@@ -346,6 +523,11 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
     $label = isset($field['label']) ? $field['label'] : $name;
     $type = isset($field['type']) ? $field['type'] : 'text';
     $is_image_field = in_array($name, fyremezzonine_manager_image_meta_keys(), true);
+
+    if ($type === 'partners') {
+        fyremezzonine_manager_render_partner_repeater($name, $label, $value);
+        return;
+    }
 
     echo '<p class="conference-submission-field">';
     printf('<label for="%1$s">%2$s</label>', esc_attr($name), esc_html($label));
@@ -425,6 +607,11 @@ function fyremezzonine_manager_handle_conference_submission() {
     }
 
     foreach (fyremezzonine_manager_meta_keys() as $key => $field) {
+        if ($field['type'] === 'partners') {
+            update_post_meta($post_id, $key, fyremezzonine_manager_partner_rows_from_request($key));
+            continue;
+        }
+
         $uploaded_url = in_array($key, fyremezzonine_manager_image_meta_keys(), true) ? fyremezzonine_manager_upload_image_for_field($key, $post_id) : '';
         $value = $uploaded_url ?: (isset($_POST[$key]) ? fyremezzonine_manager_sanitize_submission_value($_POST[$key], $field['type']) : '');
         update_post_meta($post_id, $key, $value);
