@@ -1028,10 +1028,20 @@ img {
   margin: 0 26px;
 }
 
+.conference-submission-form fieldset > .conference-partner-repeater {
+  width: auto;
+  margin: 0 26px 26px;
+}
+
+.conference-submission-form fieldset > .conference-submission-section-head + .conference-partner-repeater {
+  margin-top: 0;
+}
+
 .conference-partner-repeater-head {
   display: grid;
   gap: 6px;
   min-width: 0;
+  padding: 0;
 }
 
 .conference-partner-repeater-head > label {
