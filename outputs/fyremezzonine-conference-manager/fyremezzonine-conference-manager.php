@@ -206,7 +206,7 @@ function fyremezzonine_manager_partner_rows_from_request($key) {
         }
 
         if (!$name) {
-            $name = 'Партнер конференции';
+            $name = $key === '_conference_organizers' ? 'Организатор конференции' : 'Партнер конференции';
         }
 
         $rows[] = $name . ' | ' . $url . ' | ' . $logo_url;
@@ -326,11 +326,14 @@ function fyremezzonine_manager_render_partner_repeater($key, $label, $value = ''
         $items = array(array('name' => '', 'url' => '', 'logo_url' => ''));
     }
 
-    $render_row = static function($item) use ($key) {
+    $entity_title = $key === '_conference_organizers' ? 'Организатор' : 'Партнер';
+    $add_button_label = $key === '_conference_organizers' ? '+ Добавить организатора' : '+ Добавить партнера';
+
+    $render_row = static function($item) use ($key, $entity_title) {
         ?>
         <div class="conference-partner-row" data-partner-row>
             <div class="conference-partner-row-head">
-                <strong class="conference-partner-row-title">Партнер</strong>
+                <strong class="conference-partner-row-title"><?php echo esc_html($entity_title); ?></strong>
                 <button type="button" class="button conference-partner-remove" data-partner-remove>Удалить</button>
             </div>
             <div class="conference-partner-fields">
@@ -361,7 +364,7 @@ function fyremezzonine_manager_render_partner_repeater($key, $label, $value = ''
         $render_row($item);
     }
     echo '</div>';
-    echo '<button type="button" class="button conference-partner-add" data-partner-add>+ Добавить партнера</button>';
+    printf('<button type="button" class="button conference-partner-add" data-partner-add>%s</button>', esc_html($add_button_label));
     echo '<template>';
     $render_row(array('name' => '', 'url' => '', 'logo_url' => ''));
     echo '</template>';
