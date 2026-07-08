@@ -119,7 +119,7 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_map_lon' => array('label' => 'Долгота метки карты', 'type' => 'text'),
         '_conference_venue_image_url' => array('label' => 'Фото под картой 1: URL изображения', 'type' => 'url'),
         '_conference_collage_image_url' => array('label' => 'Фото под картой 2: URL изображения', 'type' => 'url'),
-        '_conference_organizers' => array('label' => 'Организаторы: название | ссылка | URL логотипа', 'type' => 'textarea'),
+        '_conference_organizers' => array('label' => 'Организаторы', 'type' => 'partners'),
         '_conference_general_partners' => array('label' => 'Генеральные партнеры', 'type' => 'partners'),
         '_conference_partners' => array('label' => 'Партнеры', 'type' => 'partners'),
         '_conference_media_partners' => array('label' => 'Информационные партнеры', 'type' => 'partners'),
@@ -128,6 +128,7 @@ function fyremezzonine_manager_meta_keys() {
 
 function fyremezzonine_manager_partner_meta_keys() {
     return array(
+        '_conference_organizers',
         '_conference_general_partners',
         '_conference_partners',
         '_conference_media_partners',
@@ -353,7 +354,7 @@ function fyremezzonine_manager_render_partner_repeater($key, $label, $value = ''
     echo '<div class="conference-submission-field conference-partner-repeater" data-partner-repeater>';
     echo '<div class="conference-partner-repeater-head">';
     printf('<label>%s</label>', esc_html($label));
-    echo '<p class="conference-submission-note">Можно оставить список пустым. Каждая карточка - один партнер с названием, сайтом и логотипом.</p>';
+    echo '<p class="conference-submission-note">Можно оставить список пустым. Каждая карточка - одна организация с названием, сайтом и логотипом.</p>';
     echo '</div>';
     echo '<div class="conference-partner-rows" data-partner-rows>';
     foreach ($items as $item) {

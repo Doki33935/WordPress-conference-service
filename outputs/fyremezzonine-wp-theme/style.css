@@ -880,11 +880,13 @@ img {
 
 .conference-submission-form legend {
   width: 100%;
+  max-width: 100%;
   padding: 0;
   color: var(--fm-ink);
   font-size: 22px;
   font-weight: 900;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .conference-submission-help {
@@ -903,6 +905,8 @@ img {
 .conference-submission-field label {
   color: var(--fm-ink);
   font-weight: 800;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .conference-submission-field input,
@@ -968,11 +972,14 @@ img {
 .conference-partner-repeater-head {
   display: grid;
   gap: 6px;
+  min-width: 0;
 }
 
 .conference-partner-repeater-head > label {
   font-size: 20px;
   line-height: 1.2;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .conference-partner-rows {
@@ -1005,9 +1012,11 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
   color: var(--fm-ink);
   font-size: 16px;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .conference-partner-row-title::after {
@@ -1026,11 +1035,13 @@ img {
   display: grid;
   grid-template-columns: minmax(180px, 0.9fr) minmax(220px, 1.05fr) minmax(220px, 1.05fr);
   gap: 14px;
+  min-width: 0;
 }
 
 .conference-partner-row label {
   display: grid;
   gap: 7px;
+  min-width: 0;
   color: var(--fm-ink);
   font-weight: 800;
 }
@@ -1039,6 +1050,7 @@ img {
   color: var(--fm-muted);
   font-size: 14px;
   line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .conference-partner-add,
