@@ -46,6 +46,7 @@
                         <a href="<?php echo esc_url(home_url('/editor/new-conference/')); ?>">Создать конференцию</a>
                         <a href="<?php echo esc_url(home_url('/editor/edit-conference/')); ?>">Изменить конференцию</a>
                         <a href="<?php echo esc_url(home_url('/editor/registrations/')); ?>">Заявки и экспорт</a>
+                        <a href="<?php echo esc_url(home_url('/editor/partner-requests/')); ?>">Заявки на партнерство</a>
                         <a href="<?php echo esc_url(admin_url()); ?>">Админка</a>
                     </div>
                 </details>

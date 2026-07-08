@@ -12,12 +12,18 @@ if (!defined('ABSPATH')) {
 }
 
 define('FYREMEZZONINE_MANAGER_VERSION', '1.0.0');
-define('FYREMEZZONINE_MANAGER_SCHEMA_VERSION', '1.2.0');
+define('FYREMEZZONINE_MANAGER_SCHEMA_VERSION', '1.3.0');
 
 function fyremezzonine_manager_table_name() {
     global $wpdb;
 
     return $wpdb->prefix . 'conference_registrations';
+}
+
+function fyremezzonine_manager_partner_requests_table_name() {
+    global $wpdb;
+
+    return $wpdb->prefix . 'conference_partner_requests';
 }
 
 function fyremezzonine_manager_activate() {
@@ -27,6 +33,7 @@ function fyremezzonine_manager_activate() {
 
     $charset_collate = $wpdb->get_charset_collate();
     $table = fyremezzonine_manager_table_name();
+    $partner_table = fyremezzonine_manager_partner_requests_table_name();
 
     $sql = "CREATE TABLE {$table} (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -52,6 +59,29 @@ function fyremezzonine_manager_activate() {
     ) {$charset_collate};";
 
     dbDelta($sql);
+
+    $partner_sql = "CREATE TABLE {$partner_table} (
+        id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        conference_id bigint(20) unsigned NOT NULL DEFAULT 0,
+        company_name varchar(190) NOT NULL,
+        company_site varchar(190) NOT NULL DEFAULT '',
+        company_city varchar(190) NOT NULL DEFAULT '',
+        contact_name varchar(190) NOT NULL,
+        contact_position varchar(190) NOT NULL DEFAULT '',
+        email varchar(190) NOT NULL,
+        phone varchar(60) NOT NULL DEFAULT '',
+        comment text NULL,
+        status varchar(40) NOT NULL DEFAULT 'new',
+        ip_address varchar(80) NOT NULL DEFAULT '',
+        created_at datetime NOT NULL,
+        PRIMARY KEY  (id),
+        KEY conference_id (conference_id),
+        KEY email (email),
+        KEY status (status),
+        KEY created_at (created_at)
+    ) {$charset_collate};";
+
+    dbDelta($partner_sql);
     update_option('fyremezzonine_manager_schema_version', FYREMEZZONINE_MANAGER_SCHEMA_VERSION);
 }
 register_activation_hook(__FILE__, 'fyremezzonine_manager_activate');
@@ -98,7 +128,6 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_program_url' => array('label' => 'Ссылка на программу', 'type' => 'url'),
         '_conference_chat_1_url' => array('label' => 'Ссылка на чат участников', 'type' => 'url'),
         '_conference_chat_2_url' => array('label' => 'Ссылка на чат оргкомитета', 'type' => 'url'),
-        '_conference_partner_form_url' => array('label' => 'Google форма заявки на партнерство: ссылка', 'type' => 'url'),
         '_conference_hero_image_url' => array('label' => 'Фон первого экрана: URL изображения', 'type' => 'url'),
         '_conference_topic_intro' => array('label' => 'Описание блока тем', 'type' => 'textarea'),
         '_conference_topic_1_title' => array('label' => 'Тема 1: текст', 'type' => 'text'),
@@ -526,7 +555,6 @@ function fyremezzonine_manager_submission_field_groups() {
                 '_conference_program_url',
                 '_conference_chat_1_url',
                 '_conference_chat_2_url',
-                '_conference_partner_form_url',
                 '_conference_hero_image_url',
                 '_conference_topic_1_image_url',
                 '_conference_topic_2_image_url',
@@ -589,7 +617,6 @@ function fyremezzonine_manager_submission_placeholder($name) {
         '_conference_program_url' => 'https://...',
         '_conference_chat_1_url' => 'https://...',
         '_conference_chat_2_url' => 'https://...',
-        '_conference_partner_form_url' => 'https://forms.gle/...',
         '_conference_hero_image_url' => 'https://.../image.jpg',
         '_conference_topic_1_image_url' => 'https://.../image.jpg',
         '_conference_topic_2_image_url' => 'https://.../image.jpg',
@@ -1082,6 +1109,127 @@ function fyremezzonine_manager_handle_registration($fallback_conference_id) {
     return '<div class="registration-message registration-success">Спасибо! Заявка отправлена.</div>';
 }
 
+function fyremezzonine_manager_partner_request_shortcode($atts) {
+    $atts = shortcode_atts(
+        array(
+            'conference_id' => 0,
+        ),
+        $atts,
+        'conference_partner_request_form'
+    );
+
+    $conference_id = absint($atts['conference_id']) ?: fyremezzonine_manager_latest_conference_id();
+    $message = '';
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['fyremezzonine_partner_request_nonce'])) {
+        $message = fyremezzonine_manager_handle_partner_request($conference_id);
+    }
+
+    ob_start();
+    if ($message) {
+        echo wp_kses_post($message);
+    }
+    ?>
+    <form class="conference-registration-form conference-partner-request-form" method="post">
+        <?php wp_nonce_field('fyremezzonine_partner_request_' . $conference_id, 'fyremezzonine_partner_request_nonce'); ?>
+        <input type="hidden" name="conference_id" value="<?php echo esc_attr($conference_id); ?>">
+        <div class="registration-conference-title">
+            <span>Заявка на партнерство</span>
+            <strong><?php echo $conference_id ? esc_html(get_the_title($conference_id)) : 'Конференция ВНИИПО'; ?></strong>
+        </div>
+        <p>
+            <label>Название компании<br>
+                <input type="text" name="company_name" required placeholder="Например: ООО &quot;Пожарные технологии&quot;">
+            </label>
+        </p>
+        <p>
+            <label>Сайт компании<br>
+                <input type="url" name="company_site" placeholder="https://example.ru/">
+            </label>
+        </p>
+        <p>
+            <label>Город<br>
+                <input type="text" name="company_city" placeholder="Например: Оренбург">
+            </label>
+        </p>
+        <p>
+            <label>Контактное лицо<br>
+                <input type="text" name="contact_name" required placeholder="Фамилия Имя Отчество">
+            </label>
+        </p>
+        <p>
+            <label>Должность<br>
+                <input type="text" name="contact_position" placeholder="Например: директор по развитию">
+            </label>
+        </p>
+        <p>
+            <label>Email<br>
+                <input type="email" name="email" required placeholder="mail@example.ru">
+            </label>
+        </p>
+        <p>
+            <label>Телефон<br>
+                <input type="tel" name="phone" placeholder="+7">
+            </label>
+        </p>
+        <p>
+            <label>Комментарий<br>
+                <textarea name="comment" rows="5" placeholder="Опишите формат участия, вопросы или пожелания"></textarea>
+            </label>
+        </p>
+        <p><button class="button button-red" type="submit">Отправить заявку</button></p>
+    </form>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('conference_partner_request_form', 'fyremezzonine_manager_partner_request_shortcode');
+
+function fyremezzonine_manager_handle_partner_request($fallback_conference_id) {
+    global $wpdb;
+
+    $conference_id = isset($_POST['conference_id']) ? absint($_POST['conference_id']) : $fallback_conference_id;
+
+    if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['fyremezzonine_partner_request_nonce'])), 'fyremezzonine_partner_request_' . $conference_id)) {
+        return '<div class="registration-message registration-error">Не удалось проверить форму. Обновите страницу и попробуйте еще раз.</div>';
+    }
+
+    $company_name = isset($_POST['company_name']) ? sanitize_text_field(wp_unslash($_POST['company_name'])) : '';
+    $company_site = isset($_POST['company_site']) ? esc_url_raw(wp_unslash($_POST['company_site'])) : '';
+    $company_city = isset($_POST['company_city']) ? sanitize_text_field(wp_unslash($_POST['company_city'])) : '';
+    $contact_name = isset($_POST['contact_name']) ? sanitize_text_field(wp_unslash($_POST['contact_name'])) : '';
+    $contact_position = isset($_POST['contact_position']) ? sanitize_text_field(wp_unslash($_POST['contact_position'])) : '';
+    $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
+    $phone = isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '';
+    $comment = isset($_POST['comment']) ? sanitize_textarea_field(wp_unslash($_POST['comment'])) : '';
+
+    if (!$company_name || !$contact_name || !$email || !is_email($email)) {
+        return '<div class="registration-message registration-error">Заполните название компании, контактное лицо и корректный email.</div>';
+    }
+
+    $ip_address = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
+
+    $wpdb->insert(
+        fyremezzonine_manager_partner_requests_table_name(),
+        array(
+            'conference_id' => $conference_id,
+            'company_name' => $company_name,
+            'company_site' => $company_site,
+            'company_city' => $company_city,
+            'contact_name' => $contact_name,
+            'contact_position' => $contact_position,
+            'email' => $email,
+            'phone' => $phone,
+            'comment' => $comment,
+            'status' => 'new',
+            'ip_address' => $ip_address,
+            'created_at' => current_time('mysql'),
+        ),
+        array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
+    );
+
+    return '<div class="registration-message registration-success">Спасибо! Заявка на партнерство отправлена. Представители ВНИИПО свяжутся с вами.</div>';
+}
+
 function fyremezzonine_manager_render_simple_create_page() {
     ?>
     <div class="wrap fyremezzonine-simple-create">
@@ -1194,6 +1342,15 @@ function fyremezzonine_manager_admin_menu() {
         'edit_posts',
         'conference-registrations',
         'fyremezzonine_manager_render_registrations_page'
+    );
+
+    add_submenu_page(
+        'edit.php?post_type=conference',
+        'Заявки на партнерство',
+        'Заявки на партнерство',
+        'edit_posts',
+        'conference-partner-requests',
+        'fyremezzonine_manager_render_partner_requests_page'
     );
 
     add_submenu_page(
@@ -1415,7 +1572,93 @@ function fyremezzonine_manager_registrations_shortcode() {
 }
 add_shortcode('conference_registrations_archive', 'fyremezzonine_manager_registrations_shortcode');
 
-function fyremezzonine_manager_render_frontend_editor_page($title, $content) {
+function fyremezzonine_manager_partner_requests_query($limit = 200) {
+    global $wpdb;
+
+    $table = fyremezzonine_manager_partner_requests_table_name();
+    $posts_table = $wpdb->posts;
+    $sql = "SELECT p.*, COALESCE(c.post_title, '') AS conference_title
+            FROM {$table} p
+            LEFT JOIN {$posts_table} c ON c.ID = p.conference_id
+            ORDER BY p.created_at DESC";
+
+    if ($limit) {
+        $sql .= ' LIMIT %d';
+        return $wpdb->get_results($wpdb->prepare($sql, $limit));
+    }
+
+    return $wpdb->get_results($sql);
+}
+
+function fyremezzonine_manager_partner_requests_interface($admin_mode = false) {
+    $items = fyremezzonine_manager_partner_requests_query(200);
+    $table_class = $admin_mode ? 'widefat fixed striped' : 'conference-registrations-table';
+
+    ob_start();
+    ?>
+    <p>Здесь хранятся заявки от компаний, которые хотят стать партнерами, соорганизаторами или представителями СМИ. ВНИИПО связывается с заявителями по указанным контактам.</p>
+    <div class="conference-registrations-scroll">
+        <table class="<?php echo esc_attr($table_class); ?>">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Конференция</th>
+                    <th>Компания</th>
+                    <th>Сайт</th>
+                    <th>Город</th>
+                    <th>Контакт</th>
+                    <th>Должность</th>
+                    <th>Email</th>
+                    <th>Телефон</th>
+                    <th>Комментарий</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($items) : ?>
+                    <?php foreach ($items as $item) : ?>
+                        <tr>
+                            <td><?php echo esc_html($item->created_at); ?></td>
+                            <td><?php echo esc_html($item->conference_title ?: 'Не указана'); ?></td>
+                            <td><?php echo esc_html($item->company_name); ?></td>
+                            <td>
+                                <?php if (!empty($item->company_site)) : ?>
+                                    <a href="<?php echo esc_url($item->company_site); ?>" target="_blank" rel="noopener">Сайт</a>
+                                <?php endif; ?>
+                            </td>
+                            <td><?php echo esc_html($item->company_city); ?></td>
+                            <td><?php echo esc_html($item->contact_name); ?></td>
+                            <td><?php echo esc_html($item->contact_position); ?></td>
+                            <td><a href="mailto:<?php echo esc_attr($item->email); ?>"><?php echo esc_html($item->email); ?></a></td>
+                            <td><?php echo esc_html($item->phone); ?></td>
+                            <td><?php echo esc_html($item->comment); ?></td>
+                            <td><?php echo esc_html($item->status); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <tr><td colspan="11">Пока заявок на партнерство нет.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+function fyremezzonine_manager_partner_requests_shortcode() {
+    if (!is_user_logged_in()) {
+        return '<div class="registration-message registration-error">Войдите в WordPress, чтобы посмотреть заявки.</div>';
+    }
+
+    if (!current_user_can('edit_posts')) {
+        return '<div class="registration-message registration-error">У вашей учетной записи нет прав для просмотра заявок.</div>';
+    }
+
+    return fyremezzonine_manager_partner_requests_interface(false);
+}
+add_shortcode('conference_partner_requests_archive', 'fyremezzonine_manager_partner_requests_shortcode');
+
+function fyremezzonine_manager_render_frontend_editor_page($title, $content, $eyebrow = 'Редактор') {
     global $wp_query;
 
     if ($wp_query) {
@@ -1428,7 +1671,7 @@ function fyremezzonine_manager_render_frontend_editor_page($title, $content) {
     <main id="primary">
         <section class="section editor-page">
             <div class="section-inner page-layout">
-                <p class="section-eyebrow">Редактор</p>
+                <p class="section-eyebrow"><?php echo esc_html($eyebrow); ?></p>
                 <h1 class="section-title"><?php echo esc_html($title); ?></h1>
                 <?php echo do_shortcode($content); ?>
             </div>
@@ -1442,6 +1685,10 @@ function fyremezzonine_manager_render_frontend_editor_page($title, $content) {
 function fyremezzonine_manager_frontend_editor_routes() {
     $path = isset($_SERVER['REQUEST_URI']) ? trim((string) wp_parse_url(wp_unslash($_SERVER['REQUEST_URI']), PHP_URL_PATH), '/') : '';
 
+    if ($path === 'partnership') {
+        fyremezzonine_manager_render_frontend_editor_page('Заявка на партнерство', '[conference_partner_request_form]', 'Партнерство');
+    }
+
     if ($path === 'editor/new-conference') {
         fyremezzonine_manager_render_frontend_editor_page('Создать конференцию', '[conference_submission_form]');
     }
@@ -1452,6 +1699,10 @@ function fyremezzonine_manager_frontend_editor_routes() {
 
     if ($path === 'editor/registrations') {
         fyremezzonine_manager_render_frontend_editor_page('Заявки на конференции', '[conference_registrations_archive]');
+    }
+
+    if ($path === 'editor/partner-requests') {
+        fyremezzonine_manager_render_frontend_editor_page('Заявки на партнерство', '[conference_partner_requests_archive]');
     }
 }
 add_action('template_redirect', 'fyremezzonine_manager_frontend_editor_routes');
@@ -1484,6 +1735,15 @@ function fyremezzonine_manager_render_registrations_page() {
     <div class="wrap">
         <h1>Заявки на конференции</h1>
         <?php echo fyremezzonine_manager_registrations_interface(true); ?>
+    </div>
+    <?php
+}
+
+function fyremezzonine_manager_render_partner_requests_page() {
+    ?>
+    <div class="wrap">
+        <h1>Заявки на партнерство</h1>
+        <?php echo fyremezzonine_manager_partner_requests_interface(true); ?>
     </div>
     <?php
 }

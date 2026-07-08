@@ -123,11 +123,7 @@ get_header();
     <section class="section cta-band">
         <div class="section-inner cta-layout">
             <h2>Приглашаем стать официальным партнером, соорганизатором конференции или представителем СМИ</h2>
-            <?php if (!empty($conference['partner_form_url'])) : ?>
-                <a class="button button-blue" href="<?php echo esc_url($conference['partner_form_url']); ?>" target="_blank" rel="noopener">Оставить заявку</a>
-            <?php else : ?>
-                <span class="cta-note">Ссылка на Google форму заявки на партнерство добавляется в карточке конференции.</span>
-            <?php endif; ?>
+            <a class="button button-blue" href="<?php echo esc_url($conference['partner_form_url']); ?>">Оставить заявку</a>
         </div>
     </section>
 
