@@ -857,19 +857,28 @@ img {
 
 .conference-submission-form {
   display: grid;
-  gap: 24px;
-  max-width: 1120px;
-  margin-top: 36px;
-  padding: 0 26px 26px;
+  gap: 18px;
+  max-width: 860px;
+  margin: 36px auto 0;
+  padding: 0;
   border: 0;
   background: transparent;
   box-shadow: none;
 }
 
+.conference-submission-form .registration-conference-title {
+  padding: 26px;
+  border: 1px solid rgba(16, 24, 40, 0.1);
+  border-left: 6px solid var(--fm-blue);
+  border-radius: var(--fm-radius);
+  background: var(--fm-white);
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.07);
+}
+
 .conference-submission-form fieldset {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px 20px;
+  grid-template-columns: 1fr;
+  gap: 18px;
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -885,7 +894,7 @@ img {
   grid-column: 1 / -1;
   gap: 8px;
   min-width: 0;
-  margin: 0 -26px 8px;
+  margin: 0;
   padding: 24px 26px 18px;
   border-bottom: 1px solid var(--fm-line);
   background: #f8fafc;
@@ -918,7 +927,12 @@ img {
   display: grid;
   gap: 8px;
   min-width: 0;
-  margin: 0;
+  margin: 0 26px;
+}
+
+.conference-submission-form fieldset > .conference-submission-field:last-child,
+.conference-submission-form fieldset > .conference-partner-repeater:last-child {
+  margin-bottom: 26px;
 }
 
 .conference-submission-field label {
@@ -988,6 +1002,7 @@ img {
   display: grid;
   gap: 16px;
   min-width: 0;
+  margin: 0 26px;
 }
 
 .conference-partner-repeater-head {
@@ -1057,7 +1072,7 @@ img {
 
 .conference-partner-fields {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
   min-width: 0;
 }
@@ -1095,7 +1110,13 @@ img {
 }
 
 .conference-submission-actions {
-  margin: 0;
+  display: flex;
+  justify-content: flex-end;
+  margin: 6px 0 0;
+}
+
+.conference-submission-actions .button {
+  min-width: 180px;
 }
 
 .conference-editor-picker {

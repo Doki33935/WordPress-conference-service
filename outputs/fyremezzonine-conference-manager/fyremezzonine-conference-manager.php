@@ -228,6 +228,7 @@ function fyremezzonine_manager_render_partner_repeater_assets() {
         .conference-partner-repeater {
             display: grid;
             gap: 14px;
+            min-width: 0;
             margin: 0 0 18px;
         }
         .conference-partner-rows {
@@ -238,6 +239,7 @@ function fyremezzonine_manager_render_partner_repeater_assets() {
         .conference-partner-row {
             display: grid;
             gap: 14px;
+            min-width: 0;
             padding: 16px;
             border: 1px solid #dcdcde;
             border-radius: 8px;
@@ -250,13 +252,16 @@ function fyremezzonine_manager_render_partner_repeater_assets() {
             align-items: center;
             justify-content: space-between;
             gap: 12px;
+            min-width: 0;
             padding-bottom: 10px;
             border-bottom: 1px solid #f0f0f1;
         }
         .conference-partner-row-title {
+            min-width: 0;
             margin: 0;
             font-size: 14px;
             font-weight: 700;
+            overflow-wrap: anywhere;
         }
         .conference-partner-row-title::after {
             content: counter(conference-partner);
@@ -272,21 +277,25 @@ function fyremezzonine_manager_render_partner_repeater_assets() {
         }
         .conference-partner-fields {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: 1fr;
             gap: 12px;
+            min-width: 0;
         }
         .conference-partner-row label {
             display: grid;
             gap: 6px;
+            min-width: 0;
             margin: 0;
             font-weight: 600;
         }
         .conference-partner-row label span {
             color: #1d2327;
             font-size: 13px;
+            overflow-wrap: anywhere;
         }
         .conference-partner-row input {
             width: 100%;
+            min-width: 0;
         }
         .conference-partner-repeater template {
             display: none;
@@ -568,11 +577,39 @@ function fyremezzonine_manager_sanitize_submission_value($value, $type) {
     return sanitize_text_field($raw_value);
 }
 
+function fyremezzonine_manager_submission_placeholder($name) {
+    $placeholders = array(
+        'conference_title' => 'Например: Предупреждение техногенных катастроф',
+        'conference_excerpt' => 'Коротко опишите конференцию в 1-2 предложениях',
+        'conference_content' => 'Полное описание, которое увидит посетитель',
+        '_conference_city' => 'Например: Оренбург',
+        '_conference_venue' => 'Например: испытательный полигон ВНИИПО',
+        '_conference_route_address' => 'Например: Нижняя Павловка, Полигонная улица, д. 1',
+        '_conference_route_directions' => 'Кратко опишите, как добраться до места проведения',
+        '_conference_program_url' => 'https://...',
+        '_conference_chat_1_url' => 'https://...',
+        '_conference_chat_2_url' => 'https://...',
+        '_conference_partner_form_url' => 'https://forms.gle/...',
+        '_conference_hero_image_url' => 'https://.../image.jpg',
+        '_conference_topic_1_image_url' => 'https://.../image.jpg',
+        '_conference_topic_2_image_url' => 'https://.../image.jpg',
+        '_conference_topic_3_image_url' => 'https://.../image.jpg',
+        '_conference_map_embed_url' => 'https://yandex.ru/map-widget/v1/...',
+        '_conference_map_lat' => '51.768199',
+        '_conference_map_lon' => '55.096955',
+        '_conference_venue_image_url' => 'https://.../photo.jpg',
+        '_conference_collage_image_url' => 'https://.../photo.jpg',
+    );
+
+    return $placeholders[$name] ?? '';
+}
+
 function fyremezzonine_manager_render_submission_field($name, $field, $value = '') {
     $required = !empty($field['required']) ? ' required' : '';
     $label = isset($field['label']) ? $field['label'] : $name;
     $type = isset($field['type']) ? $field['type'] : 'text';
     $is_image_field = in_array($name, fyremezzonine_manager_image_meta_keys(), true);
+    $placeholder = fyremezzonine_manager_submission_placeholder($name);
 
     if ($type === 'partners') {
         fyremezzonine_manager_render_partner_repeater($name, $label, $value);
@@ -584,18 +621,20 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
 
     if ($type === 'textarea') {
         printf(
-            '<textarea id="%1$s" name="%1$s" rows="4"%3$s>%2$s</textarea>',
+            '<textarea id="%1$s" name="%1$s" rows="4" placeholder="%4$s"%3$s>%2$s</textarea>',
             esc_attr($name),
             esc_textarea($value),
-            $required
+            $required,
+            esc_attr($placeholder)
         );
     } else {
         printf(
-            '<input id="%1$s" type="%2$s" name="%1$s" value="%3$s"%4$s>',
+            '<input id="%1$s" type="%2$s" name="%1$s" value="%3$s" placeholder="%5$s"%4$s>',
             esc_attr($name),
             esc_attr($type),
             esc_attr($value),
-            $required
+            $required,
+            esc_attr($placeholder)
         );
     }
 
@@ -1051,8 +1090,8 @@ function fyremezzonine_manager_render_simple_create_page() {
         <style>
             .fyremezzonine-simple-create .conference-submission-form {
                 display: grid;
-                gap: 22px;
-                max-width: 920px;
+                gap: 18px;
+                max-width: 860px;
                 margin-top: 20px;
                 padding: 0;
                 border: 0;
@@ -1060,7 +1099,7 @@ function fyremezzonine_manager_render_simple_create_page() {
             }
             .fyremezzonine-simple-create fieldset {
                 display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns: 1fr;
                 gap: 16px;
                 min-width: 0;
                 margin: 0;
@@ -1090,8 +1129,11 @@ function fyremezzonine_manager_render_simple_create_page() {
             .fyremezzonine-simple-create .registration-conference-title {
                 display: grid;
                 gap: 6px;
-                padding-bottom: 16px;
-                border-bottom: 1px solid #dcdcde;
+                padding: 20px;
+                border: 1px solid #dcdcde;
+                border-left: 6px solid #525afc;
+                border-radius: 8px;
+                background: #fff;
             }
             .fyremezzonine-simple-create .registration-conference-title span {
                 color: #646970;
@@ -1128,11 +1170,6 @@ function fyremezzonine_manager_render_simple_create_page() {
                 width: 100%;
                 min-width: 0;
                 max-width: 100%;
-            }
-            @media (max-width: 900px) {
-                .fyremezzonine-simple-create fieldset {
-                    grid-template-columns: 1fr;
-                }
             }
         </style>
         <?php echo do_shortcode('[conference_submission_form]'); ?>
