@@ -628,14 +628,9 @@ function fyremezzonine_manager_handle_conference_submission() {
         return '<div class="registration-message registration-error">У вас нет прав для редактирования этой конференции.</div>';
     }
 
-    $status = $editing_post_id ? get_post_status($editing_post_id) : 'draft';
-    if (isset($_POST['conference_status']) && $_POST['conference_status'] === 'publish' && current_user_can('publish_posts')) {
-        $status = 'publish';
-    }
-
     $post_data = array(
         'post_type' => 'conference',
-        'post_status' => $status,
+        'post_status' => 'publish',
         'post_title' => $title,
         'post_excerpt' => isset($_POST['conference_excerpt']) ? sanitize_textarea_field(wp_unslash($_POST['conference_excerpt'])) : '',
         'post_content' => isset($_POST['conference_content']) ? wp_kses_post(wp_unslash($_POST['conference_content'])) : '',
@@ -665,13 +660,13 @@ function fyremezzonine_manager_handle_conference_submission() {
 
     $edit_link = get_edit_post_link($post_id, '');
     $view_link = get_permalink($post_id);
-    $message = $editing_post_id ? 'Конференция обновлена.' : ($status === 'publish' ? 'Конференция опубликована.' : 'Конференция сохранена как черновик.');
+    $message = $editing_post_id ? 'Конференция обновлена и применена на сайте.' : 'Конференция сохранена и применена на сайте.';
 
     $links = array();
     if ($edit_link) {
         $links[] = '<a href="' . esc_url($edit_link) . '">Открыть карточку</a>';
     }
-    if ($status === 'publish' && $view_link) {
+    if ($view_link) {
         $links[] = '<a href="' . esc_url($view_link) . '">Посмотреть на сайте</a>';
     }
 
@@ -743,22 +738,8 @@ function fyremezzonine_manager_conference_submission_shortcode() {
             </fieldset>
         <?php endforeach; ?>
 
-        <fieldset>
-            <legend>Публикация</legend>
-            <p class="conference-submission-field">
-                <label for="conference_status">Как сохранить</label>
-                <select id="conference_status" name="conference_status">
-                    <?php $current_status = $editing_conference_id ? get_post_status($editing_conference_id) : 'draft'; ?>
-                    <option value="draft" <?php selected($current_status, 'draft'); ?>>Черновик для проверки</option>
-                    <?php if (current_user_can('publish_posts')) : ?>
-                        <option value="publish" <?php selected($current_status, 'publish'); ?>>Опубликовать сразу</option>
-                    <?php endif; ?>
-                </select>
-            </p>
-        </fieldset>
-
         <p class="conference-submission-actions">
-            <button class="button button-red" type="submit">Сохранить конференцию</button>
+            <button class="button button-red" type="submit">Сохранить</button>
         </p>
     </form>
     <?php
