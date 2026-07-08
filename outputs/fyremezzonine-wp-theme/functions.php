@@ -253,6 +253,22 @@ function fyremezzonine_parse_partner_list($raw) {
     return $items;
 }
 
+function fyremezzonine_parse_topic_list($raw) {
+    $items = array();
+    foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $raw))) as $line) {
+        $parts = array_map('trim', explode('|', $line));
+        if (empty($parts[0])) {
+            continue;
+        }
+        $items[] = array(
+            'title' => $parts[0],
+            'image_url' => $parts[1] ?? '',
+        );
+    }
+
+    return $items;
+}
+
 function fyremezzonine_conference_partner_groups($conference_id) {
     $groups = fyremezzonine_default_partner_groups();
     $meta_map = array(
@@ -357,12 +373,14 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
         array('title' => 'Практические меры предупреждения аварий и чрезвычайных ситуаций.', 'image_url' => fyremezzonine_asset('topic-2.png')),
         array('title' => 'Опыт ВНИИПО, ведомственное взаимодействие и подготовка специалистов.', 'image_url' => fyremezzonine_asset('vniipo-logo.jpg')),
     );
-    $topics = array();
-    for ($index = 1; $index <= 3; $index++) {
-        $topics[] = array(
-            'title' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_title', $default_topics[$index - 1]['title']),
-            'image_url' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_image_url', $default_topics[$index - 1]['image_url']),
-        );
+    $topics = fyremezzonine_parse_topic_list(fyremezzonine_conference_meta($conference_id, '_conference_topics'));
+    if (!$topics) {
+        for ($index = 1; $index <= 3; $index++) {
+            $topics[] = array(
+                'title' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_title', $default_topics[$index - 1]['title']),
+                'image_url' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_image_url', $default_topics[$index - 1]['image_url']),
+            );
+        }
     }
 
     $benefits_raw = fyremezzonine_conference_meta($conference_id, '_conference_benefits');

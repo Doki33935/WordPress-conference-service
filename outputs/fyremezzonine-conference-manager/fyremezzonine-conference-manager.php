@@ -152,6 +152,7 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_general_partners' => array('label' => 'Генеральные партнеры', 'type' => 'partners'),
         '_conference_partners' => array('label' => 'Партнеры', 'type' => 'partners'),
         '_conference_media_partners' => array('label' => 'Информационные партнеры', 'type' => 'partners'),
+        '_conference_topics' => array('label' => 'Темы конференции', 'type' => 'topics'),
     );
 }
 
@@ -239,6 +240,48 @@ function fyremezzonine_manager_partner_rows_from_request($key) {
         }
 
         $rows[] = $name . ' | ' . $url . ' | ' . $logo_url;
+    }
+
+    return implode("\n", $rows);
+}
+
+function fyremezzonine_manager_parse_topic_rows($raw) {
+    $items = array();
+
+    foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $raw))) as $line) {
+        $parts = array_map('trim', explode('|', $line));
+        if (empty($parts[0])) {
+            continue;
+        }
+
+        $items[] = array(
+            'title' => $parts[0],
+            'image_url' => $parts[1] ?? '',
+        );
+    }
+
+    return $items;
+}
+
+function fyremezzonine_manager_topic_rows_from_request($key) {
+    $titles = isset($_POST[$key . '_title']) && is_array($_POST[$key . '_title']) ? wp_unslash($_POST[$key . '_title']) : array();
+    $images = isset($_POST[$key . '_image_url']) && is_array($_POST[$key . '_image_url']) ? wp_unslash($_POST[$key . '_image_url']) : array();
+    $rows = array();
+    $total = max(count($titles), count($images));
+
+    for ($index = 0; $index < $total; $index++) {
+        $title = isset($titles[$index]) ? sanitize_text_field($titles[$index]) : '';
+        $image_url = isset($images[$index]) ? esc_url_raw($images[$index]) : '';
+
+        if (!$title && !$image_url) {
+            continue;
+        }
+
+        if (!$title) {
+            $title = 'Тема конференции';
+        }
+
+        $rows[] = $title . ' | ' . $image_url;
     }
 
     return implode("\n", $rows);
@@ -341,17 +384,17 @@ function fyremezzonine_manager_render_partner_repeater_assets() {
     </style>
     <script>
         document.addEventListener('click', function(event) {
-            const addButton = event.target.closest('[data-partner-add]');
+            const addButton = event.target.closest('[data-repeater-add]');
             if (addButton) {
-                const repeater = addButton.closest('[data-partner-repeater]');
-                const rows = repeater.querySelector('[data-partner-rows]');
+                const repeater = addButton.closest('[data-repeater]');
+                const rows = repeater.querySelector('[data-repeater-rows]');
                 const template = repeater.querySelector('template');
                 rows.insertAdjacentHTML('beforeend', template.innerHTML);
             }
 
-            const removeButton = event.target.closest('[data-partner-remove]');
+            const removeButton = event.target.closest('[data-repeater-remove]');
             if (removeButton) {
-                removeButton.closest('[data-partner-row]').remove();
+                removeButton.closest('[data-repeater-row]').remove();
             }
         });
     </script>
@@ -369,10 +412,10 @@ function fyremezzonine_manager_render_partner_repeater($key, $label, $value = ''
 
     $render_row = static function($item) use ($key, $entity_title) {
         ?>
-        <div class="conference-partner-row" data-partner-row>
+        <div class="conference-partner-row" data-repeater-row>
             <div class="conference-partner-row-head">
                 <strong class="conference-partner-row-title"><?php echo esc_html($entity_title); ?></strong>
-                <button type="button" class="button conference-partner-remove" data-partner-remove>Удалить</button>
+                <button type="button" class="button conference-partner-remove" data-repeater-remove>Удалить</button>
             </div>
             <div class="conference-partner-fields">
                 <label>
@@ -392,19 +435,65 @@ function fyremezzonine_manager_render_partner_repeater($key, $label, $value = ''
         <?php
     };
 
-    echo '<div class="conference-submission-field conference-partner-repeater" data-partner-repeater>';
+    echo '<div class="conference-submission-field conference-partner-repeater" data-repeater>';
     echo '<div class="conference-partner-repeater-head">';
     printf('<label>%s</label>', esc_html($label));
     echo '<p class="conference-submission-note">Можно оставить список пустым. Каждая карточка - одна организация с названием, сайтом и логотипом.</p>';
     echo '</div>';
-    echo '<div class="conference-partner-rows" data-partner-rows>';
+    echo '<div class="conference-partner-rows" data-repeater-rows>';
     foreach ($items as $item) {
         $render_row($item);
     }
     echo '</div>';
-    printf('<button type="button" class="button conference-partner-add" data-partner-add>%s</button>', esc_html($add_button_label));
+    printf('<button type="button" class="button conference-partner-add" data-repeater-add>%s</button>', esc_html($add_button_label));
     echo '<template>';
     $render_row(array('name' => '', 'url' => '', 'logo_url' => ''));
+    echo '</template>';
+    echo '</div>';
+
+    fyremezzonine_manager_render_partner_repeater_assets();
+}
+
+function fyremezzonine_manager_render_topic_repeater($key, $label, $value = '') {
+    $items = fyremezzonine_manager_parse_topic_rows($value);
+    if (!$items) {
+        $items = array(array('title' => '', 'image_url' => ''));
+    }
+
+    $render_row = static function($item) use ($key) {
+        ?>
+        <div class="conference-partner-row conference-topic-row" data-repeater-row>
+            <div class="conference-partner-row-head">
+                <strong class="conference-partner-row-title">Тема</strong>
+                <button type="button" class="button conference-partner-remove" data-repeater-remove>Удалить</button>
+            </div>
+            <div class="conference-partner-fields">
+                <label>
+                    <span>Название темы</span>
+                    <input type="text" name="<?php echo esc_attr($key); ?>_title[]" value="<?php echo esc_attr($item['title'] ?? ''); ?>" placeholder="Например: Предупреждение техногенных катастроф">
+                </label>
+                <label>
+                    <span>Ссылка на изображение темы</span>
+                    <input type="url" name="<?php echo esc_attr($key); ?>_image_url[]" value="<?php echo esc_attr($item['image_url'] ?? ''); ?>" placeholder="https://example.ru/topic.jpg">
+                </label>
+            </div>
+        </div>
+        <?php
+    };
+
+    echo '<div class="conference-submission-field conference-partner-repeater conference-topic-repeater" data-repeater>';
+    echo '<div class="conference-partner-repeater-head">';
+    printf('<label>%s</label>', esc_html($label));
+    echo '<p class="conference-submission-note">Добавьте столько тем, сколько нужно. Каждая карточка - одна тема с текстом и изображением.</p>';
+    echo '</div>';
+    echo '<div class="conference-partner-rows" data-repeater-rows>';
+    foreach ($items as $item) {
+        $render_row($item);
+    }
+    echo '</div>';
+    echo '<button type="button" class="button conference-partner-add" data-repeater-add>+ Добавить тему</button>';
+    echo '<template>';
+    $render_row(array('title' => '', 'image_url' => ''));
     echo '</template>';
     echo '</div>';
 
@@ -485,6 +574,10 @@ function fyremezzonine_manager_save_meta($post_id) {
             update_post_meta($post_id, $key, fyremezzonine_manager_partner_rows_from_request($key));
             continue;
         }
+        if ($field['type'] === 'topics') {
+            update_post_meta($post_id, $key, fyremezzonine_manager_topic_rows_from_request($key));
+            continue;
+        }
 
         if (!isset($_POST[$key])) {
             update_post_meta($post_id, $key, '');
@@ -540,9 +633,7 @@ function fyremezzonine_manager_submission_field_groups() {
             'description' => 'Тексты для тематических блоков, материалов и раздела "О конференции".',
             'fields' => array(
                 '_conference_topic_intro',
-                '_conference_topic_1_title',
-                '_conference_topic_2_title',
-                '_conference_topic_3_title',
+                '_conference_topics',
                 '_conference_about_title',
                 '_conference_about_lead',
                 '_conference_benefits',
@@ -556,9 +647,6 @@ function fyremezzonine_manager_submission_field_groups() {
                 '_conference_chat_1_url',
                 '_conference_chat_2_url',
                 '_conference_hero_image_url',
-                '_conference_topic_1_image_url',
-                '_conference_topic_2_image_url',
-                '_conference_topic_3_image_url',
                 '_conference_venue_heading',
                 '_conference_venue_intro',
                 '_conference_map_embed_url',
@@ -591,6 +679,10 @@ function fyremezzonine_manager_sanitize_submission_value($value, $type) {
     $raw_value = wp_unslash($value);
 
     if ($type === 'partners') {
+        return sanitize_textarea_field($raw_value);
+    }
+
+    if ($type === 'topics') {
         return sanitize_textarea_field($raw_value);
     }
 
@@ -640,6 +732,11 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
 
     if ($type === 'partners') {
         fyremezzonine_manager_render_partner_repeater($name, $label, $value);
+        return;
+    }
+
+    if ($type === 'topics') {
+        fyremezzonine_manager_render_topic_repeater($name, $label, $value);
         return;
     }
 
@@ -720,6 +817,10 @@ function fyremezzonine_manager_handle_conference_submission() {
     foreach (fyremezzonine_manager_meta_keys() as $key => $field) {
         if ($field['type'] === 'partners') {
             update_post_meta($post_id, $key, fyremezzonine_manager_partner_rows_from_request($key));
+            continue;
+        }
+        if ($field['type'] === 'topics') {
+            update_post_meta($post_id, $key, fyremezzonine_manager_topic_rows_from_request($key));
             continue;
         }
 
@@ -1413,25 +1514,25 @@ function fyremezzonine_manager_export_registrations() {
     $conference_id = isset($_GET['conference_id']) ? absint($_GET['conference_id']) : 0;
     $items = fyremezzonine_manager_registrations_query($conference_id);
     $conference_slug = $conference_id ? sanitize_title(get_the_title($conference_id)) : 'all';
-    $filename = 'conference-registrations-' . $conference_slug . '-' . gmdate('Y-m-d') . '.csv';
+    $filename = 'conference-registrations-' . $conference_slug . '-' . gmdate('Y-m-d') . '.xls';
 
     nocache_headers();
-    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
 
-    $output = fopen('php://output', 'w');
-    fwrite($output, "\xEF\xBB\xBF");
-    fputcsv(
-        $output,
-        array('ID', 'Дата', 'Конференция', 'Фамилия', 'Имя', 'Отчество', 'Должность', 'Email', 'Телефон', 'Организация', 'Комментарий', 'Согласие', 'Статус', 'IP'),
-        ';'
-    );
+    echo "\xEF\xBB\xBF";
+    echo '<!doctype html><html><head><meta charset="UTF-8"></head><body>';
+    echo '<table border="1">';
+    echo '<thead><tr>';
+    foreach (array('ID', 'Дата', 'Конференция', 'Фамилия', 'Имя', 'Отчество', 'Должность', 'Email', 'Телефон', 'Организация', 'Комментарий', 'Согласие', 'Статус', 'IP') as $heading) {
+        echo '<th>' . esc_html($heading) . '</th>';
+    }
+    echo '</tr></thead><tbody>';
 
     foreach ($items as $item) {
         list($last_name, $first_name, $middle_name) = fyremezzonine_manager_registration_name_parts($item);
-
-        fputcsv(
-            $output,
+        echo '<tr>';
+        foreach (
             array(
                 $item->id,
                 $item->created_at,
@@ -1447,12 +1548,14 @@ function fyremezzonine_manager_export_registrations() {
                 $item->privacy_consent ? 'Да' : 'Нет',
                 $item->status,
                 $item->ip_address,
-            ),
-            ';'
-        );
+            ) as $cell
+        ) {
+            echo '<td>' . esc_html((string) $cell) . '</td>';
+        }
+        echo '</tr>';
     }
 
-    fclose($output);
+    echo '</tbody></table></body></html>';
     exit;
 }
 add_action('admin_post_fyremezzonine_export_registrations', 'fyremezzonine_manager_export_registrations');
@@ -1509,7 +1612,7 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
             </select>
         </p>
         <button type="submit" class="<?php echo $admin_mode ? 'button' : 'button button-outline'; ?>">Показать</button>
-        <a class="<?php echo $admin_mode ? 'button button-primary' : 'button button-red'; ?>" href="<?php echo esc_url($export_url); ?>">Выгрузить CSV</a>
+        <a class="<?php echo $admin_mode ? 'button button-primary' : 'button button-red'; ?>" href="<?php echo esc_url($export_url); ?>">Выгрузить Excel</a>
     </form>
 
     <div class="conference-registrations-scroll">
@@ -1725,7 +1828,7 @@ function fyremezzonine_manager_render_guide_page() {
         <h2>Что управляется из карточки конференции</h2>
         <p>Дата, город, место, дедлайн, ссылка на программу, первый экран, темы, изображения тем, блок "О конференции", преимущества, партнеры и спонсоры, место проведения, маршрут, карта и галерея.</p>
         <h2>Где смотреть заявки</h2>
-        <p>На сайте после входа редактора откройте <strong>Редактор -> Заявки и экспорт</strong>. Там можно выбрать конференцию, посмотреть архив старых регистраций и выгрузить CSV. Данные хранятся в таблице <code>wp_conference_registrations</code>.</p>
+        <p>На сайте после входа редактора откройте <strong>Редактор -> Заявки и экспорт</strong>. Там можно выбрать конференцию, посмотреть архив старых регистраций и выгрузить Excel. Данные хранятся в таблице <code>wp_conference_registrations</code>.</p>
     </div>
     <?php
 }
