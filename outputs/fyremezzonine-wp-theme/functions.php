@@ -46,6 +46,20 @@ function fyremezzonine_conference_visual_theme($conference_id) {
     return in_array($theme, $allowed_themes, true) ? $theme : 'classic';
 }
 
+function fyremezzonine_default_hero_image($visual_theme = 'classic') {
+    if ($visual_theme === 'arctic') {
+        return fyremezzonine_asset('arctic-blizzard.gif');
+    }
+
+    return fyremezzonine_asset('hero-original.png');
+}
+
+function fyremezzonine_conference_hero_image($conference_id, $visual_theme = 'classic') {
+    $hero_image = fyremezzonine_conference_meta($conference_id, '_conference_hero_image_url');
+
+    return $hero_image ?: fyremezzonine_default_hero_image($visual_theme);
+}
+
 function fyremezzonine_customize_register($wp_customize) {
     $wp_customize->add_section(
         'fyremezzonine_links',
@@ -366,7 +380,7 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
             'chat_url' => '',
             'partner_form_url' => home_url('/partnership/'),
             'materials_url' => fyremezzonine_link('materials_url'),
-            'hero_image_url' => fyremezzonine_asset('hero-original.png'),
+            'hero_image_url' => fyremezzonine_default_hero_image('classic'),
             'topic_intro' => 'На конференции обсудят практические вопросы профилактики, оценки рисков и взаимодействия специалистов отрасли.',
             'topics' => array(
                 array('title' => 'Анализ рисков и раннее выявление опасных факторов.', 'image_url' => fyremezzonine_asset('topic-1.png')),
@@ -426,6 +440,8 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
     $map_lat = fyremezzonine_conference_meta($conference_id, '_conference_map_lat');
     $map_lon = fyremezzonine_conference_meta($conference_id, '_conference_map_lon');
 
+    $visual_theme = fyremezzonine_conference_visual_theme($conference_id);
+
     return array(
         'id' => $conference_id,
         'title' => get_the_title($conference_id),
@@ -436,12 +452,12 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
         'venue' => fyremezzonine_conference_meta($conference_id, '_conference_venue', 'Оренбургский район, Нижнепавловский сельсовет, Полигонная улица 1'),
         'deadline' => fyremezzonine_format_conference_date(fyremezzonine_conference_meta($conference_id, '_conference_registration_deadline')),
         'registration_closed' => fyremezzonine_registration_closed($conference_id),
-        'visual_theme' => fyremezzonine_conference_visual_theme($conference_id),
+        'visual_theme' => $visual_theme,
         'program_url' => fyremezzonine_conference_meta($conference_id, '_conference_program_url', fyremezzonine_link('program_url')),
         'chat_url' => fyremezzonine_conference_meta($conference_id, '_conference_chat_1_url'),
         'partner_form_url' => home_url('/partnership/'),
         'materials_url' => fyremezzonine_link('materials_url'),
-        'hero_image_url' => fyremezzonine_conference_meta($conference_id, '_conference_hero_image_url', fyremezzonine_asset('hero-original.png')),
+        'hero_image_url' => fyremezzonine_conference_hero_image($conference_id, $visual_theme),
         'topic_intro' => fyremezzonine_conference_meta($conference_id, '_conference_topic_intro', 'На конференции «' . get_the_title($conference_id) . '» обсудят практические вопросы профилактики, оценки рисков и взаимодействия специалистов отрасли.'),
         'topics' => $topics,
         'about_title' => fyremezzonine_conference_meta($conference_id, '_conference_about_title', get_the_title($conference_id)),
