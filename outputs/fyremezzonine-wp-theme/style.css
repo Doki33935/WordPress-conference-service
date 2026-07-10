@@ -460,6 +460,23 @@ body:has(.conference-theme-arctic) .site-header {
   color: #f3fbff;
 }
 
+body:has(.conference-theme-arctic)::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.94) 0 1.6px, transparent 2.4px),
+    radial-gradient(circle, rgba(209, 239, 255, 0.82) 0 1.2px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.64) 0 0.9px, transparent 1.5px),
+    linear-gradient(112deg, transparent 0 44%, rgba(255, 255, 255, 0.08) 48%, transparent 54%);
+  background-size: 118px 118px, 176px 176px, 74px 74px, 620px 100%;
+  animation: siteSnowfall 13s linear infinite;
+  opacity: 0.78;
+  mix-blend-mode: screen;
+}
+
 body:has(.conference-theme-arctic) .brand-mark {
   background: rgba(255, 255, 255, 0.92);
 }
@@ -541,6 +558,15 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   }
   to {
     background-position: 60px 560px, -30px 620px, 28px 480px;
+  }
+}
+
+@keyframes siteSnowfall {
+  from {
+    background-position: 0 -180px, 44px -260px, 22px -120px, -260px 0;
+  }
+  to {
+    background-position: 90px 720px, -38px 840px, 42px 560px, 420px 0;
   }
 }
 
