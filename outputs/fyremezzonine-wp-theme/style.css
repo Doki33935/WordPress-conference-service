@@ -808,26 +808,27 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .topic-card {
   display: grid;
-  gap: 18px;
-  min-height: 0;
-  padding: 18px;
+  justify-items: center;
+  gap: 16px;
+  min-height: 250px;
+  padding: 28px 24px;
+  text-align: center;
   box-shadow: var(--fm-soft-shadow);
 }
 
 .topic-media {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  height: auto;
+  width: 136px;
+  height: 136px;
   margin: 0;
-  border: 0;
-  border-radius: 6px;
+  border: 7px solid var(--fm-white);
+  border-radius: 50%;
   object-fit: cover;
-  box-shadow: none;
+  box-shadow: 0 18px 38px rgba(17, 24, 39, 0.18);
 }
 
 .topic-number {
   color: var(--fm-red);
-  font-size: 34px;
+  font-size: 36px;
   font-weight: 900;
   line-height: 1;
 }
