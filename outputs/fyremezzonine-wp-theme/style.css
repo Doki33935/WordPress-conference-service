@@ -355,29 +355,37 @@ img {
 }
 
 .conference-theme-arctic {
-  --theme-page-bg: #edf6ff;
-  --theme-section-bg: linear-gradient(180deg, #f4f9ff 0%, #e9f2ff 48%, #f7f3ff 100%);
-  --theme-card-bg: rgba(255, 255, 255, 0.86);
-  --theme-soft-bg: linear-gradient(135deg, #f7fbff 0%, #edf4ff 52%, #f6f0ff 100%);
+  --theme-page-bg: #dff6f1;
+  --theme-section-bg:
+    radial-gradient(circle at 16% 18%, rgba(157, 118, 255, 0.2), transparent 34%),
+    radial-gradient(circle at 84% 8%, rgba(65, 232, 178, 0.22), transparent 33%),
+    linear-gradient(180deg, #eefbff 0%, #e7f6f4 46%, #efeaff 100%);
+  --theme-card-bg: rgba(255, 255, 255, 0.78);
+  --theme-soft-bg:
+    radial-gradient(circle at 18% 10%, rgba(112, 82, 255, 0.16), transparent 32%),
+    radial-gradient(circle at 78% 18%, rgba(56, 214, 169, 0.18), transparent 30%),
+    linear-gradient(135deg, #f6fbff 0%, #e7f7f0 52%, #f2ebff 100%);
   --theme-ink: #14213a;
-  --theme-muted: #5b6f8a;
-  --theme-line: rgba(104, 91, 188, 0.2);
-  --theme-accent: #7957ff;
-  --theme-secondary: #1f9bd4;
+  --theme-muted: #506a7a;
+  --theme-line: rgba(94, 76, 188, 0.22);
+  --theme-accent: #7648ff;
+  --theme-secondary: #00a978;
   --theme-hero-overlay:
-    linear-gradient(100deg, rgba(10, 24, 54, 0.78) 0%, rgba(50, 83, 148, 0.48) 46%, rgba(122, 192, 232, 0.2) 74%, rgba(103, 76, 185, 0.24) 100%),
-    radial-gradient(circle at 78% 30%, rgba(184, 238, 255, 0.5), transparent 33%),
-    radial-gradient(circle at 18% 78%, rgba(152, 112, 255, 0.34), transparent 28%);
+    linear-gradient(102deg, rgba(10, 18, 47, 0.84) 0%, rgba(42, 55, 124, 0.56) 42%, rgba(18, 116, 107, 0.32) 72%, rgba(76, 45, 147, 0.32) 100%),
+    radial-gradient(ellipse at 72% 22%, rgba(49, 255, 187, 0.54), transparent 34%),
+    radial-gradient(ellipse at 34% 18%, rgba(165, 97, 255, 0.52), transparent 32%),
+    linear-gradient(180deg, rgba(8, 13, 35, 0.34), rgba(204, 244, 236, 0.12));
 }
 
 .conference-theme-arctic .theme-atmosphere::before {
-  opacity: 0.82;
-  background-image:
-    linear-gradient(115deg, transparent 0 42%, rgba(255, 255, 255, 0.08) 46%, transparent 52%),
-    radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 1.7px, transparent 2.4px),
-    radial-gradient(circle, rgba(128, 219, 255, 0.7) 0 1.2px, transparent 1.9px);
-  background-size: 520px 100%, 96px 96px, 142px 142px;
-  animation: arcticSnow 16s linear infinite;
+  opacity: 0.9;
+  background:
+    linear-gradient(105deg, transparent 0 34%, rgba(114, 255, 194, 0.24) 40%, rgba(142, 86, 255, 0.28) 49%, transparent 58%),
+    linear-gradient(78deg, transparent 0 48%, rgba(255, 255, 255, 0.14) 52%, transparent 59%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.82) 0 1.6px, transparent 2.4px);
+  background-size: 720px 100%, 540px 100%, 116px 116px;
+  filter: blur(0.2px);
+  animation: arcticAuroraFlow 18s ease-in-out infinite alternate, arcticSnow 18s linear infinite;
 }
 
 .conference-theme-arctic .section {
@@ -416,7 +424,7 @@ img {
 }
 
 .conference-theme-arctic .button-blue {
-  background: #bfefff;
+  background: #8fffe0;
   color: #14213a;
 }
 
@@ -446,12 +454,12 @@ img {
 }
 
 .conference-theme-arctic .theme-atmosphere::after {
-  opacity: 0.74;
+  opacity: 0.88;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0 55%, rgba(232, 244, 255, 0.62) 100%),
-    radial-gradient(circle at 76% 68%, rgba(135, 215, 255, 0.34), transparent 22%),
-    radial-gradient(circle at 22% 82%, rgba(153, 111, 255, 0.3), transparent 19%);
-  filter: blur(10px);
+    radial-gradient(ellipse at 72% 18%, rgba(75, 255, 181, 0.42), transparent 28%),
+    radial-gradient(ellipse at 28% 22%, rgba(166, 100, 255, 0.42), transparent 30%),
+    linear-gradient(180deg, transparent 0 54%, rgba(219, 250, 244, 0.62) 100%);
+  filter: blur(12px);
 }
 
 body:has(.conference-theme-arctic) .site-header {
@@ -467,14 +475,13 @@ body:has(.conference-theme-arctic)::before {
   z-index: 49;
   pointer-events: none;
   background-image:
-    radial-gradient(circle, rgba(255, 255, 255, 0.96) 0 1.7px, transparent 2.5px),
-    radial-gradient(circle, rgba(210, 235, 255, 0.92) 0 1.1px, transparent 1.9px),
-    radial-gradient(circle, rgba(255, 255, 255, 0.68) 0 0.8px, transparent 1.4px),
-    linear-gradient(118deg, transparent 0 43%, rgba(255, 255, 255, 0.14) 48%, transparent 55%);
+    radial-gradient(circle, rgba(255, 255, 255, 0.96) 0 1.8px, rgba(96, 141, 178, 0.34) 2.4px, transparent 3px),
+    radial-gradient(circle, rgba(229, 247, 255, 0.9) 0 1.2px, rgba(87, 93, 171, 0.22) 1.8px, transparent 2.4px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.72) 0 0.8px, rgba(45, 96, 116, 0.22) 1.3px, transparent 1.8px),
+    linear-gradient(118deg, transparent 0 43%, rgba(255, 255, 255, 0.18) 48%, transparent 55%);
   background-size: 132px 132px, 211px 211px, 87px 87px, 720px 100%;
   animation: siteSnowfall 10.5s linear infinite, snowWind 5.5s ease-in-out infinite alternate;
-  opacity: 0.88;
-  mix-blend-mode: screen;
+  opacity: 0.92;
 }
 
 body:has(.conference-theme-arctic)::after {
@@ -484,13 +491,12 @@ body:has(.conference-theme-arctic)::after {
   z-index: 49;
   pointer-events: none;
   background-image:
-    radial-gradient(circle, rgba(255, 255, 255, 0.82) 0 2.4px, transparent 3.2px),
-    radial-gradient(circle, rgba(186, 217, 255, 0.6) 0 1.5px, transparent 2.4px),
-    linear-gradient(124deg, transparent 0 47%, rgba(255, 255, 255, 0.09) 51%, transparent 57%);
+    radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 2.5px, rgba(84, 80, 168, 0.24) 3.2px, transparent 4px),
+    radial-gradient(circle, rgba(213, 247, 238, 0.68) 0 1.5px, rgba(25, 118, 100, 0.18) 2.2px, transparent 3px),
+    linear-gradient(124deg, transparent 0 47%, rgba(255, 255, 255, 0.11) 51%, transparent 57%);
   background-size: 236px 236px, 151px 151px, 890px 100%;
   animation: siteSnowfallLarge 17s linear infinite, snowWindLarge 7s ease-in-out infinite alternate;
-  opacity: 0.58;
-  mix-blend-mode: screen;
+  opacity: 0.72;
 }
 
 body:has(.conference-theme-arctic) .brand-mark {
@@ -574,6 +580,17 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   }
   to {
     background-position: 60px 560px, -30px 620px, 28px 480px;
+  }
+}
+
+@keyframes arcticAuroraFlow {
+  from {
+    background-position: -260px 0, 120px 0, 0 -120px;
+    transform: translate3d(-1.5%, 0, 0) skewX(-2deg);
+  }
+  to {
+    background-position: 360px 0, -220px 0, 60px 560px;
+    transform: translate3d(2%, 0, 0) skewX(2deg);
   }
 }
 
