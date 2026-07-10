@@ -10,8 +10,9 @@ $conference = fyremezzonine_next_conference_data();
 get_header();
 ?>
 
-<main id="primary">
+<main id="primary" class="conference-theme conference-theme-<?php echo esc_attr($conference['visual_theme']); ?>">
     <section class="hero" id="top" style="--hero-image: url('<?php echo esc_url($conference['hero_image_url']); ?>');">
+        <div class="theme-atmosphere" aria-hidden="true"></div>
         <div class="section-inner">
             <div class="hero-content">
                 <div class="hero-kicker" aria-label="Дата и место">

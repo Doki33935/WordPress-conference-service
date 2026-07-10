@@ -13,8 +13,9 @@ while (have_posts()) :
     $registration_url = add_query_arg('conference_id', get_the_ID(), fyremezzonine_link('registration_url'));
     ?>
 
-    <main id="primary">
+    <main id="primary" class="conference-theme conference-theme-<?php echo esc_attr($conference['visual_theme']); ?>">
         <section class="hero conference-hero" id="top" style="--hero-image: url('<?php echo esc_url($conference['hero_image_url']); ?>');">
+            <div class="theme-atmosphere" aria-hidden="true"></div>
             <div class="section-inner">
                 <div class="hero-content">
                     <div class="hero-kicker" aria-label="Дата и место">

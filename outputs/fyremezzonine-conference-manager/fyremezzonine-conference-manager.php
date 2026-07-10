@@ -125,6 +125,15 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_city' => array('label' => 'Город', 'type' => 'text'),
         '_conference_venue' => array('label' => 'Место проведения', 'type' => 'text'),
         '_conference_registration_deadline' => array('label' => 'Дедлайн регистрации', 'type' => 'date'),
+        '_conference_visual_theme' => array(
+            'label' => 'Визуальная тема конференции',
+            'type' => 'select',
+            'options' => array(
+                'classic' => 'Статья: светлая спокойная тема',
+                'arctic' => 'Арктика: голубой фон, фиолетовые акценты, снежинки',
+                'ember' => 'Дым и искры: темная жаркая тема',
+            ),
+        ),
         '_conference_program_url' => array('label' => 'Ссылка на программу', 'type' => 'url'),
         '_conference_chat_1_url' => array('label' => 'Ссылка на чат конференции', 'type' => 'url'),
         '_conference_hero_image_url' => array('label' => 'Фон/заставка первого экрана: URL изображения или GIF', 'type' => 'url'),
@@ -631,7 +640,18 @@ function fyremezzonine_manager_render_meta_box($post) {
             continue;
         }
 
-        if ($field['type'] === 'textarea') {
+        if ($field['type'] === 'select') {
+            printf('<select id="%1$s" name="%1$s" class="widefat">', esc_attr($key));
+            foreach ($field['options'] as $option_value => $option_label) {
+                printf(
+                    '<option value="%1$s"%3$s>%2$s</option>',
+                    esc_attr($option_value),
+                    esc_html($option_label),
+                    selected($value ?: 'classic', $option_value, false)
+                );
+            }
+            echo '</select>';
+        } elseif ($field['type'] === 'textarea') {
             printf(
                 '<textarea id="%1$s" name="%1$s" rows="4" class="widefat">%2$s</textarea>',
                 esc_attr($key),
@@ -700,6 +720,8 @@ function fyremezzonine_manager_save_meta($post_id) {
             $value = sanitize_textarea_field($raw_value);
         } elseif ($field['type'] === 'url') {
             $value = esc_url_raw($raw_value);
+        } elseif ($field['type'] === 'select') {
+            $value = fyremezzonine_manager_sanitize_select_value($raw_value, $field);
         } else {
             $value = sanitize_text_field($raw_value);
         }
@@ -729,6 +751,7 @@ function fyremezzonine_manager_submission_field_groups() {
                 '_conference_city',
                 '_conference_venue',
                 '_conference_registration_deadline',
+                '_conference_visual_theme',
                 '_conference_route_address',
                 '_conference_route_directions',
             ),
@@ -805,6 +828,12 @@ function fyremezzonine_manager_sanitize_submission_value($value, $type) {
     return sanitize_text_field($raw_value);
 }
 
+function fyremezzonine_manager_sanitize_select_value($value, $field) {
+    $raw_value = sanitize_key(wp_unslash($value));
+
+    return isset($field['options'][$raw_value]) ? $raw_value : 'classic';
+}
+
 function fyremezzonine_manager_submission_placeholder($name) {
     $placeholders = array(
         'conference_title' => 'Например: Предупреждение техногенных катастроф',
@@ -814,6 +843,7 @@ function fyremezzonine_manager_submission_placeholder($name) {
         '_conference_venue' => 'Например: испытательный полигон ВНИИПО',
         '_conference_route_address' => 'Например: Нижняя Павловка, Полигонная улица, д. 1',
         '_conference_route_directions' => 'Кратко опишите, как добраться до места проведения',
+        '_conference_visual_theme' => '',
         '_conference_program_url' => 'https://...',
         '_conference_chat_1_url' => 'https://...',
         '_conference_hero_image_url' => 'https://.../hero.gif',
@@ -854,7 +884,18 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
     echo '<p class="conference-submission-field">';
     printf('<label for="%1$s">%2$s</label>', esc_attr($name), esc_html($label));
 
-    if ($type === 'textarea') {
+    if ($type === 'select') {
+        printf('<select id="%1$s" name="%1$s"%2$s>', esc_attr($name), $required);
+        foreach ($field['options'] as $option_value => $option_label) {
+            printf(
+                '<option value="%1$s"%3$s>%2$s</option>',
+                esc_attr($option_value),
+                esc_html($option_label),
+                selected($value ?: 'classic', $option_value, false)
+            );
+        }
+        echo '</select>';
+    } elseif ($type === 'textarea') {
         printf(
             '<textarea id="%1$s" name="%1$s" rows="4" placeholder="%4$s"%3$s>%2$s</textarea>',
             esc_attr($name),
@@ -944,7 +985,15 @@ function fyremezzonine_manager_handle_conference_submission() {
         }
 
         $uploaded_url = in_array($key, fyremezzonine_manager_image_meta_keys(), true) ? fyremezzonine_manager_upload_image_for_field($key, $post_id) : '';
-        $value = $uploaded_url ?: (isset($_POST[$key]) ? fyremezzonine_manager_sanitize_submission_value($_POST[$key], $field['type']) : '');
+        if ($uploaded_url) {
+            $value = $uploaded_url;
+        } elseif (isset($_POST[$key])) {
+            $value = $field['type'] === 'select'
+                ? fyremezzonine_manager_sanitize_select_value($_POST[$key], $field)
+                : fyremezzonine_manager_sanitize_submission_value($_POST[$key], $field['type']);
+        } else {
+            $value = '';
+        }
         update_post_meta($post_id, $key, $value);
     }
 

@@ -264,10 +264,230 @@ img {
 }
 
 .hero .section-inner {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   min-height: calc(100vh - 74px);
   padding: 58px 0 86px;
+}
+
+.conference-theme {
+  --theme-page-bg: var(--fm-bg);
+  --theme-section-bg: transparent;
+  --theme-card-bg: var(--fm-white);
+  --theme-soft-bg: #f8fafc;
+  --theme-ink: var(--fm-ink);
+  --theme-muted: var(--fm-muted);
+  --theme-line: var(--fm-line);
+  --theme-accent: var(--fm-red);
+  --theme-secondary: var(--fm-blue);
+  --theme-hero-overlay: linear-gradient(90deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.42) 48%, rgba(0, 0, 0, 0.1));
+  background: var(--theme-page-bg);
+  color: var(--theme-ink);
+}
+
+.conference-theme .section-eyebrow,
+.conference-theme .topic-number {
+  color: var(--theme-accent);
+}
+
+.conference-theme .lead,
+.conference-theme .info-card p,
+.conference-theme .speaker-body blockquote,
+.conference-theme .partner-label {
+  color: var(--theme-muted);
+}
+
+.conference-theme .topic-card,
+.conference-theme .info-card,
+.conference-theme .speaker-card,
+.conference-theme .partner-group,
+.conference-theme .map-card,
+.conference-theme .route-card,
+.conference-theme .gallery-card {
+  border-color: var(--theme-line);
+  background: var(--theme-card-bg);
+}
+
+.conference-theme .about-band,
+.conference-theme .speakers {
+  background: var(--theme-soft-bg);
+}
+
+.conference-theme .speaker-body h3 {
+  color: var(--theme-ink);
+}
+
+.conference-theme .speaker-position {
+  color: var(--theme-secondary);
+}
+
+.conference-theme .benefits li::before,
+.conference-theme .speaker-body blockquote {
+  border-color: var(--theme-accent);
+}
+
+.conference-theme .benefits li::before {
+  background: var(--theme-accent);
+}
+
+.conference-theme .hero {
+  background:
+    var(--theme-hero-overlay),
+    var(--hero-image, url("assets/hero-original.png")) center / cover no-repeat;
+}
+
+.theme-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.theme-atmosphere::before,
+.theme-atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.conference-theme-arctic {
+  --theme-page-bg: #eaf7ff;
+  --theme-section-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.64), rgba(219, 238, 255, 0.44));
+  --theme-card-bg: rgba(255, 255, 255, 0.88);
+  --theme-soft-bg: linear-gradient(135deg, rgba(232, 246, 255, 0.96), rgba(241, 233, 255, 0.9));
+  --theme-ink: #142033;
+  --theme-muted: #506179;
+  --theme-line: rgba(60, 105, 160, 0.2);
+  --theme-accent: #7c4dff;
+  --theme-secondary: #0098d8;
+  --theme-hero-overlay:
+    linear-gradient(105deg, rgba(9, 25, 56, 0.76), rgba(29, 80, 132, 0.42) 54%, rgba(147, 210, 255, 0.18)),
+    radial-gradient(circle at 76% 20%, rgba(199, 232, 255, 0.55), transparent 34%);
+}
+
+.conference-theme-arctic .theme-atmosphere::before {
+  opacity: 0.95;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 2px, transparent 2.6px),
+    radial-gradient(circle, rgba(205, 232, 255, 0.9) 0 1.5px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.7) 0 1px, transparent 1.6px);
+  background-size: 92px 92px, 136px 136px, 58px 58px;
+  animation: arcticSnow 18s linear infinite;
+}
+
+.conference-theme-arctic .section {
+  background: var(--theme-section-bg);
+}
+
+.conference-theme-arctic .materials {
+  color: var(--theme-ink);
+}
+
+.conference-theme-arctic .materials .section-eyebrow,
+.conference-theme-arctic .materials .lead {
+  color: var(--theme-muted);
+}
+
+.conference-theme-arctic .theme-atmosphere::after {
+  opacity: 0.5;
+  background:
+    radial-gradient(circle at 20% 35%, rgba(132, 104, 255, 0.5), transparent 18%),
+    radial-gradient(circle at 74% 58%, rgba(73, 193, 255, 0.42), transparent 22%);
+  filter: blur(22px);
+}
+
+.conference-theme-ember {
+  --theme-page-bg: #120e0c;
+  --theme-section-bg: linear-gradient(180deg, rgba(28, 21, 18, 0.98), rgba(18, 14, 12, 0.98));
+  --theme-card-bg: rgba(38, 31, 27, 0.92);
+  --theme-soft-bg: linear-gradient(135deg, #1d1715, #2a1712);
+  --theme-ink: #fff3e7;
+  --theme-muted: #d4b9a4;
+  --theme-line: rgba(255, 132, 56, 0.24);
+  --theme-accent: #ff6a2a;
+  --theme-secondary: #ffc04d;
+  --theme-hero-overlay:
+    linear-gradient(105deg, rgba(12, 9, 8, 0.9), rgba(67, 25, 14, 0.62) 55%, rgba(255, 92, 22, 0.2)),
+    radial-gradient(circle at 78% 70%, rgba(255, 81, 20, 0.32), transparent 30%);
+}
+
+.conference-theme-ember .theme-atmosphere::before {
+  opacity: 0.72;
+  background:
+    radial-gradient(ellipse at 28% 34%, rgba(120, 111, 103, 0.24), transparent 28%),
+    radial-gradient(ellipse at 70% 22%, rgba(86, 78, 72, 0.22), transparent 25%),
+    linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  filter: blur(18px);
+  animation: emberSmoke 14s ease-in-out infinite alternate;
+}
+
+.conference-theme-ember .section {
+  background: var(--theme-section-bg);
+}
+
+.conference-theme-ember .materials {
+  color: var(--theme-ink);
+}
+
+.conference-theme-ember .materials .section-eyebrow,
+.conference-theme-ember .materials .lead {
+  color: var(--theme-muted);
+}
+
+.conference-theme-ember .theme-atmosphere::after {
+  opacity: 0.9;
+  background-image:
+    radial-gradient(circle, rgba(255, 211, 92, 0.95) 0 1.6px, transparent 2.3px),
+    radial-gradient(circle, rgba(255, 98, 31, 0.85) 0 1.2px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.55) 0 1px, transparent 1.5px);
+  background-size: 110px 110px, 78px 78px, 152px 152px;
+  animation: emberSparks 9s linear infinite;
+}
+
+.conference-theme-ember .button {
+  background: #fff3e7;
+  color: #1a100c;
+}
+
+.conference-theme-ember .button-red {
+  background: var(--theme-accent);
+  color: #ffffff;
+}
+
+.conference-theme-ember .button-blue {
+  background: var(--theme-secondary);
+  color: #1a100c;
+}
+
+@keyframes arcticSnow {
+  from {
+    background-position: 0 -120px, 40px -180px, 18px -80px;
+  }
+  to {
+    background-position: 60px 560px, -30px 620px, 28px 480px;
+  }
+}
+
+@keyframes emberSmoke {
+  from {
+    transform: translate3d(-2%, 2%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, -3%, 0) scale(1.08);
+  }
+}
+
+@keyframes emberSparks {
+  from {
+    background-position: 0 260px, 40px 220px, 20px 300px;
+  }
+  to {
+    background-position: 80px -360px, -20px -300px, 44px -420px;
+  }
 }
 
 .hero-content {

@@ -39,6 +39,13 @@ function fyremezzonine_assets() {
 }
 add_action('wp_enqueue_scripts', 'fyremezzonine_assets');
 
+function fyremezzonine_conference_visual_theme($conference_id) {
+    $theme = sanitize_key(fyremezzonine_conference_meta($conference_id, '_conference_visual_theme', 'classic'));
+    $allowed_themes = array('classic', 'arctic', 'ember');
+
+    return in_array($theme, $allowed_themes, true) ? $theme : 'classic';
+}
+
 function fyremezzonine_customize_register($wp_customize) {
     $wp_customize->add_section(
         'fyremezzonine_links',
@@ -354,6 +361,7 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
             'venue' => 'Оренбургский район, Нижнепавловский сельсовет, Полигонная улица 1',
             'deadline' => '25.06.2026',
             'registration_closed' => false,
+            'visual_theme' => 'classic',
             'program_url' => fyremezzonine_link('program_url'),
             'chat_url' => '',
             'partner_form_url' => home_url('/partnership/'),
@@ -428,6 +436,7 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
         'venue' => fyremezzonine_conference_meta($conference_id, '_conference_venue', 'Оренбургский район, Нижнепавловский сельсовет, Полигонная улица 1'),
         'deadline' => fyremezzonine_format_conference_date(fyremezzonine_conference_meta($conference_id, '_conference_registration_deadline')),
         'registration_closed' => fyremezzonine_registration_closed($conference_id),
+        'visual_theme' => fyremezzonine_conference_visual_theme($conference_id),
         'program_url' => fyremezzonine_conference_meta($conference_id, '_conference_program_url', fyremezzonine_link('program_url')),
         'chat_url' => fyremezzonine_conference_meta($conference_id, '_conference_chat_1_url'),
         'partner_form_url' => home_url('/partnership/'),
