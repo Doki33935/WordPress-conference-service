@@ -355,26 +355,16 @@ img {
 }
 
 .conference-theme-arctic {
-  --theme-page-bg: #dff6f1;
-  --theme-section-bg:
-    radial-gradient(circle at 16% 18%, rgba(157, 118, 255, 0.2), transparent 34%),
-    radial-gradient(circle at 84% 8%, rgba(65, 232, 178, 0.22), transparent 33%),
-    linear-gradient(180deg, #eefbff 0%, #e7f6f4 46%, #efeaff 100%);
+  --theme-page-bg: #eaf4fb;
+  --theme-section-bg: linear-gradient(180deg, #f4f8ff 0%, #eaf4fb 48%, #f1f0fb 100%);
   --theme-card-bg: rgba(255, 255, 255, 0.78);
-  --theme-soft-bg:
-    radial-gradient(circle at 18% 10%, rgba(112, 82, 255, 0.16), transparent 32%),
-    radial-gradient(circle at 78% 18%, rgba(56, 214, 169, 0.18), transparent 30%),
-    linear-gradient(135deg, #f6fbff 0%, #e7f7f0 52%, #f2ebff 100%);
+  --theme-soft-bg: linear-gradient(135deg, #f7fbff 0%, #ebf4fb 52%, #f3f0fb 100%);
   --theme-ink: #14213a;
   --theme-muted: #506a7a;
   --theme-line: rgba(94, 76, 188, 0.22);
   --theme-accent: #7648ff;
   --theme-secondary: #00a978;
-  --theme-hero-overlay:
-    linear-gradient(102deg, rgba(8, 18, 48, 0.86) 0%, rgba(39, 54, 126, 0.6) 42%, rgba(16, 116, 104, 0.36) 72%, rgba(78, 45, 145, 0.38) 100%),
-    radial-gradient(ellipse at 74% 22%, rgba(59, 255, 188, 0.42), transparent 35%),
-    radial-gradient(ellipse at 34% 18%, rgba(164, 92, 255, 0.45), transparent 31%),
-    linear-gradient(180deg, rgba(8, 13, 35, 0.2), rgba(204, 244, 236, 0.08));
+  --theme-hero-overlay: linear-gradient(102deg, rgba(8, 18, 48, 0.88) 0%, rgba(33, 54, 118, 0.68) 48%, rgba(32, 88, 112, 0.36) 100%);
 }
 
 .conference-theme-arctic .theme-atmosphere::before {
@@ -456,12 +446,9 @@ img {
 }
 
 .conference-theme-arctic .theme-atmosphere::after {
-  opacity: 0.78;
-  background:
-    linear-gradient(104deg, transparent 0 28%, rgba(97, 255, 195, 0.26) 34%, rgba(151, 97, 255, 0.28) 45%, transparent 58%),
-    linear-gradient(76deg, transparent 0 46%, rgba(255, 255, 255, 0.12) 52%, transparent 61%),
-    linear-gradient(180deg, transparent 0 66%, rgba(232, 250, 255, 0.56) 100%);
-  filter: blur(8px);
+  opacity: 0;
+  background: none;
+  filter: none;
 }
 
 body:has(.conference-theme-arctic) .site-header {
@@ -479,9 +466,8 @@ body:has(.conference-theme-arctic)::before {
   background-image:
     radial-gradient(circle, rgba(255, 255, 255, 0.96) 0 1.8px, rgba(96, 141, 178, 0.34) 2.4px, transparent 3px),
     radial-gradient(circle, rgba(229, 247, 255, 0.9) 0 1.2px, rgba(87, 93, 171, 0.22) 1.8px, transparent 2.4px),
-    radial-gradient(circle, rgba(255, 255, 255, 0.72) 0 0.8px, rgba(45, 96, 116, 0.22) 1.3px, transparent 1.8px),
-    linear-gradient(118deg, transparent 0 43%, rgba(255, 255, 255, 0.18) 48%, transparent 55%);
-  background-size: 132px 132px, 211px 211px, 87px 87px, 720px 100%;
+    radial-gradient(circle, rgba(255, 255, 255, 0.72) 0 0.8px, rgba(45, 96, 116, 0.22) 1.3px, transparent 1.8px);
+  background-size: 132px 132px, 211px 211px, 87px 87px;
   animation: siteSnowfall 10.5s linear infinite, snowWind 5.5s ease-in-out infinite alternate;
   opacity: 0.92;
 }
@@ -494,9 +480,8 @@ body:has(.conference-theme-arctic)::after {
   pointer-events: none;
   background-image:
     radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 2.5px, rgba(84, 80, 168, 0.24) 3.2px, transparent 4px),
-    radial-gradient(circle, rgba(213, 247, 238, 0.68) 0 1.5px, rgba(25, 118, 100, 0.18) 2.2px, transparent 3px),
-    linear-gradient(124deg, transparent 0 47%, rgba(255, 255, 255, 0.11) 51%, transparent 57%);
-  background-size: 236px 236px, 151px 151px, 890px 100%;
+    radial-gradient(circle, rgba(213, 247, 238, 0.68) 0 1.5px, rgba(25, 118, 100, 0.18) 2.2px, transparent 3px);
+  background-size: 236px 236px, 151px 151px;
   animation: siteSnowfallLarge 17s linear infinite, snowWindLarge 7s ease-in-out infinite alternate;
   opacity: 0.72;
 }
@@ -587,16 +572,16 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 @keyframes siteSnowfall {
   0% {
-    background-position: 0 -220px, 48px -310px, 22px -140px, -320px 0;
+    background-position: 0 -220px, 48px -310px, 22px -140px;
   }
   37% {
-    background-position: 58px 180px, -20px 120px, 74px 130px, 40px 0;
+    background-position: 58px 180px, -20px 120px, 74px 130px;
   }
   68% {
-    background-position: 112px 470px, 36px 520px, 18px 390px, 260px 0;
+    background-position: 112px 470px, 36px 520px, 18px 390px;
   }
   100% {
-    background-position: 168px 880px, -86px 980px, 64px 720px, 520px 0;
+    background-position: 168px 880px, -86px 980px, 64px 720px;
   }
 }
 
@@ -611,16 +596,16 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 @keyframes siteSnowfallLarge {
   0% {
-    background-position: -90px -360px, 130px -220px, -480px 0;
+    background-position: -90px -360px, 130px -220px;
   }
   29% {
-    background-position: 40px 40px, 20px 130px, -110px 0;
+    background-position: 40px 40px, 20px 130px;
   }
   61% {
-    background-position: -30px 520px, 180px 470px, 260px 0;
+    background-position: -30px 520px, 180px 470px;
   }
   100% {
-    background-position: 120px 1040px, -70px 940px, 620px 0;
+    background-position: 120px 1040px, -70px 940px;
   }
 }
 
