@@ -143,7 +143,6 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_venue_intro' => array('label' => 'Описание места проведения', 'type' => 'textarea'),
         '_conference_route_address' => array('label' => 'Адрес для карты/маршрута', 'type' => 'text'),
         '_conference_route_directions' => array('label' => 'Как добраться: текст маршрута', 'type' => 'textarea'),
-        '_conference_map_embed_url' => array('label' => 'Яндекс.Карта: готовый embed URL iframe', 'type' => 'url'),
         '_conference_map_lat' => array('label' => 'Широта метки карты', 'type' => 'text'),
         '_conference_map_lon' => array('label' => 'Долгота метки карты', 'type' => 'text'),
         '_conference_venue_image_url' => array('label' => 'Фото под картой 1: URL изображения', 'type' => 'url'),
@@ -755,7 +754,6 @@ function fyremezzonine_manager_submission_field_groups() {
                 '_conference_hero_image_url',
                 '_conference_venue_heading',
                 '_conference_venue_intro',
-                '_conference_map_embed_url',
                 '_conference_map_lat',
                 '_conference_map_lon',
             ),
@@ -822,7 +820,6 @@ function fyremezzonine_manager_submission_placeholder($name) {
         '_conference_topic_1_image_url' => 'https://.../image.jpg',
         '_conference_topic_2_image_url' => 'https://.../image.jpg',
         '_conference_topic_3_image_url' => 'https://.../image.jpg',
-        '_conference_map_embed_url' => 'https://yandex.ru/map-widget/v1/...',
         '_conference_map_lat' => '51.768199',
         '_conference_map_lon' => '55.096955',
         '_conference_venue_image_url' => 'https://.../photo.jpg',
@@ -1963,7 +1960,7 @@ function fyremezzonine_manager_render_guide_page() {
             <li>Выберите конференцию или нажмите <strong>Добавить конференцию</strong>.</li>
             <li>Заполните название, описание, краткое описание и блок <strong>Данные конференции</strong>.</li>
             <li>Для картинок загрузите файл в <strong>Медиафайлы</strong>, скопируйте URL файла и вставьте его в нужное поле конференции.</li>
-            <li>Для карты можно указать готовый iframe URL Яндекс.Карт, точные координаты метки или адрес для поиска.</li>
+            <li>Для карты можно указать точные координаты метки или адрес для поиска.</li>
         </ol>
         <h2>Упрощенная форма для редактора</h2>
         <p>На сайте после входа редактора откройте меню <strong>Редактор -> Создать конференцию</strong>. Это форма в стиле анкеты: она создает конференцию без работы с обычным редактором WordPress. Адрес страницы: <code>/editor/new-conference/</code>.</p>
