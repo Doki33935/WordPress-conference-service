@@ -47,10 +47,6 @@ function fyremezzonine_conference_visual_theme($conference_id) {
 }
 
 function fyremezzonine_default_hero_image($visual_theme = 'classic') {
-    if ($visual_theme === 'arctic') {
-        return fyremezzonine_asset('arctic-blizzard.gif');
-    }
-
     return fyremezzonine_asset('hero-original.png');
 }
 
