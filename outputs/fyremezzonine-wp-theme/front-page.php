@@ -20,7 +20,7 @@ get_header();
                     <span>г. <?php echo esc_html($conference['city']); ?></span>
                 </div>
                 <p class="hero-label">Научно-практическая конференция</p>
-                <h1>«<?php echo esc_html($conference['title']); ?>»</h1>
+                <h1><?php echo esc_html($conference['title']); ?></h1>
                 <div class="hero-actions">
                     <?php if ($conference['registration_closed']) : ?>
                         <span class="button button-disabled" aria-disabled="true">Регистрация закрыта</span>

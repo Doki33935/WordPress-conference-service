@@ -23,7 +23,7 @@ while (have_posts()) :
                         <span>г. <?php echo esc_html($conference['city']); ?></span>
                     </div>
                     <p class="hero-label">Конференция</p>
-                    <h1>«<?php echo esc_html($conference['title']); ?>»</h1>
+                    <h1><?php echo esc_html($conference['title']); ?></h1>
                     <div class="hero-actions">
                         <?php if ($conference['registration_closed']) : ?>
                             <span class="button button-disabled">Регистрация закрыта</span>
