@@ -355,19 +355,19 @@ img {
 }
 
 .conference-theme-arctic {
-  --theme-page-bg: #06101d;
-  --theme-section-bg: linear-gradient(180deg, #071524 0%, #081b2f 52%, #06101d 100%);
-  --theme-card-bg: rgba(9, 31, 52, 0.88);
-  --theme-soft-bg: linear-gradient(135deg, #071a2f 0%, #0b2740 54%, #091521 100%);
-  --theme-ink: #f3fbff;
-  --theme-muted: #b9d6e8;
-  --theme-line: rgba(130, 197, 233, 0.24);
-  --theme-accent: #ff5a2f;
-  --theme-secondary: #50c8ff;
+  --theme-page-bg: #edf6ff;
+  --theme-section-bg: linear-gradient(180deg, #f4f9ff 0%, #e9f2ff 48%, #f7f3ff 100%);
+  --theme-card-bg: rgba(255, 255, 255, 0.86);
+  --theme-soft-bg: linear-gradient(135deg, #f7fbff 0%, #edf4ff 52%, #f6f0ff 100%);
+  --theme-ink: #14213a;
+  --theme-muted: #5b6f8a;
+  --theme-line: rgba(104, 91, 188, 0.2);
+  --theme-accent: #7957ff;
+  --theme-secondary: #1f9bd4;
   --theme-hero-overlay:
-    linear-gradient(100deg, rgba(2, 10, 20, 0.94) 0%, rgba(4, 19, 35, 0.82) 42%, rgba(6, 39, 66, 0.36) 72%, rgba(3, 14, 24, 0.42) 100%),
-    radial-gradient(circle at 78% 30%, rgba(80, 200, 255, 0.34), transparent 32%),
-    radial-gradient(circle at 18% 78%, rgba(255, 90, 47, 0.24), transparent 26%);
+    linear-gradient(100deg, rgba(10, 24, 54, 0.78) 0%, rgba(50, 83, 148, 0.48) 46%, rgba(122, 192, 232, 0.2) 74%, rgba(103, 76, 185, 0.24) 100%),
+    radial-gradient(circle at 78% 30%, rgba(184, 238, 255, 0.5), transparent 33%),
+    radial-gradient(circle at 18% 78%, rgba(152, 112, 255, 0.34), transparent 28%);
 }
 
 .conference-theme-arctic .theme-atmosphere::before {
@@ -391,7 +391,7 @@ img {
 .conference-theme-arctic .hero h1 {
   max-width: 1080px;
   text-transform: uppercase;
-  text-shadow: 0 22px 70px rgba(0, 0, 0, 0.52);
+  text-shadow: 0 22px 70px rgba(9, 24, 54, 0.56);
 }
 
 .conference-theme-arctic .hero-label,
@@ -400,14 +400,14 @@ img {
 }
 
 .conference-theme-arctic .hero-kicker span {
-  border-color: rgba(128, 219, 255, 0.36);
-  background: rgba(3, 19, 34, 0.58);
+  border-color: rgba(219, 232, 255, 0.62);
+  background: rgba(17, 41, 83, 0.42);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .conference-theme-arctic .button {
   background: #ffffff;
-  color: #06101d;
+  color: #14213a;
 }
 
 .conference-theme-arctic .button-red {
@@ -416,8 +416,8 @@ img {
 }
 
 .conference-theme-arctic .button-blue {
-  background: #50c8ff;
-  color: #06101d;
+  background: #bfefff;
+  color: #14213a;
 }
 
 .conference-theme-arctic .topic-card,
@@ -426,7 +426,7 @@ img {
 .conference-theme-arctic .partner-group,
 .conference-theme-arctic .route-card,
 .conference-theme-arctic .map-card {
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 18px 60px rgba(39, 65, 121, 0.14);
   backdrop-filter: blur(14px);
 }
 
@@ -446,18 +446,18 @@ img {
 }
 
 .conference-theme-arctic .theme-atmosphere::after {
-  opacity: 0.72;
+  opacity: 0.74;
   background:
-    linear-gradient(180deg, transparent 0 60%, rgba(3, 12, 21, 0.72) 100%),
-    radial-gradient(circle at 76% 68%, rgba(80, 200, 255, 0.34), transparent 22%),
-    radial-gradient(circle at 22% 82%, rgba(255, 90, 47, 0.18), transparent 18%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0 55%, rgba(232, 244, 255, 0.62) 100%),
+    radial-gradient(circle at 76% 68%, rgba(135, 215, 255, 0.34), transparent 22%),
+    radial-gradient(circle at 22% 82%, rgba(153, 111, 255, 0.3), transparent 19%);
   filter: blur(10px);
 }
 
 body:has(.conference-theme-arctic) .site-header {
-  background: rgba(4, 15, 28, 0.82);
-  border-bottom-color: rgba(130, 197, 233, 0.2);
-  color: #f3fbff;
+  background: rgba(247, 251, 255, 0.82);
+  border-bottom-color: rgba(104, 91, 188, 0.2);
+  color: #14213a;
 }
 
 body:has(.conference-theme-arctic)::before {
@@ -467,13 +467,29 @@ body:has(.conference-theme-arctic)::before {
   z-index: 49;
   pointer-events: none;
   background-image:
-    radial-gradient(circle, rgba(255, 255, 255, 0.94) 0 1.6px, transparent 2.4px),
-    radial-gradient(circle, rgba(209, 239, 255, 0.82) 0 1.2px, transparent 2px),
-    radial-gradient(circle, rgba(255, 255, 255, 0.64) 0 0.9px, transparent 1.5px),
-    linear-gradient(112deg, transparent 0 44%, rgba(255, 255, 255, 0.08) 48%, transparent 54%);
-  background-size: 118px 118px, 176px 176px, 74px 74px, 620px 100%;
-  animation: siteSnowfall 13s linear infinite;
-  opacity: 0.78;
+    radial-gradient(circle, rgba(255, 255, 255, 0.96) 0 1.7px, transparent 2.5px),
+    radial-gradient(circle, rgba(210, 235, 255, 0.92) 0 1.1px, transparent 1.9px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.68) 0 0.8px, transparent 1.4px),
+    linear-gradient(118deg, transparent 0 43%, rgba(255, 255, 255, 0.14) 48%, transparent 55%);
+  background-size: 132px 132px, 211px 211px, 87px 87px, 720px 100%;
+  animation: siteSnowfall 10.5s linear infinite, snowWind 5.5s ease-in-out infinite alternate;
+  opacity: 0.88;
+  mix-blend-mode: screen;
+}
+
+body:has(.conference-theme-arctic)::after {
+  content: "";
+  position: fixed;
+  inset: -10vh -8vw;
+  z-index: 49;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.82) 0 2.4px, transparent 3.2px),
+    radial-gradient(circle, rgba(186, 217, 255, 0.6) 0 1.5px, transparent 2.4px),
+    linear-gradient(124deg, transparent 0 47%, rgba(255, 255, 255, 0.09) 51%, transparent 57%);
+  background-size: 236px 236px, 151px 151px, 890px 100%;
+  animation: siteSnowfallLarge 17s linear infinite, snowWindLarge 7s ease-in-out infinite alternate;
+  opacity: 0.58;
   mix-blend-mode: screen;
 }
 
@@ -482,11 +498,11 @@ body:has(.conference-theme-arctic) .brand-mark {
 }
 
 body:has(.conference-theme-arctic) .menu a {
-  color: rgba(243, 251, 255, 0.82);
+  color: rgba(20, 33, 58, 0.82);
 }
 
 body:has(.conference-theme-arctic) .editor-menu-panel a {
-  color: rgba(243, 251, 255, 0.9);
+  color: rgba(20, 33, 58, 0.9);
 }
 
 .conference-theme-ember {
@@ -562,11 +578,50 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 }
 
 @keyframes siteSnowfall {
+  0% {
+    background-position: 0 -220px, 48px -310px, 22px -140px, -320px 0;
+  }
+  37% {
+    background-position: 58px 180px, -20px 120px, 74px 130px, 40px 0;
+  }
+  68% {
+    background-position: 112px 470px, 36px 520px, 18px 390px, 260px 0;
+  }
+  100% {
+    background-position: 168px 880px, -86px 980px, 64px 720px, 520px 0;
+  }
+}
+
+@keyframes snowWind {
   from {
-    background-position: 0 -180px, 44px -260px, 22px -120px, -260px 0;
+    transform: translate3d(-10px, 0, 0) skewX(-2deg);
   }
   to {
-    background-position: 90px 720px, -38px 840px, 42px 560px, 420px 0;
+    transform: translate3d(18px, 0, 0) skewX(2deg);
+  }
+}
+
+@keyframes siteSnowfallLarge {
+  0% {
+    background-position: -90px -360px, 130px -220px, -480px 0;
+  }
+  29% {
+    background-position: 40px 40px, 20px 130px, -110px 0;
+  }
+  61% {
+    background-position: -30px 520px, 180px 470px, 260px 0;
+  }
+  100% {
+    background-position: 120px 1040px, -70px 940px, 620px 0;
+  }
+}
+
+@keyframes snowWindLarge {
+  from {
+    transform: translate3d(18px, 0, 0) rotate(-0.6deg);
+  }
+  to {
+    transform: translate3d(-24px, 0, 0) rotate(0.6deg);
   }
 }
 
