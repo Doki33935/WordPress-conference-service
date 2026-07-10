@@ -529,9 +529,15 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 }
 
 .conference-theme-ember .theme-atmosphere::after {
-  opacity: 0;
-  background: none;
-  animation: none;
+  opacity: 0.74;
+  background-image:
+    radial-gradient(circle, rgba(255, 239, 171, 0.96) 0 1.6px, rgba(255, 132, 45, 0.42) 2.2px, transparent 3.1px),
+    radial-gradient(circle, rgba(255, 113, 33, 0.82) 0 1.15px, transparent 2.6px),
+    radial-gradient(circle, rgba(255, 49, 24, 0.66) 0 0.9px, transparent 2.1px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.62) 0 0.7px, transparent 1.5px);
+  background-size: 260px 260px, 390px 390px, 560px 560px, 780px 780px;
+  animation: heroEmberSparks 14s linear infinite, heroEmberWind 6s ease-in-out infinite alternate;
+  mix-blend-mode: screen;
 }
 
 .conference-theme-ember .button {
@@ -547,37 +553,6 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 .conference-theme-ember .button-blue {
   background: var(--theme-secondary);
   color: #1a100c;
-}
-
-body:has(.conference-theme-ember)::before {
-  content: "";
-  position: fixed;
-  inset: -12vh -8vw;
-  z-index: 49;
-  pointer-events: none;
-  background-image:
-    radial-gradient(circle, rgba(255, 223, 132, 0.92) 0 1.5px, rgba(255, 106, 42, 0.42) 2px, transparent 3px),
-    radial-gradient(circle, rgba(255, 109, 31, 0.78) 0 1.1px, transparent 2.4px),
-    radial-gradient(circle, rgba(255, 255, 255, 0.58) 0 0.8px, transparent 1.6px);
-  background-size: 260px 260px, 410px 410px, 620px 620px;
-  animation: siteEmberSparks 15s linear infinite, emberWind 6s ease-in-out infinite alternate;
-  opacity: 0.62;
-  mix-blend-mode: screen;
-}
-
-body:has(.conference-theme-ember)::after {
-  content: "";
-  position: fixed;
-  inset: -15vh -10vw;
-  z-index: 49;
-  pointer-events: none;
-  background-image:
-    radial-gradient(circle, rgba(255, 198, 86, 0.84) 0 2px, transparent 3.8px),
-    radial-gradient(circle, rgba(255, 91, 28, 0.58) 0 1.4px, transparent 3px);
-  background-size: 540px 540px, 760px 760px;
-  animation: siteEmberSparksLarge 23s linear infinite, emberWindLarge 8s ease-in-out infinite alternate;
-  opacity: 0.46;
-  mix-blend-mode: screen;
 }
 
 @keyframes arcticSnow {
@@ -646,51 +621,27 @@ body:has(.conference-theme-ember)::after {
   }
 }
 
-@keyframes siteEmberSparks {
+@keyframes heroEmberSparks {
   0% {
-    background-position: 0 760px, 180px 680px, -120px 820px;
+    background-position: 0 760px, 180px 680px, -120px 820px, 320px 740px;
   }
   23% {
-    background-position: 80px 420px, 40px 330px, 60px 480px;
+    background-position: 80px 430px, 40px 340px, 70px 500px, 240px 410px;
   }
   57% {
-    background-position: -60px 30px, 230px -20px, -10px 120px;
+    background-position: -50px 60px, 250px -10px, -20px 160px, 410px 90px;
   }
   100% {
-    background-position: 120px -520px, -90px -470px, 90px -610px;
+    background-position: 120px -500px, -90px -460px, 90px -600px, 300px -540px;
   }
 }
 
-@keyframes siteEmberSparksLarge {
-  0% {
-    background-position: -160px 900px, 260px 820px;
-  }
-  31% {
-    background-position: 90px 520px, -40px 430px;
-  }
-  64% {
-    background-position: -20px 40px, 170px -80px;
-  }
-  100% {
-    background-position: 160px -620px, -130px -700px;
-  }
-}
-
-@keyframes emberWind {
+@keyframes heroEmberWind {
   from {
     transform: translate3d(-16px, 0, 0) skewX(-1deg);
   }
   to {
     transform: translate3d(26px, 0, 0) skewX(2deg);
-  }
-}
-
-@keyframes emberWindLarge {
-  from {
-    transform: translate3d(18px, 0, 0) rotate(-0.5deg);
-  }
-  to {
-    transform: translate3d(-24px, 0, 0) rotate(0.5deg);
   }
 }
 
