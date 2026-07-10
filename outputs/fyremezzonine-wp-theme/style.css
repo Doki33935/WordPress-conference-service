@@ -355,29 +355,21 @@ img {
 }
 
 .conference-theme-arctic {
-  --theme-page-bg: #eaf4fb;
-  --theme-section-bg: linear-gradient(180deg, #f4f8ff 0%, #eaf4fb 48%, #f1f0fb 100%);
-  --theme-card-bg: rgba(255, 255, 255, 0.78);
-  --theme-soft-bg: linear-gradient(135deg, #f7fbff 0%, #ebf4fb 52%, #f3f0fb 100%);
-  --theme-ink: #14213a;
-  --theme-muted: #506a7a;
-  --theme-line: rgba(94, 76, 188, 0.22);
-  --theme-accent: #7648ff;
-  --theme-secondary: #00a978;
-  --theme-hero-overlay: linear-gradient(102deg, rgba(8, 18, 48, 0.88) 0%, rgba(33, 54, 118, 0.68) 48%, rgba(32, 88, 112, 0.36) 100%);
+  --theme-page-bg: #120b2a;
+  --theme-section-bg: linear-gradient(180deg, #171037 0%, #1f1646 48%, #130d2e 100%);
+  --theme-card-bg: rgba(31, 24, 68, 0.82);
+  --theme-soft-bg: linear-gradient(135deg, #18113a 0%, #241a52 52%, #160f31 100%);
+  --theme-ink: #f7f2ff;
+  --theme-muted: #c7bbe8;
+  --theme-line: rgba(187, 165, 255, 0.24);
+  --theme-accent: #9f7cff;
+  --theme-secondary: #9fffe2;
+  --theme-hero-overlay: linear-gradient(102deg, rgba(10, 6, 28, 0.94) 0%, rgba(36, 22, 82, 0.78) 52%, rgba(25, 15, 59, 0.62) 100%);
 }
 
 .conference-theme-arctic .theme-atmosphere::before {
-  opacity: 0.9;
-  background:
-    linear-gradient(180deg, transparent 0 56%, rgba(223, 245, 255, 0.4) 56% 100%),
-    linear-gradient(18deg, transparent 0 54%, rgba(15, 45, 78, 0.86) 54.2% 71%, transparent 71.2%),
-    linear-gradient(-16deg, transparent 0 48%, rgba(31, 83, 112, 0.78) 48.2% 65%, transparent 65.2%),
-    linear-gradient(29deg, transparent 0 61%, rgba(92, 136, 164, 0.62) 61.2% 75%, transparent 75.2%);
-  background-size: 100% 100%, 58% 100%, 76% 100%, 86% 100%;
-  background-position: 0 0, left bottom, center bottom, right bottom;
-  background-repeat: no-repeat;
-  animation: none;
+  opacity: 0;
+  background: none;
 }
 
 .conference-theme-arctic .section {
@@ -406,8 +398,8 @@ img {
 }
 
 .conference-theme-arctic .button {
-  background: #ffffff;
-  color: #14213a;
+  background: #f7f2ff;
+  color: #120b2a;
 }
 
 .conference-theme-arctic .button-red {
@@ -416,8 +408,8 @@ img {
 }
 
 .conference-theme-arctic .button-blue {
-  background: #8fffe0;
-  color: #14213a;
+  background: var(--theme-secondary);
+  color: #120b2a;
 }
 
 .conference-theme-arctic .topic-card,
@@ -426,7 +418,7 @@ img {
 .conference-theme-arctic .partner-group,
 .conference-theme-arctic .route-card,
 .conference-theme-arctic .map-card {
-  box-shadow: 0 18px 60px rgba(39, 65, 121, 0.14);
+  box-shadow: 0 18px 60px rgba(7, 3, 22, 0.28);
   backdrop-filter: blur(14px);
 }
 
@@ -452,9 +444,9 @@ img {
 }
 
 body:has(.conference-theme-arctic) .site-header {
-  background: rgba(247, 251, 255, 0.82);
-  border-bottom-color: rgba(104, 91, 188, 0.2);
-  color: #14213a;
+  background: rgba(18, 11, 42, 0.86);
+  border-bottom-color: rgba(187, 165, 255, 0.22);
+  color: #f7f2ff;
 }
 
 body:has(.conference-theme-arctic)::before {
@@ -491,11 +483,11 @@ body:has(.conference-theme-arctic) .brand-mark {
 }
 
 body:has(.conference-theme-arctic) .menu a {
-  color: rgba(20, 33, 58, 0.82);
+  color: rgba(247, 242, 255, 0.82);
 }
 
 body:has(.conference-theme-arctic) .editor-menu-panel a {
-  color: rgba(20, 33, 58, 0.9);
+  color: rgba(247, 242, 255, 0.9);
 }
 
 .conference-theme-ember {
