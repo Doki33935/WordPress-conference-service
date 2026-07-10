@@ -1344,6 +1344,38 @@ img {
   color: #14551f;
 }
 
+.registration-success strong {
+  display: block;
+}
+
+.registration-chat-links {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.registration-chat-links p {
+  margin: 0;
+  color: inherit;
+  font-weight: 700;
+}
+
+.registration-chat-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.registration-chat-actions .button {
+  width: max-content;
+}
+
+.registration-chat-actions .button-outline {
+  background: #ffffff;
+  color: #14551f;
+  border-color: rgba(20, 85, 31, 0.25);
+}
+
 .registration-error {
   background: #ffeceb;
   color: #8b1710;

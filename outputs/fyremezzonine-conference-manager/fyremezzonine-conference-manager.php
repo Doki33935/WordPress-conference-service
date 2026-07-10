@@ -1332,7 +1332,36 @@ function fyremezzonine_manager_handle_registration($fallback_conference_id) {
         array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s')
     );
 
-    return '<div class="registration-message registration-success">Спасибо! Заявка отправлена.</div>';
+    return fyremezzonine_manager_registration_success_message($conference_id);
+}
+
+function fyremezzonine_manager_registration_success_message($conference_id) {
+    $chat_1_url = get_post_meta($conference_id, '_conference_chat_1_url', true);
+    $chat_2_url = get_post_meta($conference_id, '_conference_chat_2_url', true);
+
+    $message = '<div class="registration-message registration-success">';
+    $message .= '<strong>Спасибо! Заявка отправлена.</strong>';
+
+    if ($chat_1_url || $chat_2_url) {
+        $message .= '<div class="registration-chat-links">';
+        $message .= '<p>Теперь можно присоединиться к чатам конференции.</p>';
+        $message .= '<div class="registration-chat-actions">';
+
+        if ($chat_1_url) {
+            $message .= '<a class="button button-blue" href="' . esc_url($chat_1_url) . '">Чат участников</a>';
+        }
+
+        if ($chat_2_url) {
+            $message .= '<a class="button button-outline" href="' . esc_url($chat_2_url) . '">Чат оргкомитета</a>';
+        }
+
+        $message .= '</div>';
+        $message .= '</div>';
+    }
+
+    $message .= '</div>';
+
+    return $message;
 }
 
 function fyremezzonine_manager_partner_request_shortcode($atts) {
