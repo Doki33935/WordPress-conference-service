@@ -30,11 +30,8 @@ while (have_posts()) :
                             <a class="button" href="<?php echo esc_url($registration_url); ?>">Зарегистрироваться</a>
                         <?php endif; ?>
                         <a class="button button-red" href="<?php echo esc_url($conference['program_url']); ?>">Программа конференции</a>
-                        <?php if (!empty($conference['chat_1_url'])) : ?>
-                            <a class="button button-blue" href="<?php echo esc_url($conference['chat_1_url']); ?>">Чат участников</a>
-                        <?php endif; ?>
-                        <?php if (!empty($conference['chat_2_url'])) : ?>
-                            <a class="button button-outline button-light" href="<?php echo esc_url($conference['chat_2_url']); ?>">Чат оргкомитета</a>
+                        <?php if (!empty($conference['chat_url'])) : ?>
+                            <a class="button button-blue" href="<?php echo esc_url($conference['chat_url']); ?>">Чат конференции</a>
                         <?php endif; ?>
                     </div>
                 </div>

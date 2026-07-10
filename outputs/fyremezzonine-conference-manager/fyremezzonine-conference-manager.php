@@ -126,8 +126,7 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_venue' => array('label' => 'Место проведения', 'type' => 'text'),
         '_conference_registration_deadline' => array('label' => 'Дедлайн регистрации', 'type' => 'date'),
         '_conference_program_url' => array('label' => 'Ссылка на программу', 'type' => 'url'),
-        '_conference_chat_1_url' => array('label' => 'Ссылка на чат участников', 'type' => 'url'),
-        '_conference_chat_2_url' => array('label' => 'Ссылка на чат оргкомитета', 'type' => 'url'),
+        '_conference_chat_1_url' => array('label' => 'Ссылка на чат конференции', 'type' => 'url'),
         '_conference_hero_image_url' => array('label' => 'Фон/заставка первого экрана: URL изображения или GIF', 'type' => 'url'),
         '_conference_topic_intro' => array('label' => 'Описание блока тем', 'type' => 'textarea'),
         '_conference_topic_1_title' => array('label' => 'Тема 1: текст', 'type' => 'text'),
@@ -753,7 +752,6 @@ function fyremezzonine_manager_submission_field_groups() {
             'fields' => array(
                 '_conference_program_url',
                 '_conference_chat_1_url',
-                '_conference_chat_2_url',
                 '_conference_hero_image_url',
                 '_conference_venue_heading',
                 '_conference_venue_intro',
@@ -820,7 +818,6 @@ function fyremezzonine_manager_submission_placeholder($name) {
         '_conference_route_directions' => 'Кратко опишите, как добраться до места проведения',
         '_conference_program_url' => 'https://...',
         '_conference_chat_1_url' => 'https://...',
-        '_conference_chat_2_url' => 'https://...',
         '_conference_hero_image_url' => 'https://.../hero.gif',
         '_conference_topic_1_image_url' => 'https://.../image.jpg',
         '_conference_topic_2_image_url' => 'https://.../image.jpg',
@@ -1336,25 +1333,16 @@ function fyremezzonine_manager_handle_registration($fallback_conference_id) {
 }
 
 function fyremezzonine_manager_registration_success_message($conference_id) {
-    $chat_1_url = get_post_meta($conference_id, '_conference_chat_1_url', true);
-    $chat_2_url = get_post_meta($conference_id, '_conference_chat_2_url', true);
+    $chat_url = get_post_meta($conference_id, '_conference_chat_1_url', true);
 
     $message = '<div class="registration-message registration-success">';
     $message .= '<strong>Спасибо! Заявка отправлена.</strong>';
 
-    if ($chat_1_url || $chat_2_url) {
+    if ($chat_url) {
         $message .= '<div class="registration-chat-links">';
-        $message .= '<p>Теперь можно присоединиться к чатам конференции.</p>';
+        $message .= '<p>Теперь можно присоединиться к чату конференции.</p>';
         $message .= '<div class="registration-chat-actions">';
-
-        if ($chat_1_url) {
-            $message .= '<a class="button button-blue" href="' . esc_url($chat_1_url) . '">Чат участников</a>';
-        }
-
-        if ($chat_2_url) {
-            $message .= '<a class="button button-outline" href="' . esc_url($chat_2_url) . '">Чат оргкомитета</a>';
-        }
-
+        $message .= '<a class="button button-blue" href="' . esc_url($chat_url) . '">Чат конференции</a>';
         $message .= '</div>';
         $message .= '</div>';
     }
