@@ -151,14 +151,14 @@ function fyremezzonine_manager_meta_keys() {
         ),
         '_conference_program_url' => array('label' => 'Ссылка на программу', 'type' => 'url'),
         '_conference_chat_1_url' => array('label' => 'Ссылка на чат конференции', 'type' => 'url'),
-        '_conference_hero_image_url' => array('label' => 'Фон/заставка первого экрана: URL изображения или GIF', 'type' => 'url'),
+        '_conference_hero_image_url' => array('label' => 'Фон/заставка первого экрана: изображение или GIF', 'type' => 'url'),
         '_conference_topic_intro' => array('label' => 'Описание блока тем', 'type' => 'textarea'),
         '_conference_topic_1_title' => array('label' => 'Тема 1: текст', 'type' => 'text'),
-        '_conference_topic_1_image_url' => array('label' => 'Тема 1: URL изображения', 'type' => 'url'),
+        '_conference_topic_1_image_url' => array('label' => 'Тема 1: изображение', 'type' => 'url'),
         '_conference_topic_2_title' => array('label' => 'Тема 2: текст', 'type' => 'text'),
-        '_conference_topic_2_image_url' => array('label' => 'Тема 2: URL изображения', 'type' => 'url'),
+        '_conference_topic_2_image_url' => array('label' => 'Тема 2: изображение', 'type' => 'url'),
         '_conference_topic_3_title' => array('label' => 'Тема 3: текст', 'type' => 'text'),
-        '_conference_topic_3_image_url' => array('label' => 'Тема 3: URL изображения', 'type' => 'url'),
+        '_conference_topic_3_image_url' => array('label' => 'Тема 3: изображение', 'type' => 'url'),
         '_conference_about_title' => array('label' => 'Заголовок блока "О конференции"', 'type' => 'text'),
         '_conference_about_lead' => array('label' => 'Лид блока "О конференции"', 'type' => 'textarea'),
         '_conference_benefits' => array('label' => 'Преимущества/тезисы: по одному пункту на строку', 'type' => 'textarea'),
@@ -169,8 +169,8 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_route_directions' => array('label' => 'Как добраться: текст маршрута', 'type' => 'textarea'),
         '_conference_map_lat' => array('label' => 'Широта метки карты', 'type' => 'text'),
         '_conference_map_lon' => array('label' => 'Долгота метки карты', 'type' => 'text'),
-        '_conference_venue_image_url' => array('label' => 'Фото под картой 1: URL изображения', 'type' => 'url'),
-        '_conference_collage_image_url' => array('label' => 'Фото под картой 2: URL изображения', 'type' => 'url'),
+        '_conference_venue_image_url' => array('label' => 'Фото под картой 1: файл изображения', 'type' => 'url'),
+        '_conference_collage_image_url' => array('label' => 'Фото под картой 2: файл изображения', 'type' => 'url'),
         '_conference_organizers' => array('label' => 'Организаторы', 'type' => 'partners'),
         '_conference_general_partners' => array('label' => 'Генеральные партнеры', 'type' => 'partners'),
         '_conference_partners' => array('label' => 'Партнеры', 'type' => 'partners'),
@@ -230,6 +230,51 @@ function fyremezzonine_manager_upload_image_for_field($field_name, $post_id = 0)
     return wp_get_attachment_url($attachment_id) ?: '';
 }
 
+function fyremezzonine_manager_repeater_file_count($file_key) {
+    if (empty($_FILES[$file_key]) || empty($_FILES[$file_key]['name']) || !is_array($_FILES[$file_key]['name'])) {
+        return 0;
+    }
+
+    return count($_FILES[$file_key]['name']);
+}
+
+function fyremezzonine_manager_upload_repeater_image_for_field($file_key, $index, $post_id = 0) {
+    if (empty($_FILES[$file_key]) || empty($_FILES[$file_key]['name']) || !is_array($_FILES[$file_key]['name'])) {
+        return '';
+    }
+
+    if (empty($_FILES[$file_key]['name'][$index])) {
+        return '';
+    }
+
+    $error = isset($_FILES[$file_key]['error'][$index]) ? (int) $_FILES[$file_key]['error'][$index] : UPLOAD_ERR_NO_FILE;
+    if ($error === UPLOAD_ERR_NO_FILE || $error !== UPLOAD_ERR_OK) {
+        return '';
+    }
+
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    require_once ABSPATH . 'wp-admin/includes/media.php';
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+
+    $single_file_key = $file_key . '_' . $index . '_upload';
+    $_FILES[$single_file_key] = array(
+        'name' => $_FILES[$file_key]['name'][$index],
+        'type' => $_FILES[$file_key]['type'][$index] ?? '',
+        'tmp_name' => $_FILES[$file_key]['tmp_name'][$index] ?? '',
+        'error' => $error,
+        'size' => $_FILES[$file_key]['size'][$index] ?? 0,
+    );
+
+    $attachment_id = media_handle_upload($single_file_key, $post_id);
+    unset($_FILES[$single_file_key]);
+
+    if (is_wp_error($attachment_id)) {
+        return '';
+    }
+
+    return wp_get_attachment_url($attachment_id) ?: '';
+}
+
 function fyremezzonine_manager_parse_partner_rows($raw) {
     $items = array();
 
@@ -249,17 +294,19 @@ function fyremezzonine_manager_parse_partner_rows($raw) {
     return $items;
 }
 
-function fyremezzonine_manager_partner_rows_from_request($key) {
+function fyremezzonine_manager_partner_rows_from_request($key, $post_id = 0) {
     $names = isset($_POST[$key . '_name']) && is_array($_POST[$key . '_name']) ? wp_unslash($_POST[$key . '_name']) : array();
     $urls = isset($_POST[$key . '_url']) && is_array($_POST[$key . '_url']) ? wp_unslash($_POST[$key . '_url']) : array();
     $logos = isset($_POST[$key . '_logo_url']) && is_array($_POST[$key . '_logo_url']) ? wp_unslash($_POST[$key . '_logo_url']) : array();
+    $file_key = $key . '_logo_url_file';
     $rows = array();
-    $total = max(count($names), count($urls), count($logos));
+    $total = max(count($names), count($urls), count($logos), fyremezzonine_manager_repeater_file_count($file_key));
 
     for ($index = 0; $index < $total; $index++) {
         $name = isset($names[$index]) ? sanitize_text_field($names[$index]) : '';
         $url = isset($urls[$index]) ? esc_url_raw($urls[$index]) : '';
-        $logo_url = isset($logos[$index]) ? esc_url_raw($logos[$index]) : '';
+        $uploaded_logo_url = fyremezzonine_manager_upload_repeater_image_for_field($file_key, $index, $post_id);
+        $logo_url = $uploaded_logo_url ?: (isset($logos[$index]) ? esc_url_raw($logos[$index]) : '');
 
         if (!$name && !$url && !$logo_url) {
             continue;
@@ -293,15 +340,17 @@ function fyremezzonine_manager_parse_topic_rows($raw) {
     return $items;
 }
 
-function fyremezzonine_manager_topic_rows_from_request($key) {
+function fyremezzonine_manager_topic_rows_from_request($key, $post_id = 0) {
     $titles = isset($_POST[$key . '_title']) && is_array($_POST[$key . '_title']) ? wp_unslash($_POST[$key . '_title']) : array();
     $images = isset($_POST[$key . '_image_url']) && is_array($_POST[$key . '_image_url']) ? wp_unslash($_POST[$key . '_image_url']) : array();
+    $file_key = $key . '_image_url_file';
     $rows = array();
-    $total = max(count($titles), count($images));
+    $total = max(count($titles), count($images), fyremezzonine_manager_repeater_file_count($file_key));
 
     for ($index = 0; $index < $total; $index++) {
         $title = isset($titles[$index]) ? sanitize_text_field($titles[$index]) : '';
-        $image_url = isset($images[$index]) ? esc_url_raw($images[$index]) : '';
+        $uploaded_image_url = fyremezzonine_manager_upload_repeater_image_for_field($file_key, $index, $post_id);
+        $image_url = $uploaded_image_url ?: (isset($images[$index]) ? esc_url_raw($images[$index]) : '');
 
         if (!$title && !$image_url) {
             continue;
@@ -338,21 +387,23 @@ function fyremezzonine_manager_parse_speaker_rows($raw) {
     return $items;
 }
 
-function fyremezzonine_manager_speaker_rows_from_request($key) {
+function fyremezzonine_manager_speaker_rows_from_request($key, $post_id = 0) {
     $names = isset($_POST[$key . '_name']) && is_array($_POST[$key . '_name']) ? wp_unslash($_POST[$key . '_name']) : array();
     $positions = isset($_POST[$key . '_position']) && is_array($_POST[$key . '_position']) ? wp_unslash($_POST[$key . '_position']) : array();
     $directions = isset($_POST[$key . '_direction']) && is_array($_POST[$key . '_direction']) ? wp_unslash($_POST[$key . '_direction']) : array();
     $quotes = isset($_POST[$key . '_quote']) && is_array($_POST[$key . '_quote']) ? wp_unslash($_POST[$key . '_quote']) : array();
     $photos = isset($_POST[$key . '_photo_url']) && is_array($_POST[$key . '_photo_url']) ? wp_unslash($_POST[$key . '_photo_url']) : array();
+    $file_key = $key . '_photo_url_file';
     $rows = array();
-    $total = max(count($names), count($positions), count($directions), count($quotes), count($photos));
+    $total = max(count($names), count($positions), count($directions), count($quotes), count($photos), fyremezzonine_manager_repeater_file_count($file_key));
 
     for ($index = 0; $index < $total; $index++) {
         $name = isset($names[$index]) ? sanitize_text_field($names[$index]) : '';
         $position = isset($positions[$index]) ? sanitize_text_field($positions[$index]) : '';
         $direction = isset($directions[$index]) ? sanitize_text_field($directions[$index]) : '';
         $quote = isset($quotes[$index]) ? sanitize_text_field($quotes[$index]) : '';
-        $photo_url = isset($photos[$index]) ? esc_url_raw($photos[$index]) : '';
+        $uploaded_photo_url = fyremezzonine_manager_upload_repeater_image_for_field($file_key, $index, $post_id);
+        $photo_url = $uploaded_photo_url ?: (isset($photos[$index]) ? esc_url_raw($photos[$index]) : '');
 
         if (!$name && !$position && !$direction && !$quote && !$photo_url) {
             continue;
@@ -508,8 +559,12 @@ function fyremezzonine_manager_render_partner_repeater($key, $label, $value = ''
                     <input type="url" name="<?php echo esc_attr($key); ?>_url[]" value="<?php echo esc_attr($item['url'] ?? ''); ?>" placeholder="https://example.ru/">
                 </label>
                 <label>
-                    <span>Ссылка на иконку/логотип</span>
-                    <input type="url" name="<?php echo esc_attr($key); ?>_logo_url[]" value="<?php echo esc_attr($item['logo_url'] ?? ''); ?>" placeholder="https://example.ru/logo.png">
+                    <span>Иконка/логотип</span>
+                    <input type="hidden" name="<?php echo esc_attr($key); ?>_logo_url[]" value="<?php echo esc_attr($item['logo_url'] ?? ''); ?>">
+                    <?php if (!empty($item['logo_url'])) : ?>
+                        <small>Файл уже загружен. Чтобы заменить, выберите новый.</small>
+                    <?php endif; ?>
+                    <input type="file" name="<?php echo esc_attr($key); ?>_logo_url_file[]" accept="image/*,.gif">
                 </label>
             </div>
         </div>
@@ -554,8 +609,12 @@ function fyremezzonine_manager_render_topic_repeater($key, $label, $value = '') 
                     <input type="text" name="<?php echo esc_attr($key); ?>_title[]" value="<?php echo esc_attr($item['title'] ?? ''); ?>" placeholder="Например: Предупреждение техногенных катастроф">
                 </label>
                 <label>
-                    <span>Ссылка на изображение темы</span>
-                    <input type="url" name="<?php echo esc_attr($key); ?>_image_url[]" value="<?php echo esc_attr($item['image_url'] ?? ''); ?>" placeholder="https://example.ru/topic.jpg">
+                    <span>Изображение темы</span>
+                    <input type="hidden" name="<?php echo esc_attr($key); ?>_image_url[]" value="<?php echo esc_attr($item['image_url'] ?? ''); ?>">
+                    <?php if (!empty($item['image_url'])) : ?>
+                        <small>Файл уже загружен. Чтобы заменить, выберите новый.</small>
+                    <?php endif; ?>
+                    <input type="file" name="<?php echo esc_attr($key); ?>_image_url_file[]" accept="image/*,.gif">
                 </label>
             </div>
         </div>
@@ -597,7 +656,11 @@ function fyremezzonine_manager_render_speaker_repeater($key, $label, $value = ''
             <div class="conference-partner-fields conference-speaker-fields">
                 <label>
                     <span>Фото спикера</span>
-                    <input type="url" name="<?php echo esc_attr($key); ?>_photo_url[]" value="<?php echo esc_attr($item['photo_url'] ?? ''); ?>" placeholder="https://example.ru/speaker.jpg">
+                    <input type="hidden" name="<?php echo esc_attr($key); ?>_photo_url[]" value="<?php echo esc_attr($item['photo_url'] ?? ''); ?>">
+                    <?php if (!empty($item['photo_url'])) : ?>
+                        <small>Файл уже загружен. Чтобы заменить, выберите новый.</small>
+                    <?php endif; ?>
+                    <input type="file" name="<?php echo esc_attr($key); ?>_photo_url_file[]" accept="image/*,.gif">
                 </label>
                 <label>
                     <span>Имя и фамилия</span>
@@ -654,7 +717,7 @@ add_action('add_meta_boxes', 'fyremezzonine_manager_add_meta_boxes');
 function fyremezzonine_manager_render_meta_box($post) {
     wp_nonce_field('fyremezzonine_manager_save_meta', 'fyremezzonine_manager_meta_nonce');
 
-    echo '<p><em>Эти поля управляют главной страницей, страницей конференции, формой регистрации и атмосферой события. Изображения можно загрузить в "Медиафайлы" и вставить сюда URL.</em></p>';
+    echo '<p><em>Эти поля управляют главной страницей, страницей конференции, формой регистрации и атмосферой события. Изображения загружаются через кнопку выбора файла.</em></p>';
 
     $image_fields = fyremezzonine_manager_image_meta_keys();
 
@@ -668,6 +731,19 @@ function fyremezzonine_manager_render_meta_box($post) {
         $value = get_post_meta($post->ID, $key, true);
         echo '<p>';
         printf('<label for="%1$s"><strong>%2$s</strong></label><br>', esc_attr($key), esc_html($field['label']));
+
+        if (in_array($key, $image_fields, true)) {
+            printf('<input type="hidden" id="%1$s" name="%1$s" value="%2$s">', esc_attr($key), esc_attr($value));
+            if ($value) {
+                printf('<span class="description">Текущий файл: <a href="%1$s" target="_blank" rel="noopener">открыть</a></span><br>', esc_url($value));
+            }
+            printf(
+                '<label for="%1$s_file">Выбрать файл</label><br><input type="file" id="%1$s_file" name="%1$s_file" accept="image/*,.gif" class="widefat">',
+                esc_attr($key)
+            );
+            echo '</p>';
+            continue;
+        }
 
         if ($field['type'] === 'partners') {
             echo '</p>';
@@ -701,13 +777,6 @@ function fyremezzonine_manager_render_meta_box($post) {
             );
         }
 
-        if (in_array($key, $image_fields, true)) {
-            printf(
-                '<br><label for="%1$s_file">Загрузить новое изображение или GIF</label><br><input type="file" id="%1$s_file" name="%1$s_file" accept="image/*,.gif" class="widefat">',
-                esc_attr($key)
-            );
-        }
-
         echo '</p>';
     }
 }
@@ -727,15 +796,15 @@ function fyremezzonine_manager_save_meta($post_id) {
 
     foreach (fyremezzonine_manager_meta_keys() as $key => $field) {
         if ($field['type'] === 'partners') {
-            update_post_meta($post_id, $key, fyremezzonine_manager_partner_rows_from_request($key));
+            update_post_meta($post_id, $key, fyremezzonine_manager_partner_rows_from_request($key, $post_id));
             continue;
         }
         if ($field['type'] === 'topics') {
-            update_post_meta($post_id, $key, fyremezzonine_manager_topic_rows_from_request($key));
+            update_post_meta($post_id, $key, fyremezzonine_manager_topic_rows_from_request($key, $post_id));
             continue;
         }
         if ($field['type'] === 'speakers') {
-            update_post_meta($post_id, $key, fyremezzonine_manager_speaker_rows_from_request($key));
+            update_post_meta($post_id, $key, fyremezzonine_manager_speaker_rows_from_request($key, $post_id));
             continue;
         }
 
@@ -765,6 +834,15 @@ function fyremezzonine_manager_save_meta($post_id) {
     }
 }
 add_action('save_post_conference', 'fyremezzonine_manager_save_meta');
+
+function fyremezzonine_manager_post_edit_form_tag() {
+    global $post;
+
+    if ($post && $post->post_type === 'conference') {
+        echo ' enctype="multipart/form-data"';
+    }
+}
+add_action('post_edit_form_tag', 'fyremezzonine_manager_post_edit_form_tag');
 
 function fyremezzonine_manager_submission_field_groups() {
     return array(
@@ -805,7 +883,7 @@ function fyremezzonine_manager_submission_field_groups() {
         ),
         'links' => array(
             'title' => 'Ссылки, изображения и карта',
-            'description' => 'Файлы можно загрузить в "Медиафайлы", затем вставить сюда URL файла.',
+            'description' => 'Ссылки вводятся текстом, изображения загружаются через выбор файла.',
             'fields' => array(
                 '_conference_program_url',
                 '_conference_chat_1_url',
@@ -816,7 +894,7 @@ function fyremezzonine_manager_submission_field_groups() {
         ),
         'venue_photos' => array(
             'title' => 'Фотографии под картой',
-            'description' => 'Эти два изображения показываются сразу под Яндекс.Картой. Можно вставить URL или загрузить файл в этом же поле.',
+            'description' => 'Эти два изображения показываются сразу под Яндекс.Картой. Выберите файлы с компьютера.',
             'fields' => array(
                 '_conference_venue_image_url',
                 '_conference_collage_image_url',
@@ -917,6 +995,21 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
     echo '<p class="conference-submission-field">';
     printf('<label for="%1$s">%2$s</label>', esc_attr($name), esc_html($label));
 
+    if ($is_image_field) {
+        printf('<input id="%1$s" type="hidden" name="%1$s" value="%2$s">', esc_attr($name), esc_attr($value));
+        if ($value) {
+            printf('<span class="conference-submission-note">Текущий файл уже загружен: <a href="%1$s" target="_blank" rel="noopener">открыть</a>. Чтобы заменить его, выберите новый файл ниже.</span>', esc_url($value));
+        } else {
+            echo '<span class="conference-submission-note">Выберите изображение с компьютера. Для заставки первого экрана можно выбрать GIF.</span>';
+        }
+        printf(
+            '<input id="%1$s_file" type="file" name="%1$s_file" accept="image/*,.gif">',
+            esc_attr($name)
+        );
+        echo '</p>';
+        return;
+    }
+
     if ($type === 'select') {
         printf('<select id="%1$s" name="%1$s"%2$s>', esc_attr($name), $required);
         foreach ($field['options'] as $option_value => $option_label) {
@@ -944,17 +1037,6 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
             esc_attr($value),
             $required,
             esc_attr($placeholder)
-        );
-    }
-
-    if ($is_image_field) {
-        $upload_note = $name === '_conference_hero_image_url'
-            ? 'Можно вставить URL изображения/GIF или загрузить новый файл ниже. GIF будет использоваться как анимированная заставка первого экрана.'
-            : 'Можно вставить готовый URL или загрузить новый файл ниже.';
-        printf(
-            '<span class="conference-submission-note">%2$s</span><input id="%1$s_file" type="file" name="%1$s_file" accept="image/*,.gif">',
-            esc_attr($name),
-            esc_html($upload_note)
         );
     }
 
@@ -1005,15 +1087,15 @@ function fyremezzonine_manager_handle_conference_submission() {
 
     foreach (fyremezzonine_manager_meta_keys() as $key => $field) {
         if ($field['type'] === 'partners') {
-            update_post_meta($post_id, $key, fyremezzonine_manager_partner_rows_from_request($key));
+            update_post_meta($post_id, $key, fyremezzonine_manager_partner_rows_from_request($key, $post_id));
             continue;
         }
         if ($field['type'] === 'topics') {
-            update_post_meta($post_id, $key, fyremezzonine_manager_topic_rows_from_request($key));
+            update_post_meta($post_id, $key, fyremezzonine_manager_topic_rows_from_request($key, $post_id));
             continue;
         }
         if ($field['type'] === 'speakers') {
-            update_post_meta($post_id, $key, fyremezzonine_manager_speaker_rows_from_request($key));
+            update_post_meta($post_id, $key, fyremezzonine_manager_speaker_rows_from_request($key, $post_id));
             continue;
         }
 
@@ -2377,7 +2459,7 @@ function fyremezzonine_manager_render_guide_page() {
             <li>Откройте <strong>Конференции -> Все конференции</strong>.</li>
             <li>Выберите конференцию или нажмите <strong>Добавить конференцию</strong>.</li>
             <li>Заполните название, описание, краткое описание и блок <strong>Данные конференции</strong>.</li>
-            <li>Для картинок загрузите файл в <strong>Медиафайлы</strong>, скопируйте URL файла и вставьте его в нужное поле конференции.</li>
+            <li>Для картинок используйте кнопку <strong>Выбрать файл</strong> в нужном поле конференции.</li>
             <li>Для карты укажите понятный адрес площадки в поле <strong>Адрес для карты/маршрута</strong>.</li>
         </ol>
         <h2>Упрощенная форма для редактора</h2>
