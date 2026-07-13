@@ -30,10 +30,7 @@ if ($header_conference_id) {
             <span class="brand-mark">
                 <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/oren-vniipo-logo.png'); ?>" alt="">
             </span>
-            <span class="brand-text">
-                <span>Оренбургский филиал</span>
-                <span>ФГБУ ВНИИПО МЧС России</span>
-            </span>
+            <span class="brand-text">Оренбургский филиал<br>ФГБУ ВНИИПО МЧС России</span>
         </a>
 
         <div class="header-navigation">

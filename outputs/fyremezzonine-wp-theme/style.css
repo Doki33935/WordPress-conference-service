@@ -136,7 +136,7 @@ img {
   letter-spacing: 0;
 }
 
-.brand-text span {
+.brand-text br {
   display: block;
 }
 
@@ -183,20 +183,24 @@ img {
   min-height: 40px;
   padding: 8px 16px;
   border-radius: 999px;
+  border: 0;
   background: var(--fm-ink);
   color: var(--fm-white);
+  font-family: inherit;
   font-size: 15px;
   font-weight: 800;
+  line-height: 1.15;
+  text-decoration: none;
   white-space: nowrap;
   box-shadow: var(--fm-soft-shadow);
 }
 
 .header-cta {
-  background: var(--fm-red);
+  background: var(--fm-ink);
 }
 
 .header-cta:hover {
-  background: #d82820;
+  background: var(--fm-red);
   color: var(--fm-white);
 }
 
