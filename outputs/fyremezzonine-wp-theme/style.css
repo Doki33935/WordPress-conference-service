@@ -1737,6 +1737,10 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   width: 100%;
   overflow-x: auto;
   margin-top: 18px;
+  border: 1px solid rgba(28, 35, 42, 0.08);
+  border-radius: 8px;
+  background: var(--fm-white);
+  box-shadow: 0 18px 48px rgba(18, 27, 38, 0.08);
 }
 
 .conference-print-actions {
@@ -1756,25 +1760,90 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-registrations-table {
   width: 100%;
-  min-width: 1180px;
-  border-collapse: collapse;
+  min-width: 1220px;
+  border-collapse: separate;
+  border-spacing: 0;
   background: var(--fm-white);
-  box-shadow: var(--fm-soft-shadow);
+  font-size: 14px;
+  line-height: 1.35;
 }
 
 .conference-registrations-table th,
 .conference-registrations-table td {
-  padding: 13px 14px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--fm-line);
   text-align: left;
   vertical-align: top;
 }
 
 .conference-registrations-table th {
-  color: var(--fm-muted);
-  font-size: 13px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: #30363c;
+  background: #f4f7fa;
+  font-size: 12px;
   font-weight: 900;
+  line-height: 1.2;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.conference-registrations-table tbody tr:nth-child(even) td {
+  background: #fbfcfe;
+}
+
+.conference-registrations-table tbody tr:hover td {
+  background: #fff7f6;
+}
+
+.conference-registrations-table td {
+  color: #30363c;
+  overflow-wrap: anywhere;
+}
+
+.conference-registrations-table td:first-child {
+  white-space: nowrap;
+}
+
+.conference-registrations-table a {
+  color: var(--fm-blue);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.conference-registrations-table a:hover {
+  color: var(--fm-red);
+}
+
+.request-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #eef5ff;
+  color: #1d4f8f;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.request-status-confirmed,
+.request-status-approved {
+  background: #e7f7e9;
+  color: #14551f;
+}
+
+.request-status-rejected {
+  background: #ffeceb;
+  color: #8b1710;
+}
+
+.request-status-archived {
+  background: #f0f1f3;
+  color: #30363c;
 }
 
 .registration-message {

@@ -1799,6 +1799,24 @@ function fyremezzonine_manager_registration_name_parts($item) {
     return array($last_name, $first_name, $middle_name);
 }
 
+function fyremezzonine_manager_status_badge($status) {
+    $status = sanitize_key($status ?: 'new');
+    $labels = array(
+        'new' => 'Новая',
+        'confirmed' => 'Подтверждена',
+        'approved' => 'Одобрена',
+        'rejected' => 'Отклонена',
+        'archived' => 'Архив',
+    );
+    $label = $labels[$status] ?? $status;
+
+    return sprintf(
+        '<span class="request-status request-status-%1$s">%2$s</span>',
+        esc_attr($status),
+        esc_html($label)
+    );
+}
+
 function fyremezzonine_manager_print_controls($label = 'Распечатать список') {
     static $printed_assets = false;
 
@@ -1829,6 +1847,8 @@ function fyremezzonine_manager_print_controls($label = 'Распечатать �
                     width: 100% !important;
                     padding: 0 !important;
                     background: #fff !important;
+                    color: #000 !important;
+                    font-family: Calibri, Arial, sans-serif !important;
                 }
 
                 body.conference-print-mode .conference-print-actions,
@@ -1839,9 +1859,12 @@ function fyremezzonine_manager_print_controls($label = 'Распечатать �
 
                 body.conference-print-mode .conference-print-title {
                     display: block !important;
-                    margin: 0 0 12px !important;
+                    margin: 0 0 10px !important;
                     color: #000 !important;
-                    font-size: 20px !important;
+                    font-family: Calibri, Arial, sans-serif !important;
+                    font-size: 16px !important;
+                    font-weight: 700 !important;
+                    line-height: 1.2 !important;
                 }
 
                 body.conference-print-mode .conference-registrations-scroll {
@@ -1854,22 +1877,62 @@ function fyremezzonine_manager_print_controls($label = 'Распечатать �
                     min-width: 0 !important;
                     border-collapse: collapse !important;
                     box-shadow: none !important;
-                    font-size: 10px !important;
+                    table-layout: fixed !important;
+                    color: #000 !important;
+                    font-family: Calibri, Arial, sans-serif !important;
+                    font-size: 9pt !important;
+                    line-height: 1.15 !important;
+                }
+
+                body.conference-print-mode thead {
+                    display: table-header-group !important;
+                }
+
+                body.conference-print-mode tfoot {
+                    display: table-footer-group !important;
+                }
+
+                body.conference-print-mode tr {
+                    break-inside: avoid !important;
+                    page-break-inside: avoid !important;
                 }
 
                 body.conference-print-mode th,
                 body.conference-print-mode td {
-                    padding: 5px 6px !important;
-                    border: 1px solid #222 !important;
+                    padding: 4px 5px !important;
+                    border: 1px solid #9e9e9e !important;
                     color: #000 !important;
                     background: #fff !important;
                     text-align: left !important;
                     vertical-align: top !important;
+                    white-space: normal !important;
+                    overflow-wrap: anywhere !important;
+                }
+
+                body.conference-print-mode th {
+                    background: #d9eaf7 !important;
+                    font-weight: 700 !important;
+                    text-transform: none !important;
+                }
+
+                body.conference-print-mode tbody tr:nth-child(even) td {
+                    background: #f8fbfd !important;
                 }
 
                 body.conference-print-mode a {
                     color: #000 !important;
                     text-decoration: none !important;
+                }
+
+                body.conference-print-mode .request-status {
+                    display: inline !important;
+                    min-height: 0 !important;
+                    padding: 0 !important;
+                    border-radius: 0 !important;
+                    background: transparent !important;
+                    color: #000 !important;
+                    font: inherit !important;
+                    white-space: normal !important;
                 }
 
                 @page {
@@ -1982,7 +2045,7 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
                             <td><?php echo esc_html($item->organization); ?></td>
                             <td><?php echo esc_html($item->comment); ?></td>
                             <td><?php echo $item->privacy_consent ? 'Да' : 'Нет'; ?></td>
-                            <td><?php echo esc_html($item->status); ?></td>
+                            <td><?php echo fyremezzonine_manager_status_badge($item->status); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
@@ -2073,7 +2136,7 @@ function fyremezzonine_manager_partner_requests_interface($admin_mode = false) {
                             <td><a href="mailto:<?php echo esc_attr($item->email); ?>"><?php echo esc_html($item->email); ?></a></td>
                             <td><?php echo esc_html($item->phone); ?></td>
                             <td><?php echo esc_html($item->comment); ?></td>
-                            <td><?php echo esc_html($item->status); ?></td>
+                            <td><?php echo fyremezzonine_manager_status_badge($item->status); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
