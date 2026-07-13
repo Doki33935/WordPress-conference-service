@@ -992,18 +992,20 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 }
 
 .speaker-direction {
-  width: max-content;
+  width: 100%;
   max-width: 100%;
   margin: 0;
   padding: 6px 10px;
   border: 1px solid rgba(47, 103, 246, 0.16);
-  border-radius: 999px;
+  border-radius: 8px;
   color: var(--fm-blue);
   background: #eef4ff;
   font-size: 13px;
   font-weight: 900;
   line-height: 1.25;
   overflow-wrap: anywhere;
+  word-break: normal;
+  box-sizing: border-box;
 }
 
 .speaker-body blockquote {
