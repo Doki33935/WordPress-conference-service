@@ -158,11 +158,39 @@ function fyremezzonine_next_conference_id() {
             'order' => 'ASC',
             'fields' => 'ids',
             'meta_query' => array(
+                'relation' => 'OR',
                 array(
-                    'key' => '_conference_start_date',
+                    'key' => '_conference_end_date',
                     'value' => $today,
                     'compare' => '>=',
                     'type' => 'DATE',
+                ),
+                array(
+                    'relation' => 'AND',
+                    array(
+                        'key' => '_conference_end_date',
+                        'compare' => 'NOT EXISTS',
+                    ),
+                    array(
+                        'key' => '_conference_start_date',
+                        'value' => $today,
+                        'compare' => '>=',
+                        'type' => 'DATE',
+                    ),
+                ),
+                array(
+                    'relation' => 'AND',
+                    array(
+                        'key' => '_conference_end_date',
+                        'value' => '',
+                        'compare' => '=',
+                    ),
+                    array(
+                        'key' => '_conference_start_date',
+                        'value' => $today,
+                        'compare' => '>=',
+                        'type' => 'DATE',
+                    ),
                 ),
             ),
         )

@@ -1983,11 +1983,39 @@ function fyremezzonine_manager_default_conference_filter() {
             'order' => 'ASC',
             'fields' => 'ids',
             'meta_query' => array(
+                'relation' => 'OR',
                 array(
-                    'key' => '_conference_start_date',
+                    'key' => '_conference_end_date',
                     'value' => $today,
                     'compare' => '>=',
                     'type' => 'DATE',
+                ),
+                array(
+                    'relation' => 'AND',
+                    array(
+                        'key' => '_conference_end_date',
+                        'compare' => 'NOT EXISTS',
+                    ),
+                    array(
+                        'key' => '_conference_start_date',
+                        'value' => $today,
+                        'compare' => '>=',
+                        'type' => 'DATE',
+                    ),
+                ),
+                array(
+                    'relation' => 'AND',
+                    array(
+                        'key' => '_conference_end_date',
+                        'value' => '',
+                        'compare' => '=',
+                    ),
+                    array(
+                        'key' => '_conference_start_date',
+                        'value' => $today,
+                        'compare' => '>=',
+                        'type' => 'DATE',
+                    ),
                 ),
             ),
         )
@@ -1997,7 +2025,19 @@ function fyremezzonine_manager_default_conference_filter() {
         return absint($query->posts[0]);
     }
 
-    return 0;
+    $fallback = new WP_Query(
+        array(
+            'post_type' => 'conference',
+            'post_status' => 'publish',
+            'posts_per_page' => 1,
+            'meta_key' => '_conference_start_date',
+            'orderby' => 'meta_value',
+            'order' => 'DESC',
+            'fields' => 'ids',
+        )
+    );
+
+    return !empty($fallback->posts[0]) ? absint($fallback->posts[0]) : 0;
 }
 
 function fyremezzonine_manager_registrations_interface($admin_mode = false) {
