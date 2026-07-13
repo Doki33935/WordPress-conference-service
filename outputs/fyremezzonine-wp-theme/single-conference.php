@@ -105,6 +105,9 @@ while (have_posts()) :
                                 <?php if (!empty($speaker['position'])) : ?>
                                     <p class="speaker-position"><?php echo esc_html($speaker['position']); ?></p>
                                 <?php endif; ?>
+                                <?php if (!empty($speaker['direction'])) : ?>
+                                    <p class="speaker-direction"><?php echo esc_html($speaker['direction']); ?></p>
+                                <?php endif; ?>
                                 <?php if (!empty($speaker['quote'])) : ?>
                                     <blockquote><?php echo esc_html($speaker['quote']); ?></blockquote>
                                 <?php endif; ?>

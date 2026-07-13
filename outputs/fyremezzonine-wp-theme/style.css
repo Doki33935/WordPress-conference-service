@@ -357,6 +357,12 @@ img {
   color: var(--theme-secondary);
 }
 
+.conference-theme .speaker-direction {
+  color: var(--theme-primary);
+  background: var(--theme-soft-bg);
+  border-color: var(--theme-border);
+}
+
 .conference-theme .benefits li::before,
 .conference-theme .speaker-body blockquote {
   border-color: var(--theme-accent);
@@ -985,6 +991,21 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   overflow-wrap: anywhere;
 }
 
+.speaker-direction {
+  width: max-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 6px 10px;
+  border: 1px solid rgba(47, 103, 246, 0.16);
+  border-radius: 999px;
+  color: var(--fm-blue);
+  background: #eef4ff;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
 .speaker-body blockquote {
   margin: 4px 0 0;
   padding-left: 14px;
@@ -1363,6 +1384,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 }
 
 .conference-registration-form input,
+.conference-registration-form select,
 .conference-registration-form textarea {
   width: 100%;
   padding: 14px 16px;
@@ -1885,57 +1907,62 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-registrations-table-partners th:nth-child(1),
 .conference-registrations-table-partners td:nth-child(1) {
-  width: 8%;
+  width: 7%;
 }
 
 .conference-registrations-table-partners th:nth-child(2),
 .conference-registrations-table-partners td:nth-child(2) {
-  width: 11%;
+  width: 10%;
 }
 
 .conference-registrations-table-partners th:nth-child(3),
 .conference-registrations-table-partners td:nth-child(3) {
-  width: 12%;
+  width: 11%;
 }
 
 .conference-registrations-table-partners th:nth-child(4),
 .conference-registrations-table-partners td:nth-child(4) {
-  width: 5%;
+  width: 9%;
 }
 
 .conference-registrations-table-partners th:nth-child(5),
 .conference-registrations-table-partners td:nth-child(5) {
-  width: 7%;
+  width: 5%;
 }
 
 .conference-registrations-table-partners th:nth-child(6),
 .conference-registrations-table-partners td:nth-child(6) {
-  width: 10%;
+  width: 7%;
 }
 
 .conference-registrations-table-partners th:nth-child(7),
 .conference-registrations-table-partners td:nth-child(7) {
-  width: 10%;
+  width: 9%;
 }
 
 .conference-registrations-table-partners th:nth-child(8),
 .conference-registrations-table-partners td:nth-child(8) {
-  width: 12%;
+  width: 9%;
 }
 
 .conference-registrations-table-partners th:nth-child(9),
 .conference-registrations-table-partners td:nth-child(9) {
-  width: 8%;
+  width: 11%;
 }
 
 .conference-registrations-table-partners th:nth-child(10),
 .conference-registrations-table-partners td:nth-child(10) {
-  width: 10%;
+  width: 7%;
 }
 
 .conference-registrations-table-partners th:nth-child(11),
 .conference-registrations-table-partners td:nth-child(11) {
-  width: 7%;
+  width: 9%;
+}
+
+.conference-registrations-table-partners th:nth-child(12),
+.conference-registrations-table-partners td:nth-child(12) {
+  width: 6%;
 }
 
 .conference-registrations-table a {

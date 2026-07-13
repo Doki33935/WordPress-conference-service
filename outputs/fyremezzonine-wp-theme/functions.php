@@ -326,6 +326,7 @@ function fyremezzonine_parse_speaker_list($raw) {
             'position' => $parts[1] ?? '',
             'quote' => $parts[2] ?? '',
             'photo_url' => $parts[3] ?? '',
+            'direction' => $parts[4] ?? '',
         );
     }
 

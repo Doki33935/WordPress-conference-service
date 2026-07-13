@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('FYREMEZZONINE_MANAGER_VERSION', '1.0.0');
-define('FYREMEZZONINE_MANAGER_SCHEMA_VERSION', '1.3.0');
+define('FYREMEZZONINE_MANAGER_SCHEMA_VERSION', '1.4.0');
 
 function fyremezzonine_manager_table_name() {
     global $wpdb;
@@ -24,6 +24,20 @@ function fyremezzonine_manager_partner_requests_table_name() {
     global $wpdb;
 
     return $wpdb->prefix . 'conference_partner_requests';
+}
+
+function fyremezzonine_manager_partnership_level_options() {
+    return array(
+        'general_partner' => 'Генеральный партнер',
+        'partner' => 'Партнер',
+        'media_partner' => 'Информационный партнер',
+        'organizer' => 'Соорганизатор',
+    );
+}
+
+function fyremezzonine_manager_partnership_level_label($level) {
+    $options = fyremezzonine_manager_partnership_level_options();
+    return $options[$level] ?? $options['partner'];
 }
 
 function fyremezzonine_manager_activate() {
@@ -66,6 +80,7 @@ function fyremezzonine_manager_activate() {
         company_name varchar(190) NOT NULL,
         company_site varchar(190) NOT NULL DEFAULT '',
         company_city varchar(190) NOT NULL DEFAULT '',
+        partnership_level varchar(80) NOT NULL DEFAULT 'partner',
         contact_name varchar(190) NOT NULL,
         contact_position varchar(190) NOT NULL DEFAULT '',
         email varchar(190) NOT NULL,
@@ -309,6 +324,7 @@ function fyremezzonine_manager_parse_speaker_rows($raw) {
             'position' => $parts[1] ?? '',
             'quote' => $parts[2] ?? '',
             'photo_url' => $parts[3] ?? '',
+            'direction' => $parts[4] ?? '',
         );
     }
 
@@ -318,18 +334,20 @@ function fyremezzonine_manager_parse_speaker_rows($raw) {
 function fyremezzonine_manager_speaker_rows_from_request($key) {
     $names = isset($_POST[$key . '_name']) && is_array($_POST[$key . '_name']) ? wp_unslash($_POST[$key . '_name']) : array();
     $positions = isset($_POST[$key . '_position']) && is_array($_POST[$key . '_position']) ? wp_unslash($_POST[$key . '_position']) : array();
+    $directions = isset($_POST[$key . '_direction']) && is_array($_POST[$key . '_direction']) ? wp_unslash($_POST[$key . '_direction']) : array();
     $quotes = isset($_POST[$key . '_quote']) && is_array($_POST[$key . '_quote']) ? wp_unslash($_POST[$key . '_quote']) : array();
     $photos = isset($_POST[$key . '_photo_url']) && is_array($_POST[$key . '_photo_url']) ? wp_unslash($_POST[$key . '_photo_url']) : array();
     $rows = array();
-    $total = max(count($names), count($positions), count($quotes), count($photos));
+    $total = max(count($names), count($positions), count($directions), count($quotes), count($photos));
 
     for ($index = 0; $index < $total; $index++) {
         $name = isset($names[$index]) ? sanitize_text_field($names[$index]) : '';
         $position = isset($positions[$index]) ? sanitize_text_field($positions[$index]) : '';
+        $direction = isset($directions[$index]) ? sanitize_text_field($directions[$index]) : '';
         $quote = isset($quotes[$index]) ? sanitize_text_field($quotes[$index]) : '';
         $photo_url = isset($photos[$index]) ? esc_url_raw($photos[$index]) : '';
 
-        if (!$name && !$position && !$quote && !$photo_url) {
+        if (!$name && !$position && !$direction && !$quote && !$photo_url) {
             continue;
         }
 
@@ -337,7 +355,7 @@ function fyremezzonine_manager_speaker_rows_from_request($key) {
             $name = 'Спикер конференции';
         }
 
-        $rows[] = $name . ' | ' . $position . ' | ' . $quote . ' | ' . $photo_url;
+        $rows[] = $name . ' | ' . $position . ' | ' . $quote . ' | ' . $photo_url . ' | ' . $direction;
     }
 
     return implode("\n", $rows);
@@ -559,7 +577,7 @@ function fyremezzonine_manager_render_topic_repeater($key, $label, $value = '') 
 function fyremezzonine_manager_render_speaker_repeater($key, $label, $value = '') {
     $items = fyremezzonine_manager_parse_speaker_rows($value);
     if (!$items) {
-        $items = array(array('name' => '', 'position' => '', 'quote' => '', 'photo_url' => ''));
+        $items = array(array('name' => '', 'position' => '', 'direction' => '', 'quote' => '', 'photo_url' => ''));
     }
 
     $render_row = static function($item) use ($key) {
@@ -583,6 +601,10 @@ function fyremezzonine_manager_render_speaker_repeater($key, $label, $value = ''
                     <input type="text" name="<?php echo esc_attr($key); ?>_position[]" value="<?php echo esc_attr($item['position'] ?? ''); ?>" placeholder="Например: руководитель направления">
                 </label>
                 <label>
+                    <span>Направление научного доклада</span>
+                    <input type="text" name="<?php echo esc_attr($key); ?>_direction[]" value="<?php echo esc_attr($item['direction'] ?? ''); ?>" placeholder="Например: мониторинг техногенных рисков">
+                </label>
+                <label>
                     <span>Выдержка из слов</span>
                     <textarea name="<?php echo esc_attr($key); ?>_quote[]" rows="3" placeholder="Короткая цитата или тезис выступления"><?php echo esc_textarea($item['quote'] ?? ''); ?></textarea>
                 </label>
@@ -594,7 +616,7 @@ function fyremezzonine_manager_render_speaker_repeater($key, $label, $value = ''
     echo '<div class="conference-submission-field conference-partner-repeater conference-speaker-repeater" data-repeater>';
     echo '<div class="conference-partner-repeater-head">';
     printf('<label>%s</label>', esc_html($label));
-    echo '<p class="conference-submission-note">Добавьте спикеров конференции: фото, имя, должность и короткую цитату.</p>';
+    echo '<p class="conference-submission-note">Добавьте спикеров конференции: фото, имя, должность, направление научного доклада и короткую цитату.</p>';
     echo '</div>';
     echo '<div class="conference-partner-rows" data-repeater-rows>';
     foreach ($items as $item) {
@@ -603,7 +625,7 @@ function fyremezzonine_manager_render_speaker_repeater($key, $label, $value = ''
     echo '</div>';
     echo '<button type="button" class="button conference-partner-add" data-repeater-add>+ Добавить спикера</button>';
     echo '<template>';
-    $render_row(array('name' => '', 'position' => '', 'quote' => '', 'photo_url' => ''));
+    $render_row(array('name' => '', 'position' => '', 'direction' => '', 'quote' => '', 'photo_url' => ''));
     echo '</template>';
     echo '</div>';
 
@@ -1442,6 +1464,17 @@ function fyremezzonine_manager_partner_request_shortcode($atts) {
             </label>
         </p>
         <p>
+            <label>Степень партнерства<br>
+                <select name="partnership_level" required>
+                    <?php foreach (fyremezzonine_manager_partnership_level_options() as $level_key => $level_label) : ?>
+                        <option value="<?php echo esc_attr($level_key); ?>" <?php selected($level_key, 'partner'); ?>>
+                            <?php echo esc_html($level_label); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+        </p>
+        <p>
             <label>Контактное лицо<br>
                 <input type="text" name="contact_name" required placeholder="Фамилия Имя Отчество">
             </label>
@@ -1485,6 +1518,7 @@ function fyremezzonine_manager_handle_partner_request($fallback_conference_id) {
     $company_name = isset($_POST['company_name']) ? sanitize_text_field(wp_unslash($_POST['company_name'])) : '';
     $company_site = isset($_POST['company_site']) ? esc_url_raw(wp_unslash($_POST['company_site'])) : '';
     $company_city = isset($_POST['company_city']) ? sanitize_text_field(wp_unslash($_POST['company_city'])) : '';
+    $partnership_level = isset($_POST['partnership_level']) ? sanitize_key(wp_unslash($_POST['partnership_level'])) : 'partner';
     $contact_name = isset($_POST['contact_name']) ? sanitize_text_field(wp_unslash($_POST['contact_name'])) : '';
     $contact_position = isset($_POST['contact_position']) ? sanitize_text_field(wp_unslash($_POST['contact_position'])) : '';
     $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
@@ -1493,6 +1527,10 @@ function fyremezzonine_manager_handle_partner_request($fallback_conference_id) {
 
     if (!$company_name || !$contact_name || !$email || !is_email($email)) {
         return '<div class="registration-message registration-error">Заполните название компании, контактное лицо и корректный email.</div>';
+    }
+
+    if (!array_key_exists($partnership_level, fyremezzonine_manager_partnership_level_options())) {
+        $partnership_level = 'partner';
     }
 
     $ip_address = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
@@ -1504,6 +1542,7 @@ function fyremezzonine_manager_handle_partner_request($fallback_conference_id) {
             'company_name' => $company_name,
             'company_site' => $company_site,
             'company_city' => $company_city,
+            'partnership_level' => $partnership_level,
             'contact_name' => $contact_name,
             'contact_position' => $contact_position,
             'email' => $email,
@@ -1513,7 +1552,7 @@ function fyremezzonine_manager_handle_partner_request($fallback_conference_id) {
             'ip_address' => $ip_address,
             'created_at' => current_time('mysql'),
         ),
-        array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
+        array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
     );
 
     return '<div class="registration-message registration-success">Спасибо! Заявка на партнерство отправлена. Представители ВНИИПО свяжутся с вами.</div>';
@@ -2211,6 +2250,7 @@ function fyremezzonine_manager_partner_requests_interface($admin_mode = false) {
                     <th>Дата</th>
                     <th>Конференция</th>
                     <th>Компания</th>
+                    <th>Степень партнерства</th>
                     <th>Сайт</th>
                     <th>Город</th>
                     <th>Контакт</th>
@@ -2228,6 +2268,7 @@ function fyremezzonine_manager_partner_requests_interface($admin_mode = false) {
                             <td><?php echo esc_html($item->created_at); ?></td>
                             <td><?php echo esc_html($item->conference_title ?: 'Не указана'); ?></td>
                             <td><?php echo esc_html($item->company_name); ?></td>
+                            <td><?php echo esc_html(fyremezzonine_manager_partnership_level_label($item->partnership_level ?? 'partner')); ?></td>
                             <td>
                                 <?php if (!empty($item->company_site)) : ?>
                                     <a href="<?php echo esc_url($item->company_site); ?>" target="_blank" rel="noopener">Сайт</a>
@@ -2243,7 +2284,7 @@ function fyremezzonine_manager_partner_requests_interface($admin_mode = false) {
                         </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
-                    <tr><td colspan="11">Пока заявок на партнерство нет.</td></tr>
+                    <tr><td colspan="12">Пока заявок на партнерство нет.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
