@@ -1288,6 +1288,17 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   margin: 36px auto 0;
 }
 
+.page-layout:has(.conference-partner-request-form) > .section-eyebrow,
+.page-layout:has(.conference-partner-request-form) > .section-title {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+
+.conference-partner-request-form .registration-conference-title {
+  text-align: center;
+}
+
 .contact-grid {
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
