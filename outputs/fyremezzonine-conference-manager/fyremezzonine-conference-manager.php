@@ -179,6 +179,13 @@ function fyremezzonine_manager_meta_keys() {
     );
 }
 
+function fyremezzonine_manager_hidden_editor_meta_keys() {
+    return array(
+        '_conference_map_lat',
+        '_conference_map_lon',
+    );
+}
+
 function fyremezzonine_manager_partner_meta_keys() {
     return array(
         '_conference_organizers',
@@ -651,7 +658,13 @@ function fyremezzonine_manager_render_meta_box($post) {
 
     $image_fields = fyremezzonine_manager_image_meta_keys();
 
+    $hidden_fields = fyremezzonine_manager_hidden_editor_meta_keys();
+
     foreach (fyremezzonine_manager_meta_keys() as $key => $field) {
+        if (in_array($key, $hidden_fields, true)) {
+            continue;
+        }
+
         $value = get_post_meta($post->ID, $key, true);
         echo '<p>';
         printf('<label for="%1$s"><strong>%2$s</strong></label><br>', esc_attr($key), esc_html($field['label']));
@@ -799,8 +812,6 @@ function fyremezzonine_manager_submission_field_groups() {
                 '_conference_hero_image_url',
                 '_conference_venue_heading',
                 '_conference_venue_intro',
-                '_conference_map_lat',
-                '_conference_map_lon',
             ),
         ),
         'venue_photos' => array(
@@ -2367,7 +2378,7 @@ function fyremezzonine_manager_render_guide_page() {
             <li>Выберите конференцию или нажмите <strong>Добавить конференцию</strong>.</li>
             <li>Заполните название, описание, краткое описание и блок <strong>Данные конференции</strong>.</li>
             <li>Для картинок загрузите файл в <strong>Медиафайлы</strong>, скопируйте URL файла и вставьте его в нужное поле конференции.</li>
-            <li>Для карты можно указать точные координаты метки или адрес для поиска.</li>
+            <li>Для карты укажите понятный адрес площадки в поле <strong>Адрес для карты/маршрута</strong>.</li>
         </ol>
         <h2>Упрощенная форма для редактора</h2>
         <p>На сайте после входа редактора откройте меню <strong>Редактор -> Создать конференцию</strong>. Это форма в стиле анкеты: она создает конференцию без работы с обычным редактором WordPress. Адрес страницы: <code>/editor/new-conference/</code>.</p>
