@@ -1707,18 +1707,28 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   max-width: none;
 }
 
+.editor-page .page-layout {
+  width: min(calc(100% - 32px), 1560px);
+  max-width: 1560px;
+}
+
 .conference-editor-filter {
   display: flex;
   flex-wrap: wrap;
   align-items: end;
   gap: 14px;
   margin: 24px 0;
+  padding: 16px;
+  border: 1px solid rgba(28, 35, 42, 0.08);
+  border-radius: 8px;
+  background: #f7f9fb;
 }
 
 .conference-editor-filter p {
   display: grid;
   gap: 8px;
-  min-width: min(100%, 340px);
+  flex: 1 1 380px;
+  min-width: min(100%, 360px);
   margin: 0;
 }
 
@@ -1731,6 +1741,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   color: var(--fm-ink);
   background: var(--fm-white);
   font: inherit;
+  font-weight: 800;
 }
 
 .conference-registrations-scroll {
@@ -1741,6 +1752,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   border-radius: 8px;
   background: var(--fm-white);
   box-shadow: 0 18px 48px rgba(18, 27, 38, 0.08);
+  contain: layout paint;
 }
 
 .conference-print-actions {
@@ -1765,7 +1777,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   border-spacing: 0;
   table-layout: fixed;
   background: var(--fm-white);
-  font-size: clamp(11px, 0.92vw, 14px);
+  font-size: clamp(12px, 0.82vw, 14px);
   line-height: 1.3;
 }
 

@@ -1967,8 +1967,41 @@ function fyremezzonine_manager_print_controls($label = 'Распечатать �
     return ob_get_clean();
 }
 
+function fyremezzonine_manager_default_conference_filter() {
+    if (function_exists('fyremezzonine_next_conference_id')) {
+        return absint(fyremezzonine_next_conference_id());
+    }
+
+    $today = current_time('Y-m-d');
+    $query = new WP_Query(
+        array(
+            'post_type' => 'conference',
+            'post_status' => 'publish',
+            'posts_per_page' => 1,
+            'meta_key' => '_conference_start_date',
+            'orderby' => 'meta_value',
+            'order' => 'ASC',
+            'fields' => 'ids',
+            'meta_query' => array(
+                array(
+                    'key' => '_conference_start_date',
+                    'value' => $today,
+                    'compare' => '>=',
+                    'type' => 'DATE',
+                ),
+            ),
+        )
+    );
+
+    if (!empty($query->posts[0])) {
+        return absint($query->posts[0]);
+    }
+
+    return 0;
+}
+
 function fyremezzonine_manager_registrations_interface($admin_mode = false) {
-    $conference_id = isset($_GET['conference_id']) ? absint($_GET['conference_id']) : 0;
+    $conference_id = isset($_GET['conference_id']) ? absint($_GET['conference_id']) : fyremezzonine_manager_default_conference_filter();
     $items = fyremezzonine_manager_registrations_query($conference_id, 200);
     $conferences = fyremezzonine_manager_get_conference_options();
     $export_url = wp_nonce_url(
@@ -1994,7 +2027,7 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
         <?php endif; ?>
         <p>
             <label for="conference_id"><strong>Конференция</strong></label>
-            <select id="conference_id" name="conference_id">
+            <select id="conference_id" name="conference_id" onchange="this.form.submit()">
                 <option value="0">Все конференции</option>
                 <?php foreach ($conferences as $conference) : ?>
                     <option value="<?php echo esc_attr($conference->ID); ?>" <?php selected($conference_id, $conference->ID); ?>>
@@ -2003,7 +2036,6 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
                 <?php endforeach; ?>
             </select>
         </p>
-        <button type="submit" class="<?php echo $admin_mode ? 'button' : 'button button-outline'; ?>">Показать</button>
         <a class="<?php echo $admin_mode ? 'button button-primary' : 'button button-red'; ?>" href="<?php echo esc_url($export_url); ?>">Выгрузить Excel</a>
     </form>
 
@@ -2072,31 +2104,62 @@ function fyremezzonine_manager_registrations_shortcode() {
 }
 add_shortcode('conference_registrations_archive', 'fyremezzonine_manager_registrations_shortcode');
 
-function fyremezzonine_manager_partner_requests_query($limit = 200) {
+function fyremezzonine_manager_partner_requests_query($conference_id = 0, $limit = 200) {
     global $wpdb;
 
     $table = fyremezzonine_manager_partner_requests_table_name();
     $posts_table = $wpdb->posts;
     $sql = "SELECT p.*, COALESCE(c.post_title, '') AS conference_title
             FROM {$table} p
-            LEFT JOIN {$posts_table} c ON c.ID = p.conference_id
-            ORDER BY p.created_at DESC";
+            LEFT JOIN {$posts_table} c ON c.ID = p.conference_id";
+    $params = array();
+
+    if ($conference_id) {
+        $sql .= ' WHERE p.conference_id = %d';
+        $params[] = $conference_id;
+    }
+
+    $sql .= ' ORDER BY p.created_at DESC';
 
     if ($limit) {
         $sql .= ' LIMIT %d';
-        return $wpdb->get_results($wpdb->prepare($sql, $limit));
+        $params[] = $limit;
+    }
+
+    if ($params) {
+        return $wpdb->get_results($wpdb->prepare($sql, $params));
     }
 
     return $wpdb->get_results($sql);
 }
 
 function fyremezzonine_manager_partner_requests_interface($admin_mode = false) {
-    $items = fyremezzonine_manager_partner_requests_query(200);
+    $conference_id = isset($_GET['conference_id']) ? absint($_GET['conference_id']) : fyremezzonine_manager_default_conference_filter();
+    $items = fyremezzonine_manager_partner_requests_query($conference_id, 200);
+    $conferences = fyremezzonine_manager_get_conference_options();
+    $form_action = $admin_mode ? admin_url('edit.php') : fyremezzonine_manager_editor_page_url('partner-requests');
     $table_class = ($admin_mode ? 'widefat fixed striped' : 'conference-registrations-table') . ' conference-registrations-table-partners';
 
     ob_start();
     ?>
     <p>Здесь хранятся заявки от компаний, которые хотят стать партнерами, соорганизаторами или представителями СМИ. ВНИИПО связывается с заявителями по указанным контактам.</p>
+    <form class="<?php echo $admin_mode ? 'conference-admin-filter' : 'conference-editor-filter'; ?>" method="get" action="<?php echo esc_url($form_action); ?>">
+        <?php if ($admin_mode) : ?>
+            <input type="hidden" name="post_type" value="conference">
+            <input type="hidden" name="page" value="conference-partner-requests">
+        <?php endif; ?>
+        <p>
+            <label for="partner_conference_id"><strong>Конференция</strong></label>
+            <select id="partner_conference_id" name="conference_id" onchange="this.form.submit()">
+                <option value="0">Все конференции</option>
+                <?php foreach ($conferences as $conference) : ?>
+                    <option value="<?php echo esc_attr($conference->ID); ?>" <?php selected($conference_id, $conference->ID); ?>>
+                        <?php echo esc_html(get_the_title($conference)); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+    </form>
     <?php echo fyremezzonine_manager_print_controls('Распечатать заявки на партнерство'); ?>
 
     <div class="conference-print-area">
