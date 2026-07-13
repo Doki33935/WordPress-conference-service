@@ -132,8 +132,8 @@ function fyremezzonine_asset($path) {
 
 function fyremezzonine_nav_fallback() {
     $items = array(
-        home_url('/#participation') => 'Темы',
         home_url('/#about') => 'О конференции',
+        home_url('/#participation') => 'Темы',
         home_url('/#partners') => 'Партнеры',
         home_url('/#contacts') => 'Контакты',
         home_url('/conferences/') => 'Конференции',

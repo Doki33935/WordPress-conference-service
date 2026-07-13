@@ -36,24 +36,6 @@ get_header();
         </div>
     </section>
 
-    <section class="section" id="participation">
-        <div class="section-inner">
-            <p class="section-eyebrow">Структура конференции</p>
-            <h2 class="section-title">Ключевые темы обсуждения</h2>
-            <p class="lead"><?php echo esc_html($conference['topic_intro']); ?></p>
-
-            <div class="topic-grid">
-                <?php foreach ($conference['topics'] as $index => $topic) : ?>
-                <article class="topic-card">
-                    <img class="topic-media" src="<?php echo esc_url($topic['image_url']); ?>" alt="">
-                    <span class="topic-number"><?php echo esc_html(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)); ?></span>
-                    <p><?php echo esc_html($topic['title']); ?></p>
-                </article>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </section>
-
     <section class="section about-band" id="about">
         <div class="section-inner about-layout">
             <div>
@@ -90,6 +72,24 @@ get_header();
                     <p><?php echo esc_html($conference['deadline'] ?: 'Уточняется'); ?></p>
                 </div>
             </aside>
+        </div>
+    </section>
+
+    <section class="section" id="participation">
+        <div class="section-inner">
+            <p class="section-eyebrow">Структура конференции</p>
+            <h2 class="section-title">Ключевые темы обсуждения</h2>
+            <p class="lead"><?php echo esc_html($conference['topic_intro']); ?></p>
+
+            <div class="topic-grid">
+                <?php foreach ($conference['topics'] as $index => $topic) : ?>
+                <article class="topic-card">
+                    <img class="topic-media" src="<?php echo esc_url($topic['image_url']); ?>" alt="">
+                    <span class="topic-number"><?php echo esc_html(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)); ?></span>
+                    <p><?php echo esc_html($topic['title']); ?></p>
+                </article>
+                <?php endforeach; ?>
+            </div>
         </div>
     </section>
 

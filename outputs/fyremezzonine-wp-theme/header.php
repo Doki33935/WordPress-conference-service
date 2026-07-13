@@ -14,13 +14,26 @@
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
+<?php
+$header_conference_id = is_singular('conference') ? get_the_ID() : fyremezzonine_next_conference_id();
+$header_registration_url = fyremezzonine_link('registration_url');
+$header_registration_closed = false;
+
+if ($header_conference_id) {
+    $header_registration_url = add_query_arg('conference_id', $header_conference_id, $header_registration_url);
+    $header_registration_closed = fyremezzonine_registration_closed($header_conference_id);
+}
+?>
 <header class="site-header">
     <div class="header-inner">
         <a class="brand" href="<?php echo fyremezzonine_link('branch_url'); ?>" aria-label="Официальный сайт Оренбургского филиала ФГБУ ВНИИПО МЧС России">
             <span class="brand-mark">
                 <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/oren-vniipo-logo.png'); ?>" alt="">
             </span>
-            <span class="brand-text">Оренбургский филиал ФГБУ ВНИИПО МЧС России</span>
+            <span class="brand-text">
+                <span>Оренбургский филиал</span>
+                <span>ФГБУ ВНИИПО МЧС России</span>
+            </span>
         </a>
 
         <div class="header-navigation">
@@ -38,6 +51,12 @@
                 fyremezzonine_nav_fallback();
             }
             ?>
+
+            <?php if ($header_registration_closed) : ?>
+                <span class="header-cta header-cta-disabled" aria-disabled="true">Регистрация закрыта</span>
+            <?php else : ?>
+                <a class="header-cta" href="<?php echo esc_url($header_registration_url); ?>">Принять участие</a>
+            <?php endif; ?>
 
             <?php if (current_user_can('edit_posts')) : ?>
                 <details class="editor-menu">
