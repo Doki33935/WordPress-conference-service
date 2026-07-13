@@ -1735,7 +1735,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-registrations-scroll {
   width: 100%;
-  overflow-x: auto;
+  overflow-x: visible;
   margin-top: 18px;
   border: 1px solid rgba(28, 35, 42, 0.08);
   border-radius: 8px;
@@ -1760,20 +1760,25 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-registrations-table {
   width: 100%;
-  min-width: 1220px;
+  min-width: 0;
   border-collapse: separate;
   border-spacing: 0;
+  table-layout: fixed;
   background: var(--fm-white);
-  font-size: 14px;
-  line-height: 1.35;
+  font-size: clamp(11px, 0.92vw, 14px);
+  line-height: 1.3;
 }
 
 .conference-registrations-table th,
 .conference-registrations-table td {
-  padding: 14px 16px;
+  min-width: 0;
+  padding: 10px 8px;
   border-bottom: 1px solid var(--fm-line);
   text-align: left;
   vertical-align: top;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .conference-registrations-table th {
@@ -1786,7 +1791,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   font-weight: 900;
   line-height: 1.2;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .conference-registrations-table tbody tr:nth-child(even) td {
@@ -1803,7 +1808,122 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 }
 
 .conference-registrations-table td:first-child {
-  white-space: nowrap;
+  white-space: normal;
+}
+
+.conference-registrations-table-participants th:nth-child(1),
+.conference-registrations-table-participants td:nth-child(1) {
+  width: 8%;
+}
+
+.conference-registrations-table-participants th:nth-child(2),
+.conference-registrations-table-participants td:nth-child(2) {
+  width: 11%;
+}
+
+.conference-registrations-table-participants th:nth-child(3),
+.conference-registrations-table-participants td:nth-child(3) {
+  width: 7%;
+}
+
+.conference-registrations-table-participants th:nth-child(4),
+.conference-registrations-table-participants td:nth-child(4) {
+  width: 6%;
+}
+
+.conference-registrations-table-participants th:nth-child(5),
+.conference-registrations-table-participants td:nth-child(5) {
+  width: 7%;
+}
+
+.conference-registrations-table-participants th:nth-child(6),
+.conference-registrations-table-participants td:nth-child(6) {
+  width: 9%;
+}
+
+.conference-registrations-table-participants th:nth-child(7),
+.conference-registrations-table-participants td:nth-child(7) {
+  width: 11%;
+}
+
+.conference-registrations-table-participants th:nth-child(8),
+.conference-registrations-table-participants td:nth-child(8) {
+  width: 8%;
+}
+
+.conference-registrations-table-participants th:nth-child(9),
+.conference-registrations-table-participants td:nth-child(9) {
+  width: 10%;
+}
+
+.conference-registrations-table-participants th:nth-child(10),
+.conference-registrations-table-participants td:nth-child(10) {
+  width: 10%;
+}
+
+.conference-registrations-table-participants th:nth-child(11),
+.conference-registrations-table-participants td:nth-child(11) {
+  width: 5%;
+}
+
+.conference-registrations-table-participants th:nth-child(12),
+.conference-registrations-table-participants td:nth-child(12) {
+  width: 8%;
+}
+
+.conference-registrations-table-partners th:nth-child(1),
+.conference-registrations-table-partners td:nth-child(1) {
+  width: 8%;
+}
+
+.conference-registrations-table-partners th:nth-child(2),
+.conference-registrations-table-partners td:nth-child(2) {
+  width: 11%;
+}
+
+.conference-registrations-table-partners th:nth-child(3),
+.conference-registrations-table-partners td:nth-child(3) {
+  width: 12%;
+}
+
+.conference-registrations-table-partners th:nth-child(4),
+.conference-registrations-table-partners td:nth-child(4) {
+  width: 5%;
+}
+
+.conference-registrations-table-partners th:nth-child(5),
+.conference-registrations-table-partners td:nth-child(5) {
+  width: 7%;
+}
+
+.conference-registrations-table-partners th:nth-child(6),
+.conference-registrations-table-partners td:nth-child(6) {
+  width: 10%;
+}
+
+.conference-registrations-table-partners th:nth-child(7),
+.conference-registrations-table-partners td:nth-child(7) {
+  width: 10%;
+}
+
+.conference-registrations-table-partners th:nth-child(8),
+.conference-registrations-table-partners td:nth-child(8) {
+  width: 12%;
+}
+
+.conference-registrations-table-partners th:nth-child(9),
+.conference-registrations-table-partners td:nth-child(9) {
+  width: 8%;
+}
+
+.conference-registrations-table-partners th:nth-child(10),
+.conference-registrations-table-partners td:nth-child(10) {
+  width: 10%;
+}
+
+.conference-registrations-table-partners th:nth-child(11),
+.conference-registrations-table-partners td:nth-child(11) {
+  width: 7%;
 }
 
 .conference-registrations-table a {
@@ -1827,7 +1947,8 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   font-size: 12px;
   font-weight: 900;
   line-height: 1;
-  white-space: nowrap;
+  text-align: center;
+  white-space: normal;
 }
 
 .request-status-confirmed,
@@ -1992,6 +2113,22 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
     padding-right: 20px;
     padding-left: 20px;
   }
+
+  .conference-registrations-table {
+    font-size: 11px;
+  }
+
+  .conference-registrations-table th,
+  .conference-registrations-table td {
+    padding: 8px 5px;
+  }
+
+  .request-status {
+    min-height: 0;
+    padding: 4px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -2058,6 +2195,29 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   .partner-logo {
     min-height: 132px;
     padding: 20px;
+  }
+
+  .conference-registrations-scroll {
+    border-radius: 6px;
+  }
+
+  .conference-registrations-table {
+    font-size: 9px;
+    line-height: 1.18;
+  }
+
+  .conference-registrations-table th,
+  .conference-registrations-table td {
+    padding: 6px 3px;
+  }
+
+  .conference-registrations-table th {
+    font-size: 8px;
+  }
+
+  .request-status {
+    padding: 3px 4px;
+    font-size: 8px;
   }
 
   .route-card,

@@ -1982,7 +1982,7 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
         'fyremezzonine_export_registrations'
     );
     $form_action = $admin_mode ? admin_url('edit.php') : fyremezzonine_manager_editor_page_url('registrations');
-    $table_class = $admin_mode ? 'widefat fixed striped' : 'conference-registrations-table';
+    $table_class = ($admin_mode ? 'widefat fixed striped' : 'conference-registrations-table') . ' conference-registrations-table-participants';
     ob_start();
     ?>
     <p>Регистрации не удаляются после завершения конференции: старые заявки остаются в архиве и доступны по фильтру.</p>
@@ -2092,7 +2092,7 @@ function fyremezzonine_manager_partner_requests_query($limit = 200) {
 
 function fyremezzonine_manager_partner_requests_interface($admin_mode = false) {
     $items = fyremezzonine_manager_partner_requests_query(200);
-    $table_class = $admin_mode ? 'widefat fixed striped' : 'conference-registrations-table';
+    $table_class = ($admin_mode ? 'widefat fixed striped' : 'conference-registrations-table') . ' conference-registrations-table-partners';
 
     ob_start();
     ?>
