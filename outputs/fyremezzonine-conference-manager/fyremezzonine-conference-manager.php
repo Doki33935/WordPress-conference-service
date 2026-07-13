@@ -1799,6 +1799,111 @@ function fyremezzonine_manager_registration_name_parts($item) {
     return array($last_name, $first_name, $middle_name);
 }
 
+function fyremezzonine_manager_print_controls($label = 'Распечатать список') {
+    static $printed_assets = false;
+
+    ob_start();
+
+    if (!$printed_assets) :
+        $printed_assets = true;
+        ?>
+        <style>
+            .conference-print-title {
+                display: none;
+            }
+
+            @media print {
+                body.conference-print-mode * {
+                    visibility: hidden !important;
+                }
+
+                body.conference-print-mode .conference-print-area,
+                body.conference-print-mode .conference-print-area * {
+                    visibility: visible !important;
+                }
+
+                body.conference-print-mode .conference-print-area {
+                    position: absolute !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 100% !important;
+                    padding: 0 !important;
+                    background: #fff !important;
+                }
+
+                body.conference-print-mode .conference-print-actions,
+                body.conference-print-mode .conference-editor-filter,
+                body.conference-print-mode .conference-admin-filter {
+                    display: none !important;
+                }
+
+                body.conference-print-mode .conference-print-title {
+                    display: block !important;
+                    margin: 0 0 12px !important;
+                    color: #000 !important;
+                    font-size: 20px !important;
+                }
+
+                body.conference-print-mode .conference-registrations-scroll {
+                    overflow: visible !important;
+                    margin: 0 !important;
+                }
+
+                body.conference-print-mode table {
+                    width: 100% !important;
+                    min-width: 0 !important;
+                    border-collapse: collapse !important;
+                    box-shadow: none !important;
+                    font-size: 10px !important;
+                }
+
+                body.conference-print-mode th,
+                body.conference-print-mode td {
+                    padding: 5px 6px !important;
+                    border: 1px solid #222 !important;
+                    color: #000 !important;
+                    background: #fff !important;
+                    text-align: left !important;
+                    vertical-align: top !important;
+                }
+
+                body.conference-print-mode a {
+                    color: #000 !important;
+                    text-decoration: none !important;
+                }
+
+                @page {
+                    size: landscape;
+                    margin: 12mm;
+                }
+            }
+        </style>
+        <script>
+            (function () {
+                if (window.fyremezzoninePrintList) {
+                    return;
+                }
+
+                window.fyremezzoninePrintList = function () {
+                    document.body.classList.add('conference-print-mode');
+                    window.print();
+                };
+
+                window.addEventListener('afterprint', function () {
+                    document.body.classList.remove('conference-print-mode');
+                });
+            }());
+        </script>
+        <?php
+    endif;
+    ?>
+    <div class="conference-print-actions">
+        <button type="button" class="button button-outline conference-print-button" onclick="window.fyremezzoninePrintList()"><?php echo esc_html($label); ?></button>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
 function fyremezzonine_manager_registrations_interface($admin_mode = false) {
     $conference_id = isset($_GET['conference_id']) ? absint($_GET['conference_id']) : 0;
     $items = fyremezzonine_manager_registrations_query($conference_id, 200);
@@ -1839,7 +1944,11 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
         <a class="<?php echo $admin_mode ? 'button button-primary' : 'button button-red'; ?>" href="<?php echo esc_url($export_url); ?>">Выгрузить Excel</a>
     </form>
 
-    <div class="conference-registrations-scroll">
+    <?php echo fyremezzonine_manager_print_controls('Распечатать заявки на участие'); ?>
+
+    <div class="conference-print-area">
+        <h2 class="conference-print-title">Список заявок на участие</h2>
+        <div class="conference-registrations-scroll">
         <table class="<?php echo esc_attr($table_class); ?>">
             <thead>
                 <tr>
@@ -1881,6 +1990,7 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
                 <?php endif; ?>
             </tbody>
         </table>
+        </div>
     </div>
     <?php
     return ob_get_clean();
@@ -1924,7 +2034,11 @@ function fyremezzonine_manager_partner_requests_interface($admin_mode = false) {
     ob_start();
     ?>
     <p>Здесь хранятся заявки от компаний, которые хотят стать партнерами, соорганизаторами или представителями СМИ. ВНИИПО связывается с заявителями по указанным контактам.</p>
-    <div class="conference-registrations-scroll">
+    <?php echo fyremezzonine_manager_print_controls('Распечатать заявки на партнерство'); ?>
+
+    <div class="conference-print-area">
+        <h2 class="conference-print-title">Список заявок на партнерство</h2>
+        <div class="conference-registrations-scroll">
         <table class="<?php echo esc_attr($table_class); ?>">
             <thead>
                 <tr>
@@ -1967,6 +2081,7 @@ function fyremezzonine_manager_partner_requests_interface($admin_mode = false) {
                 <?php endif; ?>
             </tbody>
         </table>
+        </div>
     </div>
     <?php
     return ob_get_clean();

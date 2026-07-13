@@ -180,23 +180,25 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 8px 16px;
+  min-height: 38px;
+  padding: 8px 12px;
   border-radius: 999px;
   border: 0;
   background: var(--fm-ink);
   color: var(--fm-white);
   font-family: inherit;
   font-size: 15px;
-  font-weight: 800;
-  line-height: 1.15;
+  font-weight: 700;
+  line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
   box-shadow: var(--fm-soft-shadow);
 }
 
 .header-cta {
-  background: var(--fm-ink);
+  background: rgba(252, 90, 82, 0.12);
+  color: var(--fm-red);
+  box-shadow: none;
 }
 
 .header-cta:hover {
@@ -214,6 +216,12 @@ img {
 
 .login-link:hover {
   background: var(--fm-blue);
+}
+
+.login-link {
+  min-height: 40px;
+  padding: 8px 16px;
+  font-weight: 800;
 }
 
 .editor-menu {
@@ -1729,6 +1737,21 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   width: 100%;
   overflow-x: auto;
   margin-top: 18px;
+}
+
+.conference-print-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0 0;
+}
+
+.conference-print-button {
+  width: max-content;
+}
+
+.conference-print-title {
+  display: none;
 }
 
 .conference-registrations-table {
