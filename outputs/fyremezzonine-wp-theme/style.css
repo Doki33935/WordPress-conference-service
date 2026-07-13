@@ -1282,6 +1282,12 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   max-width: none;
 }
 
+.page-content .conference-partner-request-form,
+.editor-page .conference-partner-request-form {
+  max-width: 720px;
+  margin: 36px auto 0;
+}
+
 .contact-grid {
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
