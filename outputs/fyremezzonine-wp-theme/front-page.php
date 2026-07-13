@@ -120,7 +120,6 @@ get_header();
 
     <section class="section materials" id="registration">
         <div class="section-inner">
-            <p class="section-eyebrow">Информационное сообщение<?php echo $conference['deadline'] ? ' до ' . esc_html($conference['deadline']) : ''; ?></p>
             <h2 class="section-title">Требования к оформлению материалов</h2>
             <p class="lead"><?php echo esc_html($conference['materials_intro']); ?></p>
 
