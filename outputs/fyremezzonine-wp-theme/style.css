@@ -1825,6 +1825,16 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   margin: 0;
 }
 
+.conference-submission-field > .conference-upload-preview {
+  justify-self: center;
+  width: min(560px, 100%);
+  margin: 6px auto;
+  padding: 12px;
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
 .conference-upload-preview img {
   width: 100%;
   max-height: 160px;
@@ -1835,16 +1845,33 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   background: #f8fafc;
 }
 
+.conference-submission-field > .conference-upload-preview img {
+  max-height: 280px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
 .conference-upload-preview figcaption {
   color: var(--fm-muted);
   font-size: 12px;
   font-weight: 800;
   line-height: 1.3;
+  text-align: center;
 }
 
 .conference-upload-preview a {
   color: var(--fm-blue);
   text-decoration: none;
+}
+
+.conference-partner-fields .conference-upload-preview {
+  justify-self: start;
+  margin: 0;
+}
+
+.conference-partner-fields .conference-upload-preview figcaption {
+  text-align: left;
 }
 
 .conference-submission-note {
