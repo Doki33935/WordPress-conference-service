@@ -316,6 +316,19 @@ function fyremezzonine_manager_upload_repeater_image_for_field($file_key, $index
     return wp_get_attachment_url($attachment_id) ?: '';
 }
 
+function fyremezzonine_manager_render_uploaded_image_preview($image_url, $label = 'Загруженное изображение') {
+    if (!$image_url) {
+        return;
+    }
+
+    ?>
+    <figure class="conference-upload-preview">
+        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($label); ?>">
+        <figcaption><a href="<?php echo esc_url($image_url); ?>" target="_blank" rel="noopener">Открыть файл</a></figcaption>
+    </figure>
+    <?php
+}
+
 function fyremezzonine_manager_parse_partner_rows($raw) {
     $items = array();
 
@@ -542,6 +555,25 @@ function fyremezzonine_manager_render_partner_repeater_assets() {
             width: 100%;
             min-width: 0;
         }
+        .conference-upload-preview {
+            display: grid;
+            gap: 7px;
+            width: min(220px, 100%);
+            margin: 0;
+        }
+        .conference-upload-preview img {
+            width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+            border: 1px solid #dcdcde;
+            border-radius: 8px;
+            background: #f6f7f7;
+        }
+        .conference-upload-preview figcaption {
+            color: #646970;
+            font-size: 12px;
+            line-height: 1.3;
+        }
         .conference-partner-repeater template {
             display: none;
         }
@@ -603,6 +635,7 @@ function fyremezzonine_manager_render_partner_repeater($key, $label, $value = ''
                     <span>Иконка/логотип</span>
                     <input type="hidden" name="<?php echo esc_attr($key); ?>_logo_url[]" value="<?php echo esc_attr($item['logo_url'] ?? ''); ?>">
                     <?php if (!empty($item['logo_url'])) : ?>
+                        <?php fyremezzonine_manager_render_uploaded_image_preview($item['logo_url'], 'Логотип ' . ($item['name'] ?? 'организации')); ?>
                         <small>Файл уже загружен. Чтобы заменить, выберите новый.</small>
                     <?php endif; ?>
                     <input type="file" name="<?php echo esc_attr($key); ?>_logo_url_file[]" accept="image/*,.gif">
@@ -640,6 +673,13 @@ function fyremezzonine_manager_partner_template_meta_keys() {
     );
 }
 
+function fyremezzonine_manager_topic_template_meta_keys() {
+    return array(
+        '_conference_topic_intro',
+        '_conference_topics',
+    );
+}
+
 function fyremezzonine_manager_conference_has_partner_template($conference_id) {
     foreach (fyremezzonine_manager_partner_template_meta_keys() as $meta_key) {
         if (trim((string) get_post_meta($conference_id, $meta_key, true)) !== '') {
@@ -650,7 +690,17 @@ function fyremezzonine_manager_conference_has_partner_template($conference_id) {
     return false;
 }
 
-function fyremezzonine_manager_latest_partner_template_conference_id($exclude_id = 0) {
+function fyremezzonine_manager_conference_has_topic_template($conference_id) {
+    foreach (fyremezzonine_manager_topic_template_meta_keys() as $meta_key) {
+        if (trim((string) get_post_meta($conference_id, $meta_key, true)) !== '') {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function fyremezzonine_manager_latest_template_conference_id($has_template_callback, $exclude_id = 0) {
     $conferences = get_posts(
         array(
             'post_type' => 'conference',
@@ -669,7 +719,7 @@ function fyremezzonine_manager_latest_partner_template_conference_id($exclude_id
             continue;
         }
 
-        if (fyremezzonine_manager_conference_has_partner_template($conference_id)) {
+        if (call_user_func($has_template_callback, $conference_id)) {
             return $conference_id;
         }
     }
@@ -691,12 +741,20 @@ function fyremezzonine_manager_latest_partner_template_conference_id($exclude_id
             continue;
         }
 
-        if (fyremezzonine_manager_conference_has_partner_template($conference_id)) {
+        if (call_user_func($has_template_callback, $conference_id)) {
             return $conference_id;
         }
     }
 
     return 0;
+}
+
+function fyremezzonine_manager_latest_partner_template_conference_id($exclude_id = 0) {
+    return fyremezzonine_manager_latest_template_conference_id('fyremezzonine_manager_conference_has_partner_template', $exclude_id);
+}
+
+function fyremezzonine_manager_latest_topic_template_conference_id($exclude_id = 0) {
+    return fyremezzonine_manager_latest_template_conference_id('fyremezzonine_manager_conference_has_topic_template', $exclude_id);
 }
 
 function fyremezzonine_manager_render_topic_repeater($key, $label, $value = '') {
@@ -721,6 +779,7 @@ function fyremezzonine_manager_render_topic_repeater($key, $label, $value = '') 
                     <span>Изображение темы</span>
                     <input type="hidden" name="<?php echo esc_attr($key); ?>_image_url[]" value="<?php echo esc_attr($item['image_url'] ?? ''); ?>">
                     <?php if (!empty($item['image_url'])) : ?>
+                        <?php fyremezzonine_manager_render_uploaded_image_preview($item['image_url'], 'Изображение темы'); ?>
                         <small>Файл уже загружен. Чтобы заменить, выберите новый.</small>
                     <?php endif; ?>
                     <input type="file" name="<?php echo esc_attr($key); ?>_image_url_file[]" accept="image/*,.gif">
@@ -767,6 +826,7 @@ function fyremezzonine_manager_render_speaker_repeater($key, $label, $value = ''
                     <span>Фото спикера</span>
                     <input type="hidden" name="<?php echo esc_attr($key); ?>_photo_url[]" value="<?php echo esc_attr($item['photo_url'] ?? ''); ?>">
                     <?php if (!empty($item['photo_url'])) : ?>
+                        <?php fyremezzonine_manager_render_uploaded_image_preview($item['photo_url'], 'Фото спикера'); ?>
                         <small>Файл уже загружен. Чтобы заменить, выберите новый.</small>
                     <?php endif; ?>
                     <input type="file" name="<?php echo esc_attr($key); ?>_photo_url_file[]" accept="image/*,.gif">
@@ -844,6 +904,7 @@ function fyremezzonine_manager_render_meta_box($post) {
         if (in_array($key, $image_fields, true)) {
             printf('<input type="hidden" id="%1$s" name="%1$s" value="%2$s">', esc_attr($key), esc_attr($value));
             if ($value) {
+                fyremezzonine_manager_render_uploaded_image_preview($value, $field['label']);
                 printf('<span class="description">Текущий файл: <a href="%1$s" target="_blank" rel="noopener">открыть</a></span><br>', esc_url($value));
             }
             printf(
@@ -1107,6 +1168,7 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
     if ($is_image_field) {
         printf('<input id="%1$s" type="hidden" name="%1$s" value="%2$s">', esc_attr($name), esc_attr($value));
         if ($value) {
+            fyremezzonine_manager_render_uploaded_image_preview($value, $label);
             printf('<span class="conference-submission-note">Текущий файл уже загружен: <a href="%1$s" target="_blank" rel="noopener">открыть</a>. Чтобы заменить его, выберите новый файл ниже.</span>', esc_url($value));
         } else {
             echo '<span class="conference-submission-note">Выберите изображение с компьютера. Для заставки первого экрана можно выбрать GIF.</span>';
@@ -1294,7 +1356,11 @@ function fyremezzonine_manager_conference_submission_shortcode() {
     $partner_template_conference_id = (!$editing_conference_id && $_SERVER['REQUEST_METHOD'] !== 'POST')
         ? fyremezzonine_manager_latest_partner_template_conference_id()
         : 0;
+    $topic_template_conference_id = (!$editing_conference_id && $_SERVER['REQUEST_METHOD'] !== 'POST')
+        ? fyremezzonine_manager_latest_topic_template_conference_id()
+        : 0;
     $GLOBALS['fyremezzonine_manager_partner_template_conference_id'] = $partner_template_conference_id;
+    $GLOBALS['fyremezzonine_manager_topic_template_conference_id'] = $topic_template_conference_id;
 
     ob_start();
     echo wp_kses_post($message);
@@ -1318,6 +1384,9 @@ function fyremezzonine_manager_conference_submission_shortcode() {
                 <p class="conference-submission-note">Сначала сохраните черновик. После этого появится предпросмотр и кнопка публикации.</p>
                 <?php if ($partner_template_conference_id) : ?>
                     <p class="conference-submission-note">Организаторы и партнеры автоматически заполнены по прошлой конференции: <?php echo esc_html(get_the_title($partner_template_conference_id)); ?>. Проверьте список и удалите лишнее перед сохранением.</p>
+                <?php endif; ?>
+                <?php if ($topic_template_conference_id) : ?>
+                    <p class="conference-submission-note">Темы конференции автоматически заполнены по прошлой конференции: <?php echo esc_html(get_the_title($topic_template_conference_id)); ?>. Их можно изменить, удалить или дополнить.</p>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
@@ -1381,6 +1450,14 @@ function fyremezzonine_manager_submission_value($field_name, $conference_id = 0)
 
         if ($template_conference_id && in_array($field_name, fyremezzonine_manager_partner_template_meta_keys(), true)) {
             return get_post_meta($template_conference_id, $field_name, true);
+        }
+
+        $topic_template_conference_id = !empty($GLOBALS['fyremezzonine_manager_topic_template_conference_id'])
+            ? absint($GLOBALS['fyremezzonine_manager_topic_template_conference_id'])
+            : 0;
+
+        if ($topic_template_conference_id && in_array($field_name, fyremezzonine_manager_topic_template_meta_keys(), true)) {
+            return get_post_meta($topic_template_conference_id, $field_name, true);
         }
 
         return '';

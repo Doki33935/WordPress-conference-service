@@ -1818,6 +1818,35 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   line-height: 1.35;
 }
 
+.conference-upload-preview {
+  display: grid;
+  gap: 7px;
+  width: min(240px, 100%);
+  margin: 0;
+}
+
+.conference-upload-preview img {
+  width: 100%;
+  max-height: 160px;
+  padding: 8px;
+  object-fit: contain;
+  border: 1px solid var(--fm-line);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.conference-upload-preview figcaption {
+  color: var(--fm-muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.conference-upload-preview a {
+  color: var(--fm-blue);
+  text-decoration: none;
+}
+
 .conference-submission-note {
   color: var(--fm-muted);
   font-size: 14px;
