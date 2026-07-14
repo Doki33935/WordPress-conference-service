@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('FYREMEZZONINE_MANAGER_VERSION', '1.0.0');
-define('FYREMEZZONINE_MANAGER_SCHEMA_VERSION', '1.4.0');
+define('FYREMEZZONINE_MANAGER_SCHEMA_VERSION', '1.5.0');
 
 function fyremezzonine_manager_table_name() {
     global $wpdb;
@@ -40,6 +40,46 @@ function fyremezzonine_manager_partnership_level_label($level) {
     return $options[$level] ?? $options['partner'];
 }
 
+function fyremezzonine_manager_participant_type_options() {
+    return array(
+        'attendee' => 'Участвующие',
+        'speaker' => 'Спикеры',
+        'coorganizer' => 'Соорганизатор',
+        'exhibition' => 'Выставка',
+        'mini_demo' => 'Мини-демонстрация (демонстрация на выставочном стенде)',
+        'large_demo' => 'Крупномасштабная демонстрация',
+    );
+}
+
+function fyremezzonine_manager_sanitize_participant_types($raw_types) {
+    $raw_types = is_array($raw_types) ? $raw_types : array();
+    $allowed = fyremezzonine_manager_participant_type_options();
+    $types = array();
+
+    foreach ($raw_types as $type) {
+        $type = sanitize_key($type);
+        if (isset($allowed[$type])) {
+            $types[] = $type;
+        }
+    }
+
+    return array_values(array_unique($types));
+}
+
+function fyremezzonine_manager_participant_types_label($types) {
+    $options = fyremezzonine_manager_participant_type_options();
+    $types = is_array($types) ? $types : array_filter(array_map('trim', explode(',', (string) $types)));
+    $labels = array();
+
+    foreach ($types as $type) {
+        if (isset($options[$type])) {
+            $labels[] = $options[$type];
+        }
+    }
+
+    return implode(', ', $labels);
+}
+
 function fyremezzonine_manager_activate() {
     global $wpdb;
 
@@ -60,6 +100,7 @@ function fyremezzonine_manager_activate() {
         email varchar(190) NOT NULL,
         phone varchar(60) NOT NULL DEFAULT '',
         organization varchar(190) NOT NULL DEFAULT '',
+        participant_types text NULL,
         comment text NULL,
         privacy_consent tinyint(1) NOT NULL DEFAULT 0,
         status varchar(40) NOT NULL DEFAULT 'new',
@@ -1376,6 +1417,17 @@ function fyremezzonine_manager_registration_shortcode($atts) {
                 <input type="text" name="organization">
             </label>
         </p>
+        <fieldset class="registration-participant-types">
+            <legend>Тип участника</legend>
+            <div class="registration-checkbox-grid">
+                <?php foreach (fyremezzonine_manager_participant_type_options() as $type_key => $type_label) : ?>
+                    <label>
+                        <input type="checkbox" name="participant_types[]" value="<?php echo esc_attr($type_key); ?>">
+                        <span><?php echo esc_html($type_label); ?></span>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+        </fieldset>
         <p>
             <label>Комментарий<br>
                 <textarea name="comment" rows="4"></textarea>
@@ -1456,11 +1508,16 @@ function fyremezzonine_manager_handle_registration($fallback_conference_id) {
     $job_position = isset($_POST['job_position']) ? sanitize_text_field(wp_unslash($_POST['job_position'])) : '';
     $phone = isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '';
     $organization = isset($_POST['organization']) ? sanitize_text_field(wp_unslash($_POST['organization'])) : '';
+    $participant_types = fyremezzonine_manager_sanitize_participant_types(isset($_POST['participant_types']) ? wp_unslash($_POST['participant_types']) : array());
     $comment = isset($_POST['comment']) ? sanitize_textarea_field(wp_unslash($_POST['comment'])) : '';
     $privacy_consent = isset($_POST['privacy_consent']) && $_POST['privacy_consent'] === '1';
 
     if (!$last_name || !$first_name || !$email || !is_email($email)) {
         return '<div class="registration-message registration-error">Заполните фамилию, имя и корректный email.</div>';
+    }
+
+    if (!$participant_types) {
+        return '<div class="registration-message registration-error">Выберите хотя бы один тип участника.</div>';
     }
 
     if (!$privacy_consent) {
@@ -1481,13 +1538,14 @@ function fyremezzonine_manager_handle_registration($fallback_conference_id) {
             'email' => $email,
             'phone' => $phone,
             'organization' => $organization,
+            'participant_types' => implode(',', $participant_types),
             'comment' => $comment,
             'privacy_consent' => 1,
             'status' => 'new',
             'ip_address' => $ip_address,
             'created_at' => current_time('mysql'),
         ),
-        array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s')
+        array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s')
     );
 
     return fyremezzonine_manager_registration_success_message($conference_id);
@@ -1880,7 +1938,7 @@ function fyremezzonine_manager_export_registrations() {
     echo '<!doctype html><html><head><meta charset="UTF-8"></head><body>';
     echo '<table border="1">';
     echo '<thead><tr>';
-    foreach (array('ID', 'Дата', 'Конференция', 'Фамилия', 'Имя', 'Отчество', 'Должность', 'Email', 'Телефон', 'Организация', 'Комментарий', 'Согласие', 'Статус', 'IP') as $heading) {
+    foreach (array('ID', 'Дата', 'Конференция', 'Фамилия', 'Имя', 'Отчество', 'Должность', 'Email', 'Телефон', 'Организация', 'Тип участника', 'Комментарий', 'Согласие', 'Статус', 'IP') as $heading) {
         echo '<th>' . esc_html($heading) . '</th>';
     }
     echo '</tr></thead><tbody>';
@@ -1900,6 +1958,7 @@ function fyremezzonine_manager_export_registrations() {
                 $item->email,
                 $item->phone,
                 $item->organization,
+                fyremezzonine_manager_participant_types_label($item->participant_types ?? ''),
                 $item->comment,
                 $item->privacy_consent ? 'Да' : 'Нет',
                 $item->status,
@@ -2228,6 +2287,7 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
                     <th>Email</th>
                     <th>Телефон</th>
                     <th>Организация</th>
+                    <th>Тип участника</th>
                     <th>Комментарий</th>
                     <th>Согласие</th>
                     <th>Статус</th>
@@ -2247,13 +2307,14 @@ function fyremezzonine_manager_registrations_interface($admin_mode = false) {
                             <td><a href="mailto:<?php echo esc_attr($item->email); ?>"><?php echo esc_html($item->email); ?></a></td>
                             <td><?php echo esc_html($item->phone); ?></td>
                             <td><?php echo esc_html($item->organization); ?></td>
+                            <td><?php echo esc_html(fyremezzonine_manager_participant_types_label($item->participant_types ?? '')); ?></td>
                             <td><?php echo esc_html($item->comment); ?></td>
                             <td><?php echo $item->privacy_consent ? 'Да' : 'Нет'; ?></td>
                             <td><?php echo fyremezzonine_manager_status_badge($item->status); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
-                    <tr><td colspan="12">Пока заявок нет.</td></tr>
+                    <tr><td colspan="13">Пока заявок нет.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
