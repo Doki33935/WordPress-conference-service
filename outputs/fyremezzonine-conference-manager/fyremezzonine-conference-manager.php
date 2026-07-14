@@ -42,8 +42,8 @@ function fyremezzonine_manager_partnership_level_label($level) {
 
 function fyremezzonine_manager_participant_type_options() {
     return array(
-        'attendee' => 'Участвующие',
-        'speaker' => 'Спикеры',
+        'attendee' => 'Участвующий (слушатель)',
+        'speaker' => 'Спикер',
         'coorganizer' => 'Соорганизатор',
         'exhibition' => 'Выставка',
         'mini_demo' => 'Мини-демонстрация (демонстрация на выставочном стенде)',
