@@ -631,6 +631,74 @@ function fyremezzonine_manager_render_partner_repeater($key, $label, $value = ''
     fyremezzonine_manager_render_partner_repeater_assets();
 }
 
+function fyremezzonine_manager_partner_template_meta_keys() {
+    return array(
+        '_conference_organizers',
+        '_conference_general_partners',
+        '_conference_partners',
+        '_conference_media_partners',
+    );
+}
+
+function fyremezzonine_manager_conference_has_partner_template($conference_id) {
+    foreach (fyremezzonine_manager_partner_template_meta_keys() as $meta_key) {
+        if (trim((string) get_post_meta($conference_id, $meta_key, true)) !== '') {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function fyremezzonine_manager_latest_partner_template_conference_id($exclude_id = 0) {
+    $conferences = get_posts(
+        array(
+            'post_type' => 'conference',
+            'post_status' => array('publish', 'draft', 'future', 'private'),
+            'numberposts' => -1,
+            'meta_key' => '_conference_start_date',
+            'orderby' => 'meta_value',
+            'order' => 'DESC',
+            'fields' => 'ids',
+        )
+    );
+
+    foreach ($conferences as $conference_id) {
+        $conference_id = absint($conference_id);
+        if ($conference_id === absint($exclude_id)) {
+            continue;
+        }
+
+        if (fyremezzonine_manager_conference_has_partner_template($conference_id)) {
+            return $conference_id;
+        }
+    }
+
+    $fallback_conferences = get_posts(
+        array(
+            'post_type' => 'conference',
+            'post_status' => array('publish', 'draft', 'future', 'private'),
+            'numberposts' => -1,
+            'orderby' => 'date',
+            'order' => 'DESC',
+            'fields' => 'ids',
+        )
+    );
+
+    foreach ($fallback_conferences as $conference_id) {
+        $conference_id = absint($conference_id);
+        if ($conference_id === absint($exclude_id)) {
+            continue;
+        }
+
+        if (fyremezzonine_manager_conference_has_partner_template($conference_id)) {
+            return $conference_id;
+        }
+    }
+
+    return 0;
+}
+
 function fyremezzonine_manager_render_topic_repeater($key, $label, $value = '') {
     $items = fyremezzonine_manager_parse_topic_rows($value);
     if (!$items) {
@@ -1223,6 +1291,10 @@ function fyremezzonine_manager_conference_submission_shortcode() {
     $status_label = $status_object ? $status_object->label : $current_status;
     $preview_link = $editing_conference_id ? fyremezzonine_manager_conference_preview_url($editing_conference_id) : '';
     $is_published = $current_status === 'publish';
+    $partner_template_conference_id = (!$editing_conference_id && $_SERVER['REQUEST_METHOD'] !== 'POST')
+        ? fyremezzonine_manager_latest_partner_template_conference_id()
+        : 0;
+    $GLOBALS['fyremezzonine_manager_partner_template_conference_id'] = $partner_template_conference_id;
 
     ob_start();
     echo wp_kses_post($message);
@@ -1244,6 +1316,9 @@ function fyremezzonine_manager_conference_submission_shortcode() {
                 </div>
             <?php else : ?>
                 <p class="conference-submission-note">Сначала сохраните черновик. После этого появится предпросмотр и кнопка публикации.</p>
+                <?php if ($partner_template_conference_id) : ?>
+                    <p class="conference-submission-note">Организаторы и партнеры автоматически заполнены по прошлой конференции: <?php echo esc_html(get_the_title($partner_template_conference_id)); ?>. Проверьте список и удалите лишнее перед сохранением.</p>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
 
@@ -1300,6 +1375,14 @@ function fyremezzonine_manager_submission_value($field_name, $conference_id = 0)
     }
 
     if (!$conference_id) {
+        $template_conference_id = !empty($GLOBALS['fyremezzonine_manager_partner_template_conference_id'])
+            ? absint($GLOBALS['fyremezzonine_manager_partner_template_conference_id'])
+            : 0;
+
+        if ($template_conference_id && in_array($field_name, fyremezzonine_manager_partner_template_meta_keys(), true)) {
+            return get_post_meta($template_conference_id, $field_name, true);
+        }
+
         return '';
     }
 
