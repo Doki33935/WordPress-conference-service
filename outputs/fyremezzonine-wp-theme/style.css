@@ -1417,6 +1417,10 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   gap: 20px;
 }
 
+.venue-gallery:has(> :only-child) {
+  grid-template-columns: 1fr;
+}
+
 .contact {
   background: var(--fm-white);
 }

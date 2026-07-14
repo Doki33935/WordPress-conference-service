@@ -11,10 +11,11 @@ while (have_posts()) :
     the_post();
     $conference = fyremezzonine_next_conference_data(get_the_ID());
     $registration_url = add_query_arg('conference_id', get_the_ID(), fyremezzonine_link('registration_url'));
+    $hero_image_style = $conference['hero_image_url'] ? "--hero-image: url('" . esc_url($conference['hero_image_url']) . "');" : '--hero-image: none;';
     ?>
 
     <main id="primary" class="conference-theme conference-theme-<?php echo esc_attr($conference['visual_theme']); ?>">
-        <section class="hero conference-hero" id="top" style="--hero-image: url('<?php echo esc_url($conference['hero_image_url']); ?>');">
+        <section class="hero conference-hero" id="top" style="<?php echo esc_attr($hero_image_style); ?>">
             <div class="theme-atmosphere" aria-hidden="true"></div>
             <div class="section-inner">
                 <div class="hero-content">
@@ -82,7 +83,9 @@ while (have_posts()) :
                 <div class="topic-grid">
                     <?php foreach ($conference['topics'] as $index => $topic) : ?>
                         <article class="topic-card">
-                            <img class="topic-media" src="<?php echo esc_url($topic['image_url']); ?>" alt="">
+                            <?php if (!empty($topic['image_url'])) : ?>
+                                <img class="topic-media" src="<?php echo esc_url($topic['image_url']); ?>" alt="">
+                            <?php endif; ?>
                             <span class="topic-number"><?php echo esc_html(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)); ?></span>
                             <p><?php echo esc_html($topic['title']); ?></p>
                         </article>
@@ -99,7 +102,9 @@ while (have_posts()) :
                 <div class="speaker-grid">
                     <?php foreach ($conference['speakers'] as $speaker) : ?>
                         <article class="speaker-card">
-                            <img class="speaker-photo" src="<?php echo esc_url($speaker['photo_url'] ?: fyremezzonine_asset('vniipo-logo.jpg')); ?>" alt="<?php echo esc_attr($speaker['name']); ?>">
+                            <?php if (!empty($speaker['photo_url'])) : ?>
+                                <img class="speaker-photo" src="<?php echo esc_url($speaker['photo_url']); ?>" alt="<?php echo esc_attr($speaker['name']); ?>">
+                            <?php endif; ?>
                             <div class="speaker-body">
                                 <h3><?php echo esc_html($speaker['name']); ?></h3>
                                 <?php if (!empty($speaker['position'])) : ?>
@@ -170,12 +175,18 @@ while (have_posts()) :
                     </div>
                 </div>
 
-                <div class="venue-gallery">
-                    <figure class="venue-visual" aria-label="Место проведения" style="background-image: url('<?php echo esc_url($conference['venue_image_url']); ?>');"></figure>
-                    <figure class="conference-collage">
-                        <img src="<?php echo esc_url($conference['collage_image_url']); ?>" alt="Дополнительное изображение конференции">
-                    </figure>
-                </div>
+                <?php if (!empty($conference['venue_image_url']) || !empty($conference['collage_image_url'])) : ?>
+                    <div class="venue-gallery">
+                        <?php if (!empty($conference['venue_image_url'])) : ?>
+                            <figure class="venue-visual" aria-label="Место проведения" style="background-image: url('<?php echo esc_url($conference['venue_image_url']); ?>');"></figure>
+                        <?php endif; ?>
+                        <?php if (!empty($conference['collage_image_url'])) : ?>
+                            <figure class="conference-collage">
+                                <img src="<?php echo esc_url($conference['collage_image_url']); ?>" alt="Дополнительное изображение конференции">
+                            </figure>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
             </div>
         </section>
     </main>

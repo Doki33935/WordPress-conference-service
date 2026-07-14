@@ -51,9 +51,7 @@ function fyremezzonine_default_hero_image($visual_theme = 'classic') {
 }
 
 function fyremezzonine_conference_hero_image($conference_id, $visual_theme = 'classic') {
-    $hero_image = fyremezzonine_conference_meta($conference_id, '_conference_hero_image_url');
-
-    return $hero_image ?: fyremezzonine_default_hero_image($visual_theme);
+    return fyremezzonine_conference_meta($conference_id, '_conference_hero_image_url');
 }
 
 function fyremezzonine_customize_register($wp_customize) {
@@ -434,16 +432,16 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
 
     $post = get_post($conference_id);
     $default_topics = array(
-        array('title' => 'Анализ рисков и раннее выявление опасных факторов.', 'image_url' => fyremezzonine_asset('topic-1.png')),
-        array('title' => 'Практические меры предупреждения аварий и чрезвычайных ситуаций.', 'image_url' => fyremezzonine_asset('topic-2.png')),
-        array('title' => 'Опыт ВНИИПО, ведомственное взаимодействие и подготовка специалистов.', 'image_url' => fyremezzonine_asset('vniipo-logo.jpg')),
+        array('title' => 'Анализ рисков и раннее выявление опасных факторов.', 'image_url' => ''),
+        array('title' => 'Практические меры предупреждения аварий и чрезвычайных ситуаций.', 'image_url' => ''),
+        array('title' => 'Опыт ВНИИПО, ведомственное взаимодействие и подготовка специалистов.', 'image_url' => ''),
     );
     $topics = fyremezzonine_parse_topic_list(fyremezzonine_conference_meta($conference_id, '_conference_topics'));
     if (!$topics) {
         for ($index = 1; $index <= 3; $index++) {
             $topics[] = array(
                 'title' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_title', $default_topics[$index - 1]['title']),
-                'image_url' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_image_url', $default_topics[$index - 1]['image_url']),
+                'image_url' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_image_url'),
             );
         }
     }
@@ -495,8 +493,8 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
         'route_address' => $route_address,
         'route_directions' => fyremezzonine_conference_meta($conference_id, '_conference_route_directions', 'Движение от г. Оренбург по Илекскому шоссе, 31-й километр, поворот налево, по асфальтной дороге до конца.'),
         'map_url' => fyremezzonine_yandex_map_url($map_embed_url, $map_lat, $map_lon, $route_address),
-        'venue_image_url' => fyremezzonine_conference_meta($conference_id, '_conference_venue_image_url', fyremezzonine_asset('venue-original.jpg')),
-        'collage_image_url' => fyremezzonine_conference_meta($conference_id, '_conference_collage_image_url', fyremezzonine_asset('collage.jpg')),
+        'venue_image_url' => fyremezzonine_conference_meta($conference_id, '_conference_venue_image_url'),
+        'collage_image_url' => fyremezzonine_conference_meta($conference_id, '_conference_collage_image_url'),
         'partner_groups' => fyremezzonine_conference_partner_groups($conference_id),
     );
 }
