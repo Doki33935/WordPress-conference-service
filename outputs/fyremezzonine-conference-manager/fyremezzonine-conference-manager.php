@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Fyremezzonine Conference Manager
  * Description: Adds conferences, conference metadata, public registration forms, and admin registration lists.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Codex
  * Text Domain: fyremezzonine-manager
  */
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FYREMEZZONINE_MANAGER_VERSION', '1.0.0');
+define('FYREMEZZONINE_MANAGER_VERSION', '1.0.1');
 define('FYREMEZZONINE_MANAGER_SCHEMA_VERSION', '1.5.0');
 
 function fyremezzonine_manager_table_name() {
@@ -1198,7 +1198,10 @@ function fyremezzonine_manager_render_submission_field($name, $field, $value = '
             fyremezzonine_manager_render_uploaded_image_preview($value, $label);
             printf('<span class="conference-submission-note">Текущий файл уже загружен: <a href="%1$s" target="_blank" rel="noopener">открыть</a>. Чтобы заменить его, выберите новый файл ниже.</span>', esc_url($value));
         } else {
-            echo '<span class="conference-submission-note">Выберите изображение с компьютера. Для заставки первого экрана можно выбрать GIF.</span>';
+            $empty_image_note = $name === '_conference_hero_image_url'
+                ? 'Выберите изображение с компьютера. Для заставки первого экрана можно выбрать GIF.'
+                : 'Выберите фотографию с компьютера. Если поле оставить пустым, это изображение на сайте не появится.';
+            printf('<span class="conference-submission-note">%s</span>', esc_html($empty_image_note));
         }
         printf(
             '<input id="%1$s_file" type="file" name="%1$s_file" accept="image/*,.gif">',
