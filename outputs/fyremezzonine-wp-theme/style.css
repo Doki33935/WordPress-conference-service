@@ -4,7 +4,7 @@ Theme URI: https://fyremezzonine-vniipo2026.tilda.ws/
 Author: Codex
 Author URI: https://openai.com/
 Description: One-page WordPress theme recreating the VNIIPO mezzanine fire safety conference landing page.
-Version: 1.0.0
+Version: 1.1.0
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
@@ -1498,6 +1498,24 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   max-width: 880px;
 }
 
+.editor-page {
+  background:
+    linear-gradient(180deg, #eef2ff 0, rgba(238, 242, 255, 0) 310px),
+    var(--fm-bg);
+}
+
+.editor-page .section-eyebrow,
+.editor-page .section-title {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+
+.editor-page .section-title {
+  margin-bottom: 18px;
+  font-size: clamp(30px, 3.2vw, 46px);
+}
+
 .page-content {
   color: #2f3336;
 }
@@ -1676,9 +1694,10 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-submission-form {
   display: grid;
-  gap: 18px;
-  max-width: 860px;
-  margin: 36px auto 0;
+  counter-reset: conference-editor-section;
+  gap: 22px;
+  max-width: 1180px;
+  margin: 34px auto 0;
   padding: 0;
   border: 0;
   background: transparent;
@@ -1686,40 +1705,53 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 }
 
 .conference-submission-form .registration-conference-title {
-  padding: 26px;
-  border: 1px solid rgba(16, 24, 40, 0.1);
-  border-left: 6px solid var(--fm-blue);
-  border-radius: var(--fm-radius);
-  background: var(--fm-white);
-  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.07);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 28px;
+  border: 1px solid rgba(82, 90, 252, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(82, 90, 252, 0.1), rgba(255, 255, 255, 0) 42%),
+    var(--fm-white);
+  box-shadow: 0 18px 46px rgba(16, 24, 40, 0.08);
 }
 
 .conference-submission-form fieldset {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  counter-increment: conference-editor-section;
+  gap: 20px;
   min-width: 0;
   margin: 0;
   padding: 0;
   border: 1px solid rgba(16, 24, 40, 0.1);
-  border-radius: var(--fm-radius);
+  border-radius: 8px;
   background: var(--fm-white);
   overflow: hidden;
-  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.07);
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.06);
 }
 
 .conference-submission-section-head {
   display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   grid-column: 1 / -1;
-  gap: 8px;
+  gap: 8px 14px;
+  align-items: start;
   min-width: 0;
   margin: 0;
   padding: 24px 26px 18px;
   border-bottom: 1px solid var(--fm-line);
-  background: #f8fafc;
+  background:
+    linear-gradient(90deg, rgba(82, 90, 252, 0.08), rgba(255, 255, 255, 0)),
+    #f8fafc;
 }
 
 .conference-submission-section-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   max-width: 100%;
   margin: 0;
   color: var(--fm-ink);
@@ -1727,6 +1759,20 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   font-weight: 900;
   line-height: 1.2;
   overflow-wrap: anywhere;
+}
+
+.conference-submission-section-head h2::before {
+  content: counter(conference-editor-section, decimal-leading-zero);
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--fm-white);
+  background: var(--fm-blue);
+  font-size: 14px;
+  box-shadow: 0 10px 22px rgba(82, 90, 252, 0.2);
 }
 
 .conference-submission-help {
@@ -1744,7 +1790,8 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-submission-field {
   display: grid;
-  gap: 8px;
+  align-content: start;
+  gap: 9px;
   min-width: 0;
   margin: 0 26px;
 }
@@ -1757,6 +1804,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 .conference-submission-field label {
   color: var(--fm-ink);
   font-weight: 800;
+  line-height: 1.25;
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -1766,7 +1814,8 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 .conference-submission-field select {
   width: 100%;
   min-width: 0;
-  padding: 14px 16px;
+  min-height: 50px;
+  padding: 13px 15px;
   border: 1px solid var(--fm-line);
   border-radius: 8px;
   color: var(--fm-ink);
@@ -1800,6 +1849,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 .conference-submission-field textarea,
 .conference-submission-field:has(textarea),
 .conference-submission-field:has(input[type="file"]),
+.conference-submission-field:has(.conference-upload-preview),
 .conference-partner-repeater {
   grid-column: 1 / -1;
 }
@@ -1914,7 +1964,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-partner-repeater {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   min-width: 0;
   margin: 0 26px;
 }
@@ -1930,13 +1980,15 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-partner-repeater-head {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
-  padding: 0;
+  padding: 0 0 2px;
 }
 
 .conference-partner-repeater-head > label {
+  color: var(--fm-ink);
   font-size: 20px;
+  font-weight: 900;
   line-height: 1.2;
   max-width: 100%;
   overflow-wrap: anywhere;
@@ -1944,19 +1996,20 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-partner-rows {
   display: grid;
-  gap: 16px;
+  gap: 14px;
   counter-reset: conference-partner;
 }
 
 .conference-partner-row {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   min-width: 0;
-  padding: 18px;
+  padding: 18px 18px 20px;
   border: 1px solid rgba(16, 24, 40, 0.1);
   border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 10px 26px rgba(16, 24, 40, 0.06);
+  background:
+    linear-gradient(180deg, #ffffff, #fbfcff);
+  box-shadow: 0 8px 22px rgba(16, 24, 40, 0.055);
   counter-increment: conference-partner;
 }
 
@@ -1996,9 +2049,14 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-partner-fields {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   min-width: 0;
+}
+
+.conference-partner-fields label:has(input[type="file"]),
+.conference-partner-fields label:has(textarea) {
+  grid-column: 1 / -1;
 }
 
 .conference-speaker-fields textarea {
@@ -2034,6 +2092,10 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-partner-add {
   justify-self: start;
+  border-color: rgba(82, 90, 252, 0.2);
+  color: var(--fm-blue);
+  background: #eef2ff;
+  font-weight: 900;
 }
 
 .conference-partner-remove {
@@ -2045,11 +2107,20 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 }
 
 .conference-submission-actions {
+  position: sticky;
+  z-index: 20;
+  bottom: 14px;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
-  margin: 6px 0 0;
+  margin: 2px 0 0;
+  padding: 14px;
+  border: 1px solid rgba(16, 24, 40, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 40px rgba(16, 24, 40, 0.12);
+  backdrop-filter: blur(14px);
 }
 
 .conference-submission-actions .button {
@@ -2058,27 +2129,34 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-editor-picker {
   display: grid;
-  gap: 22px;
-  margin-top: 30px;
+  gap: 20px;
+  max-width: 980px;
+  margin: 30px auto 0;
 }
 
 .conference-editor-picker > p {
   margin: 0;
   color: var(--fm-muted);
-  font-size: 22px;
+  font-size: 20px;
+  line-height: 1.45;
+  text-align: center;
 }
 
 .conference-editor-picker-list {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
 
 .conference-editor-picker-item {
-  display: grid;
-  gap: 6px;
-  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px 20px;
   border: 1px solid var(--fm-line);
-  border-radius: var(--fm-radius);
+  border-radius: 8px;
   background: var(--fm-white);
   box-shadow: var(--fm-soft-shadow);
   transition: transform 0.18s ease, border-color 0.18s ease;
@@ -2090,12 +2168,18 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 }
 
 .conference-editor-picker-item strong {
+  min-width: 0;
   font-size: 22px;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .conference-editor-picker-item span {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 999px;
   color: var(--fm-muted);
+  background: #f1f5f9;
   font-size: 14px;
   font-weight: 800;
   text-transform: uppercase;
@@ -2107,8 +2191,8 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 }
 
 .editor-page .page-layout {
-  width: min(calc(100% - 32px), 1560px);
-  max-width: 1560px;
+  width: min(calc(100% - 32px), 1320px);
+  max-width: 1320px;
 }
 
 .conference-editor-filter {
@@ -2505,7 +2589,8 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   .contact-grid,
   .cta-layout,
   .materials-box,
-  .conference-submission-form fieldset {
+  .conference-submission-form fieldset,
+  .conference-editor-picker-list {
     grid-template-columns: 1fr;
   }
 
@@ -2520,6 +2605,15 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   .conference-partner-row-head {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .conference-submission-form .registration-conference-title {
+    grid-template-columns: 1fr;
+  }
+
+  .conference-submission-actions {
+    position: static;
+    justify-content: stretch;
   }
 
   .cta-layout {
