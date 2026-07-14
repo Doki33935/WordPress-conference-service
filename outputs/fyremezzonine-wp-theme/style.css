@@ -1821,12 +1821,16 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 .conference-upload-preview {
   display: grid;
   gap: 7px;
-  width: min(240px, 100%);
-  margin: 0;
+  justify-self: center;
+  width: min(280px, 100%);
+  margin: 6px auto;
+  padding: 10px;
+  border: 1px solid var(--fm-line);
+  border-radius: 8px;
+  background: #f8fafc;
 }
 
 .conference-submission-field > .conference-upload-preview {
-  justify-self: center;
   width: min(560px, 100%);
   margin: 6px auto;
   padding: 12px;
@@ -1838,18 +1842,13 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 .conference-upload-preview img {
   width: 100%;
   max-height: 160px;
-  padding: 8px;
   object-fit: contain;
-  border: 1px solid var(--fm-line);
   border-radius: 8px;
-  background: #f8fafc;
+  background: var(--fm-white);
 }
 
 .conference-submission-field > .conference-upload-preview img {
   max-height: 280px;
-  padding: 0;
-  border: 0;
-  background: transparent;
 }
 
 .conference-upload-preview figcaption {
@@ -1860,18 +1859,29 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   text-align: center;
 }
 
+.conference-upload-preview-error {
+  display: none;
+  margin-bottom: 4px;
+  color: var(--fm-red);
+  font-weight: 900;
+}
+
+.conference-upload-preview-broken .conference-upload-preview-error {
+  display: block;
+}
+
 .conference-upload-preview a {
   color: var(--fm-blue);
   text-decoration: none;
 }
 
 .conference-partner-fields .conference-upload-preview {
-  justify-self: start;
-  margin: 0;
+  justify-self: center;
+  margin: 6px auto;
 }
 
 .conference-partner-fields .conference-upload-preview figcaption {
-  text-align: left;
+  text-align: center;
 }
 
 .conference-submission-note {

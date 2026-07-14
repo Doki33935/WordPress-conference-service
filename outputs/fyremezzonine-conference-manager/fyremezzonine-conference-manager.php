@@ -323,8 +323,11 @@ function fyremezzonine_manager_render_uploaded_image_preview($image_url, $label 
 
     ?>
     <figure class="conference-upload-preview">
-        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($label); ?>">
-        <figcaption><a href="<?php echo esc_url($image_url); ?>" target="_blank" rel="noopener">Открыть файл</a></figcaption>
+        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($label); ?>" loading="lazy" onerror="this.closest('.conference-upload-preview').classList.add('conference-upload-preview-broken'); this.remove();">
+        <figcaption>
+            <span class="conference-upload-preview-error">Изображение не загрузилось. Проверьте ссылку или загрузите файл заново.</span>
+            <a href="<?php echo esc_url($image_url); ?>" target="_blank" rel="noopener">Открыть файл</a>
+        </figcaption>
     </figure>
     <?php
 }
@@ -558,21 +561,35 @@ function fyremezzonine_manager_render_partner_repeater_assets() {
         .conference-upload-preview {
             display: grid;
             gap: 7px;
-            width: min(220px, 100%);
-            margin: 0;
+            justify-self: center;
+            width: min(280px, 100%);
+            margin: 6px auto;
+            padding: 10px;
+            border: 1px solid #dcdcde;
+            border-radius: 8px;
+            background: #f6f7f7;
         }
         .conference-upload-preview img {
             width: 100%;
             max-height: 150px;
             object-fit: contain;
-            border: 1px solid #dcdcde;
             border-radius: 8px;
-            background: #f6f7f7;
+            background: #fff;
         }
         .conference-upload-preview figcaption {
             color: #646970;
             font-size: 12px;
             line-height: 1.3;
+            text-align: center;
+        }
+        .conference-upload-preview-error {
+            display: none;
+            margin-bottom: 4px;
+            color: #b32d2e;
+            font-weight: 700;
+        }
+        .conference-upload-preview-broken .conference-upload-preview-error {
+            display: block;
         }
         .conference-partner-repeater template {
             display: none;
