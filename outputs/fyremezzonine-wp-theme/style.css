@@ -1603,6 +1603,27 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   line-height: 1.45;
 }
 
+.conference-submission-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.conference-submission-state span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid rgba(16, 24, 40, 0.1);
+  border-radius: 8px;
+  color: var(--fm-muted);
+  background: #f8fafc;
+  font-size: 14px;
+  font-weight: 900;
+}
+
 .conference-partner-repeater {
   display: grid;
   gap: 16px;
@@ -1737,6 +1758,8 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-submission-actions {
   display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   justify-content: flex-end;
   margin: 6px 0 0;
 }

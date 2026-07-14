@@ -1107,9 +1107,14 @@ function fyremezzonine_manager_handle_conference_submission() {
         return '<div class="registration-message registration-error">У вас нет прав для редактирования этой конференции.</div>';
     }
 
+    $submission_action = isset($_POST['conference_submission_action']) ? sanitize_key(wp_unslash($_POST['conference_submission_action'])) : 'save_draft';
+    $current_status = $editing_post_id ? get_post_status($editing_post_id) : '';
+    $publish_now = $submission_action === 'publish' && $editing_post_id;
+    $post_status = $publish_now || $current_status === 'publish' ? 'publish' : 'draft';
+
     $post_data = array(
         'post_type' => 'conference',
-        'post_status' => 'publish',
+        'post_status' => $post_status,
         'post_title' => $title,
         'post_excerpt' => isset($_POST['conference_excerpt']) ? sanitize_textarea_field(wp_unslash($_POST['conference_excerpt'])) : '',
         'post_content' => isset($_POST['conference_content']) ? wp_kses_post(wp_unslash($_POST['conference_content'])) : '',
@@ -1125,6 +1130,8 @@ function fyremezzonine_manager_handle_conference_submission() {
     if (is_wp_error($post_id)) {
         return '<div class="registration-message registration-error">Конференцию не удалось сохранить. Попробуйте еще раз.</div>';
     }
+
+    $GLOBALS['fyremezzonine_manager_last_saved_conference_id'] = absint($post_id);
 
     foreach (fyremezzonine_manager_meta_keys() as $key => $field) {
         if ($field['type'] === 'partners') {
@@ -1153,15 +1160,22 @@ function fyremezzonine_manager_handle_conference_submission() {
         update_post_meta($post_id, $key, $value);
     }
 
-    $edit_link = get_edit_post_link($post_id, '');
+    $preview_link = fyremezzonine_manager_conference_preview_url($post_id);
+    $editor_link = add_query_arg('conference_id', $post_id, fyremezzonine_manager_editor_page_url('edit-conference'));
     $view_link = get_permalink($post_id);
-    $message = $editing_post_id ? 'Конференция обновлена и применена на сайте.' : 'Конференция сохранена и применена на сайте.';
+    $is_published = get_post_status($post_id) === 'publish';
+    $message = $is_published
+        ? 'Конференция опубликована и применена на сайте.'
+        : 'Черновик конференции сохранен. Откройте предпросмотр, проверьте страницу и затем нажмите "Опубликовать конференцию".';
 
     $links = array();
-    if ($edit_link) {
-        $links[] = '<a href="' . esc_url($edit_link) . '">Открыть карточку</a>';
+    if ($editor_link) {
+        $links[] = '<a href="' . esc_url($editor_link) . '">Продолжить редактирование</a>';
     }
-    if ($view_link) {
+    if ($preview_link) {
+        $links[] = '<a href="' . esc_url($preview_link) . '" target="_blank" rel="noopener">Предпросмотр</a>';
+    }
+    if ($is_published && $view_link) {
         $links[] = '<a href="' . esc_url($view_link) . '">Посмотреть на сайте</a>';
     }
 
@@ -1170,6 +1184,15 @@ function fyremezzonine_manager_handle_conference_submission() {
     }
 
     return '<div class="registration-message registration-success">' . wp_kses_post($message) . '</div>';
+}
+
+function fyremezzonine_manager_conference_preview_url($post_id) {
+    $preview_link = get_preview_post_link($post_id);
+    if ($preview_link) {
+        return $preview_link;
+    }
+
+    return add_query_arg('preview', 'true', get_permalink($post_id));
 }
 
 function fyremezzonine_manager_conference_submission_shortcode() {
@@ -1186,6 +1209,9 @@ function fyremezzonine_manager_conference_submission_shortcode() {
     if (isset($_POST['conference_id'])) {
         $editing_conference_id = absint($_POST['conference_id']);
     }
+    if (!empty($GLOBALS['fyremezzonine_manager_last_saved_conference_id'])) {
+        $editing_conference_id = absint($GLOBALS['fyremezzonine_manager_last_saved_conference_id']);
+    }
 
     if ($editing_conference_id && (!get_post($editing_conference_id) || !current_user_can('edit_post', $editing_conference_id))) {
         return '<div class="registration-message registration-error">У вас нет прав для редактирования этой конференции.</div>';
@@ -1197,6 +1223,11 @@ function fyremezzonine_manager_conference_submission_shortcode() {
 
     $meta_fields = fyremezzonine_manager_meta_keys();
     $groups = fyremezzonine_manager_submission_field_groups();
+    $current_status = $editing_conference_id ? get_post_status($editing_conference_id) : '';
+    $status_object = $current_status ? get_post_status_object($current_status) : null;
+    $status_label = $status_object ? $status_object->label : $current_status;
+    $preview_link = $editing_conference_id ? fyremezzonine_manager_conference_preview_url($editing_conference_id) : '';
+    $is_published = $current_status === 'publish';
 
     ob_start();
     echo wp_kses_post($message);
@@ -1209,6 +1240,16 @@ function fyremezzonine_manager_conference_submission_shortcode() {
         <div class="registration-conference-title">
             <span><?php echo $editing_conference_id ? 'Редактирование конференции' : 'Новая конференция'; ?></span>
             <strong><?php echo $editing_conference_id ? esc_html(get_the_title($editing_conference_id)) : 'Заполните форму, как анкету'; ?></strong>
+            <?php if ($editing_conference_id) : ?>
+                <div class="conference-submission-state">
+                    <span>Статус: <?php echo esc_html($status_label); ?></span>
+                    <?php if ($preview_link) : ?>
+                        <a class="button button-blue" href="<?php echo esc_url($preview_link); ?>" target="_blank" rel="noopener">Предпросмотр</a>
+                    <?php endif; ?>
+                </div>
+            <?php else : ?>
+                <p class="conference-submission-note">Сначала сохраните черновик. После этого появится предпросмотр и кнопка публикации.</p>
+            <?php endif; ?>
         </div>
 
         <?php foreach ($groups as $group) : ?>
@@ -1236,7 +1277,17 @@ function fyremezzonine_manager_conference_submission_shortcode() {
         <?php endforeach; ?>
 
         <p class="conference-submission-actions">
-            <button class="button button-red" type="submit">Сохранить</button>
+            <button class="button button-blue" type="submit" name="conference_submission_action" value="save_draft">
+                <?php echo $is_published ? 'Сохранить изменения' : 'Сохранить черновик'; ?>
+            </button>
+            <?php if ($preview_link) : ?>
+                <a class="button button-outline" href="<?php echo esc_url($preview_link); ?>" target="_blank" rel="noopener">Предпросмотр</a>
+            <?php endif; ?>
+            <?php if ($editing_conference_id) : ?>
+                <button class="button button-red" type="submit" name="conference_submission_action" value="publish">
+                    <?php echo $is_published ? 'Сохранить опубликованную' : 'Опубликовать конференцию'; ?>
+                </button>
+            <?php endif; ?>
         </p>
     </form>
     <?php
@@ -1713,7 +1764,7 @@ function fyremezzonine_manager_render_simple_create_page() {
     ?>
     <div class="wrap fyremezzonine-simple-create">
         <h1>Создать конференцию через форму</h1>
-        <p>Эта страница работает как анкета: заполните поля и нажмите "Сохранить".</p>
+        <p>Эта страница работает как анкета: сохраните черновик, проверьте предпросмотр и только затем опубликуйте конференцию.</p>
         <style>
             .fyremezzonine-simple-create .conference-submission-form {
                 display: grid;
@@ -1769,6 +1820,27 @@ function fyremezzonine_manager_render_simple_create_page() {
             }
             .fyremezzonine-simple-create .registration-conference-title strong {
                 font-size: 22px;
+            }
+            .fyremezzonine-simple-create .conference-submission-state,
+            .fyremezzonine-simple-create .conference-submission-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                align-items: center;
+            }
+            .fyremezzonine-simple-create .conference-submission-actions {
+                justify-content: flex-end;
+            }
+            .fyremezzonine-simple-create .conference-submission-state span {
+                display: inline-flex;
+                align-items: center;
+                min-height: 36px;
+                padding: 7px 10px;
+                border: 1px solid #dcdcde;
+                border-radius: 6px;
+                color: #646970;
+                background: #f6f7f7;
+                font-weight: 700;
             }
             .fyremezzonine-simple-create .conference-submission-help {
                 margin: 0;
