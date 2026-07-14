@@ -1187,12 +1187,7 @@ function fyremezzonine_manager_handle_conference_submission() {
 }
 
 function fyremezzonine_manager_conference_preview_url($post_id) {
-    $preview_link = get_preview_post_link($post_id);
-    if ($preview_link) {
-        return $preview_link;
-    }
-
-    return add_query_arg('preview', 'true', get_permalink($post_id));
+    return add_query_arg('conference_id', absint($post_id), fyremezzonine_manager_editor_page_url('conference-preview'));
 }
 
 function fyremezzonine_manager_conference_submission_shortcode() {
@@ -2557,6 +2552,54 @@ function fyremezzonine_manager_render_frontend_editor_page($title, $content, $ey
     exit;
 }
 
+function fyremezzonine_manager_render_conference_preview() {
+    global $post, $wp_query;
+
+    $conference_id = isset($_GET['conference_id']) ? absint($_GET['conference_id']) : 0;
+    $conference = $conference_id ? get_post($conference_id) : null;
+
+    if (!$conference || $conference->post_type !== 'conference') {
+        fyremezzonine_manager_render_frontend_editor_page('Предпросмотр конференции', '<div class="registration-message registration-error">Конференция не найдена.</div>');
+    }
+
+    if (!is_user_logged_in()) {
+        fyremezzonine_manager_render_frontend_editor_page('Предпросмотр конференции', '<div class="registration-message registration-error">Войдите в WordPress, чтобы посмотреть черновик конференции.</div>');
+    }
+
+    if (!current_user_can('edit_post', $conference_id)) {
+        fyremezzonine_manager_render_frontend_editor_page('Предпросмотр конференции', '<div class="registration-message registration-error">У вашей учетной записи нет прав для просмотра этого черновика.</div>');
+    }
+
+    status_header(200);
+    nocache_headers();
+
+    $post = $conference;
+    setup_postdata($post);
+
+    $wp_query = new WP_Query();
+    $wp_query->posts = array($conference);
+    $wp_query->post_count = 1;
+    $wp_query->current_post = -1;
+    $wp_query->in_the_loop = false;
+    $wp_query->queried_object = $conference;
+    $wp_query->queried_object_id = $conference_id;
+    $wp_query->is_single = true;
+    $wp_query->is_singular = true;
+    $wp_query->is_preview = true;
+    $wp_query->is_404 = false;
+
+    $template = locate_template('single-conference.php');
+    if ($template) {
+        include $template;
+        exit;
+    }
+
+    fyremezzonine_manager_render_frontend_editor_page(
+        'Предпросмотр конференции',
+        '<div class="registration-message registration-error">Шаблон конференции не найден в активной теме.</div>'
+    );
+}
+
 function fyremezzonine_manager_frontend_editor_routes() {
     $path = isset($_SERVER['REQUEST_URI']) ? trim((string) wp_parse_url(wp_unslash($_SERVER['REQUEST_URI']), PHP_URL_PATH), '/') : '';
 
@@ -2570,6 +2613,10 @@ function fyremezzonine_manager_frontend_editor_routes() {
 
     if ($path === 'editor/edit-conference') {
         fyremezzonine_manager_render_frontend_editor_page('Изменить конференцию', '[conference_submission_form]');
+    }
+
+    if ($path === 'editor/conference-preview') {
+        fyremezzonine_manager_render_conference_preview();
     }
 
     if ($path === 'editor/registrations') {
