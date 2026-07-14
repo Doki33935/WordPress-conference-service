@@ -4,7 +4,7 @@ Theme URI: https://fyremezzonine-vniipo2026.tilda.ws/
 Author: Codex
 Author URI: https://openai.com/
 Description: One-page WordPress theme recreating the VNIIPO mezzanine fire safety conference landing page.
-Version: 1.1.1
+Version: 1.1.2
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
@@ -1706,10 +1706,10 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-submission-form .registration-conference-title {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 18px;
-  padding: 28px;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  padding: 28px 30px;
   border: 1px solid rgba(82, 90, 252, 0.16);
   border-radius: 8px;
   background:
@@ -1722,10 +1722,10 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   counter-increment: conference-editor-section;
-  gap: 20px;
+  gap: 18px 20px;
   min-width: 0;
   margin: 0;
-  padding: 0;
+  padding: 0 26px 26px;
   border: 1px solid rgba(16, 24, 40, 0.1);
   border-radius: 8px;
   background: var(--fm-white);
@@ -1735,13 +1735,13 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-submission-section-head {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   grid-column: 1 / -1;
-  gap: 8px 14px;
+  gap: 9px;
   align-items: start;
   min-width: 0;
-  margin: 0;
-  padding: 24px 26px 18px;
+  margin: 0 -26px 4px;
+  padding: 24px 26px 20px;
   border-bottom: 1px solid var(--fm-line);
   background:
     linear-gradient(90deg, rgba(82, 90, 252, 0.08), rgba(255, 255, 255, 0)),
@@ -1752,7 +1752,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   display: flex;
   align-items: center;
   gap: 12px;
-  max-width: 100%;
+  max-width: none;
   margin: 0;
   color: var(--fm-ink);
   font-size: 22px;
@@ -1777,7 +1777,10 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
 .conference-submission-help {
   grid-column: 1 / -1;
+  box-sizing: border-box;
+  max-width: 920px;
   margin: 0;
+  padding-left: 54px;
   color: var(--fm-muted);
   line-height: 1.55;
   overflow-wrap: anywhere;
@@ -1786,9 +1789,11 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 .conference-submission-tips {
   display: grid;
   grid-column: 1 / -1;
+  box-sizing: border-box;
   gap: 8px;
   margin: 4px 0 0;
-  padding: 0;
+  max-width: 920px;
+  padding: 0 0 0 54px;
   list-style: none;
 }
 
@@ -1838,14 +1843,14 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 .conference-submission-field {
   display: grid;
   align-content: start;
-  gap: 9px;
+  gap: 10px;
   min-width: 0;
-  margin: 0 26px;
+  margin: 0;
 }
 
 .conference-submission-form fieldset > .conference-submission-field:last-child,
 .conference-submission-form fieldset > .conference-partner-repeater:last-child {
-  margin-bottom: 26px;
+  margin-bottom: 0;
 }
 
 .conference-submission-field label {
@@ -1993,7 +1998,9 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin-top: 10px;
+  justify-self: start;
+  max-width: 100%;
+  margin-top: 0;
 }
 
 .conference-submission-state span {
@@ -2013,12 +2020,12 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   display: grid;
   gap: 18px;
   min-width: 0;
-  margin: 0 26px;
+  margin: 0;
 }
 
 .conference-submission-form fieldset > .conference-partner-repeater {
   width: auto;
-  margin: 0 26px 26px;
+  margin: 0;
 }
 
 .conference-submission-form fieldset > .conference-submission-section-head + .conference-partner-repeater {
@@ -2051,7 +2058,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   display: grid;
   gap: 18px;
   min-width: 0;
-  padding: 18px 18px 20px;
+  padding: 20px;
   border: 1px solid rgba(16, 24, 40, 0.1);
   border-radius: 8px;
   background:
@@ -2097,7 +2104,7 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 .conference-partner-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px 18px;
   min-width: 0;
 }
 
@@ -2154,20 +2161,16 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 }
 
 .conference-submission-actions {
-  position: sticky;
-  z-index: 20;
-  bottom: 14px;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   padding: 14px;
   border: 1px solid rgba(16, 24, 40, 0.1);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 16px 40px rgba(16, 24, 40, 0.12);
-  backdrop-filter: blur(14px);
 }
 
 .conference-submission-actions .button {
@@ -2656,6 +2659,31 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
   .conference-submission-form .registration-conference-title {
     grid-template-columns: 1fr;
+    padding: 24px;
+  }
+
+  .conference-submission-form fieldset {
+    padding: 0 20px 22px;
+  }
+
+  .conference-submission-section-head {
+    margin-right: -20px;
+    margin-left: -20px;
+    padding: 22px 20px 18px;
+  }
+
+  .conference-submission-help,
+  .conference-submission-tips {
+    max-width: none;
+    padding-left: 0;
+  }
+
+  .conference-partner-row {
+    padding: 18px;
+  }
+
+  .conference-submission-actions .button {
+    flex: 1 1 220px;
   }
 
   .conference-submission-actions {
@@ -2745,6 +2773,41 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
 
   .button {
     width: 100%;
+  }
+
+  .conference-submission-form {
+    gap: 18px;
+    margin-top: 24px;
+  }
+
+  .conference-submission-form .registration-conference-title {
+    padding: 20px;
+  }
+
+  .conference-submission-form fieldset {
+    gap: 16px;
+    padding: 0 16px 18px;
+  }
+
+  .conference-submission-section-head {
+    margin-right: -16px;
+    margin-left: -16px;
+    padding: 20px 16px 16px;
+  }
+
+  .conference-submission-section-head h2 {
+    align-items: flex-start;
+    font-size: 20px;
+  }
+
+  .conference-submission-section-head h2::before {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+
+  .conference-partner-row {
+    padding: 16px;
   }
 
   .topic-card {
