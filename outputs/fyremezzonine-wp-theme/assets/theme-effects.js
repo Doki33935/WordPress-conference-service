@@ -46,41 +46,48 @@
     context.setTransform(scale, 0, 0, scale, 0, 0);
   }
 
-  function createParticle() {
-    var life = random(0.8, 2.15);
-    var x = random(width * 0.08, width * 0.96);
-    var y = random(height * 0.78, height * 1.02);
+  function particleLimit() {
+    return width < 700 ? 36 : 54;
+  }
+
+  function createParticle(forceAmbient) {
+    var ambient = forceAmbient || Math.random() < 0.34;
+    var life = ambient ? random(1.15, 2.7) : random(1, 2.55);
+    var x = random(width * 0.03, width * 0.98);
+    var y = ambient ? random(height * 0.16, height * 0.88) : random(height * 0.72, height * 1.03);
 
     particles.push({
       x: x,
       y: y,
       previousX: x,
       previousY: y,
-      velocityX: random(-72, 72),
-      velocityY: random(-310, -145),
+      velocityX: ambient ? random(-48, 48) : random(-90, 90),
+      velocityY: ambient ? random(-190, -82) : random(-370, -165),
       age: 0,
       life: life,
-      radius: random(0.7, 2.15),
+      radius: ambient ? random(0.65, 1.65) : random(0.8, 2.35),
       hue: random(18, 52),
       lightness: random(58, 88),
       phase: random(0, Math.PI * 2),
-      turbulence: random(28, 92),
+      turbulence: ambient ? random(22, 70) : random(32, 110),
       frequency: random(4.5, 10.5)
     });
   }
 
   function emitParticles(now) {
-    if (now < nextEmission || particles.length >= 26) {
+    var limit = particleLimit();
+
+    if (now < nextEmission || particles.length >= limit) {
       return;
     }
 
-    var burst = Math.random() < 0.2 ? Math.floor(random(2, 4)) : 1;
+    var burst = Math.random() < 0.32 ? Math.floor(random(4, 8)) : Math.floor(random(2, 4));
 
-    for (var index = 0; index < burst && particles.length < 26; index += 1) {
-      createParticle();
+    for (var index = 0; index < burst && particles.length < limit; index += 1) {
+      createParticle(false);
     }
 
-    nextEmission = now + random(90, 390);
+    nextEmission = now + random(55, 220);
   }
 
   function drawParticle(particle, delta) {
@@ -151,6 +158,11 @@
     if (active) {
       lastFrame = performance.now();
       nextEmission = lastFrame;
+
+      for (var index = 0, initialCount = width < 700 ? 12 : 20; index < initialCount; index += 1) {
+        createParticle(true);
+      }
+
       frameId = window.requestAnimationFrame(render);
       return;
     }
