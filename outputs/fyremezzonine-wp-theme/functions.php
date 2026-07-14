@@ -279,6 +279,29 @@ function fyremezzonine_default_partner_groups() {
     );
 }
 
+function fyremezzonine_empty_partner_groups() {
+    return array(
+        'organizers' => array(
+            'label' => 'Организатор',
+            'featured' => true,
+            'items' => array(),
+        ),
+        'general_partners' => array(
+            'label' => 'Генеральные партнеры',
+            'wide' => true,
+            'items' => array(),
+        ),
+        'partners' => array(
+            'label' => 'Партнеры',
+            'items' => array(),
+        ),
+        'media_partners' => array(
+            'label' => 'Информационные партнеры',
+            'items' => array(),
+        ),
+    );
+}
+
 function fyremezzonine_parse_partner_list($raw) {
     $items = array();
     foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $raw))) as $line) {
@@ -332,7 +355,7 @@ function fyremezzonine_parse_speaker_list($raw) {
 }
 
 function fyremezzonine_conference_partner_groups($conference_id) {
-    $groups = fyremezzonine_default_partner_groups();
+    $groups = fyremezzonine_empty_partner_groups();
     $meta_map = array(
         'organizers' => '_conference_organizers',
         'general_partners' => '_conference_general_partners',
@@ -348,6 +371,16 @@ function fyremezzonine_conference_partner_groups($conference_id) {
     }
 
     return $groups;
+}
+
+function fyremezzonine_partner_groups_have_items($partner_groups) {
+    foreach ($partner_groups as $group) {
+        if (!empty($group['items'])) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 function fyremezzonine_render_partner_groups($partner_groups) {
@@ -367,13 +400,24 @@ function fyremezzonine_render_partner_groups($partner_groups) {
                 <div class="partner-logo-grid<?php echo !empty($group['wide']) ? ' partner-logo-grid-two' : ''; ?>">
                     <?php foreach ($group['items'] as $item) : ?>
                         <?php
-                        $logo_url = $item['logo_url'] ?: fyremezzonine_asset('logo-vniipo.jpg');
                         $name = $item['name'] ?: 'Партнер конференции';
-                        $url = $item['url'] ?: '#';
+                        $url = $item['url'] ?? '';
                         ?>
-                        <a class="partner-logo<?php echo !empty($group['featured']) ? ' partner-logo-wide' : ''; ?>" href="<?php echo esc_url($url); ?>">
-                            <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr($name); ?>">
-                        </a>
+                        <?php if ($url) : ?>
+                            <a class="partner-logo<?php echo !empty($group['featured']) ? ' partner-logo-wide' : ''; ?>" href="<?php echo esc_url($url); ?>">
+                        <?php else : ?>
+                            <div class="partner-logo<?php echo !empty($group['featured']) ? ' partner-logo-wide' : ''; ?>">
+                        <?php endif; ?>
+                            <?php if (!empty($item['logo_url'])) : ?>
+                                <img src="<?php echo esc_url($item['logo_url']); ?>" alt="<?php echo esc_attr($name); ?>">
+                            <?php else : ?>
+                                <span class="partner-logo-name"><?php echo esc_html($name); ?></span>
+                            <?php endif; ?>
+                        <?php if ($url) : ?>
+                            </a>
+                        <?php else : ?>
+                            </div>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
             </section>

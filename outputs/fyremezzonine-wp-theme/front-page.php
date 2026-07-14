@@ -142,14 +142,16 @@ $hero_image_style = $conference['hero_image_url'] ? "--hero-image: url('" . esc_
         </div>
     </section>
 
-    <section class="section" id="partners">
-        <div class="section-inner">
-            <p class="section-eyebrow">Организаторы и партнеры</p>
-            <h2 class="section-title">Участники конференции</h2>
+    <?php if (fyremezzonine_partner_groups_have_items($conference['partner_groups'])) : ?>
+        <section class="section" id="partners">
+            <div class="section-inner">
+                <p class="section-eyebrow">Организаторы и партнеры</p>
+                <h2 class="section-title">Участники конференции</h2>
 
-            <?php fyremezzonine_render_partner_groups($conference['partner_groups']); ?>
-        </div>
-    </section>
+                <?php fyremezzonine_render_partner_groups($conference['partner_groups']); ?>
+            </div>
+        </section>
+    <?php endif; ?>
 
     <section class="section cta-band">
         <div class="section-inner cta-layout">

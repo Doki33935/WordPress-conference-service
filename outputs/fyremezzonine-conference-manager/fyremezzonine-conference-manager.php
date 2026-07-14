@@ -2570,6 +2570,27 @@ function fyremezzonine_manager_render_conference_preview() {
         fyremezzonine_manager_render_frontend_editor_page('Предпросмотр конференции', '<div class="registration-message registration-error">У вашей учетной записи нет прав для просмотра этого черновика.</div>');
     }
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['fyremezzonine_preview_publish_nonce'])) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['fyremezzonine_preview_publish_nonce'])), 'fyremezzonine_preview_publish_' . $conference_id)) {
+            fyremezzonine_manager_render_frontend_editor_page('Предпросмотр конференции', '<div class="registration-message registration-error">Не удалось проверить публикацию. Обновите предпросмотр и попробуйте еще раз.</div>');
+        }
+
+        $published_id = wp_update_post(
+            array(
+                'ID' => $conference_id,
+                'post_status' => 'publish',
+            ),
+            true
+        );
+
+        if (is_wp_error($published_id)) {
+            fyremezzonine_manager_render_frontend_editor_page('Предпросмотр конференции', '<div class="registration-message registration-error">Конференцию не удалось опубликовать. Вернитесь к редактированию и попробуйте еще раз.</div>');
+        }
+
+        wp_safe_redirect(get_permalink($conference_id));
+        exit;
+    }
+
     status_header(200);
     nocache_headers();
 
@@ -2588,6 +2609,9 @@ function fyremezzonine_manager_render_conference_preview() {
     $wp_query->is_preview = true;
     $wp_query->is_404 = false;
 
+    $GLOBALS['fyremezzonine_manager_preview_conference_id'] = $conference_id;
+    add_action('wp_body_open', 'fyremezzonine_manager_render_preview_toolbar');
+
     $template = locate_template('single-conference.php');
     if ($template) {
         include $template;
@@ -2598,6 +2622,37 @@ function fyremezzonine_manager_render_conference_preview() {
         'Предпросмотр конференции',
         '<div class="registration-message registration-error">Шаблон конференции не найден в активной теме.</div>'
     );
+}
+
+function fyremezzonine_manager_render_preview_toolbar() {
+    $conference_id = !empty($GLOBALS['fyremezzonine_manager_preview_conference_id']) ? absint($GLOBALS['fyremezzonine_manager_preview_conference_id']) : 0;
+    if (!$conference_id || !current_user_can('edit_post', $conference_id)) {
+        return;
+    }
+
+    $status = get_post_status($conference_id);
+    $status_object = $status ? get_post_status_object($status) : null;
+    $status_label = $status_object ? $status_object->label : $status;
+    $edit_url = add_query_arg('conference_id', $conference_id, fyremezzonine_manager_editor_page_url('edit-conference'));
+    ?>
+    <div class="conference-preview-toolbar">
+        <div>
+            <strong>Предпросмотр конференции</strong>
+            <span>Статус: <?php echo esc_html($status_label); ?></span>
+        </div>
+        <div class="conference-preview-toolbar-actions">
+            <a class="button button-outline" href="<?php echo esc_url($edit_url); ?>">Редактировать</a>
+            <?php if ($status !== 'publish') : ?>
+                <form method="post" action="<?php echo esc_url(fyremezzonine_manager_conference_preview_url($conference_id)); ?>">
+                    <?php wp_nonce_field('fyremezzonine_preview_publish_' . $conference_id, 'fyremezzonine_preview_publish_nonce'); ?>
+                    <button class="button button-red" type="submit">Опубликовать конференцию</button>
+                </form>
+            <?php else : ?>
+                <a class="button button-red" href="<?php echo esc_url(get_permalink($conference_id)); ?>">Открыть опубликованную</a>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
 }
 
 function fyremezzonine_manager_frontend_editor_routes() {

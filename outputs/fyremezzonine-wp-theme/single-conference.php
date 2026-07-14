@@ -139,13 +139,15 @@ while (have_posts()) :
             </div>
         </section>
 
-        <section class="section" id="partners">
-            <div class="section-inner">
-                <p class="section-eyebrow">Организаторы и партнеры</p>
-                <h2 class="section-title">Участники конференции</h2>
-                <?php fyremezzonine_render_partner_groups($conference['partner_groups']); ?>
-            </div>
-        </section>
+        <?php if (fyremezzonine_partner_groups_have_items($conference['partner_groups'])) : ?>
+            <section class="section" id="partners">
+                <div class="section-inner">
+                    <p class="section-eyebrow">Организаторы и партнеры</p>
+                    <h2 class="section-title">Участники конференции</h2>
+                    <?php fyremezzonine_render_partner_groups($conference['partner_groups']); ?>
+                </div>
+            </section>
+        <?php endif; ?>
 
         <section class="section venue">
             <div class="section-inner venue-stack">
