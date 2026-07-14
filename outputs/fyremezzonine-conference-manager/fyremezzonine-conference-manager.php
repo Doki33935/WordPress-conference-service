@@ -190,9 +190,9 @@ function fyremezzonine_manager_meta_keys() {
                 'ember' => 'Дым и искры: темная жаркая тема',
             ),
         ),
-        '_conference_program_url' => array('label' => 'Ссылка на программу', 'type' => 'url'),
-        '_conference_chat_1_url' => array('label' => 'Ссылка на чат конференции', 'type' => 'url'),
-        '_conference_hero_image_url' => array('label' => 'Фон/заставка первого экрана: изображение или GIF', 'type' => 'url'),
+        '_conference_program_url' => array('label' => 'Кнопка "Программа конференции": ссылка', 'type' => 'url'),
+        '_conference_chat_1_url' => array('label' => 'Кнопка "Чат конференции": ссылка', 'type' => 'url'),
+        '_conference_hero_image_url' => array('label' => 'Фон первого экрана: фото или GIF', 'type' => 'url'),
         '_conference_topic_intro' => array('label' => 'Описание блока тем', 'type' => 'textarea'),
         '_conference_topic_1_title' => array('label' => 'Тема 1: текст', 'type' => 'text'),
         '_conference_topic_1_image_url' => array('label' => 'Тема 1: изображение', 'type' => 'url'),
@@ -204,14 +204,14 @@ function fyremezzonine_manager_meta_keys() {
         '_conference_about_lead' => array('label' => 'Лид блока "О конференции"', 'type' => 'textarea'),
         '_conference_benefits' => array('label' => 'Преимущества/тезисы: по одному пункту на строку', 'type' => 'textarea'),
         '_conference_speakers' => array('label' => 'Спикеры конференции', 'type' => 'speakers'),
-        '_conference_venue_heading' => array('label' => 'Заголовок блока места проведения', 'type' => 'text'),
-        '_conference_venue_intro' => array('label' => 'Описание места проведения', 'type' => 'textarea'),
+        '_conference_venue_heading' => array('label' => 'Заголовок блока "Место проведения"', 'type' => 'text'),
+        '_conference_venue_intro' => array('label' => 'Описание места проведения под картой', 'type' => 'textarea'),
         '_conference_route_address' => array('label' => 'Адрес для карты/маршрута', 'type' => 'text'),
         '_conference_route_directions' => array('label' => 'Как добраться: текст маршрута', 'type' => 'textarea'),
         '_conference_map_lat' => array('label' => 'Широта метки карты', 'type' => 'text'),
         '_conference_map_lon' => array('label' => 'Долгота метки карты', 'type' => 'text'),
-        '_conference_venue_image_url' => array('label' => 'Фото под картой 1: файл изображения', 'type' => 'url'),
-        '_conference_collage_image_url' => array('label' => 'Фото под картой 2: файл изображения', 'type' => 'url'),
+        '_conference_venue_image_url' => array('label' => 'Фото под картой: основное изображение', 'type' => 'url'),
+        '_conference_collage_image_url' => array('label' => 'Фото под картой: дополнительное изображение', 'type' => 'url'),
         '_conference_organizers' => array('label' => 'Организаторы', 'type' => 'partners'),
         '_conference_general_partners' => array('label' => 'Генеральные партнеры', 'type' => 'partners'),
         '_conference_partners' => array('label' => 'Партнеры', 'type' => 'partners'),
@@ -1069,20 +1069,30 @@ function fyremezzonine_manager_submission_field_groups() {
             ),
         ),
         'links' => array(
-            'title' => 'Ссылки, изображения и карта',
-            'description' => 'Ссылки вводятся текстом, изображения загружаются через выбор файла.',
+            'title' => 'Кнопки и первый экран',
+            'description' => 'Здесь настраиваются кнопки в верхней части сайта и фон первого экрана конференции.',
+            'tips' => array(
+                'Ссылка на программу показывает кнопку "Программа конференции".',
+                'Ссылка на чат показывает кнопку "Чат конференции"; если поле пустое, кнопка не выводится.',
+                'Фон первого экрана можно оставить пустым или загрузить фото/GIF через выбор файла.',
+            ),
             'fields' => array(
                 '_conference_program_url',
                 '_conference_chat_1_url',
                 '_conference_hero_image_url',
-                '_conference_venue_heading',
-                '_conference_venue_intro',
             ),
         ),
         'venue_photos' => array(
-            'title' => 'Фотографии под картой',
-            'description' => 'Эти два изображения показываются сразу под Яндекс.Картой. Выберите файлы с компьютера.',
+            'title' => 'Место проведения и фото',
+            'description' => 'Этот блок выводится рядом с Яндекс.Картой и сразу под ней. Если фото не выбраны, галерея не появится.',
+            'tips' => array(
+                'Заголовок и описание объясняют площадку проведения конференции.',
+                'Основное и дополнительное фото показываются под картой; можно загрузить только одно фото.',
+                'Все уже загруженные изображения отображаются в форме как превью.',
+            ),
             'fields' => array(
+                '_conference_venue_heading',
+                '_conference_venue_intro',
                 '_conference_venue_image_url',
                 '_conference_collage_image_url',
             ),
@@ -1408,11 +1418,18 @@ function fyremezzonine_manager_conference_submission_shortcode() {
             <?php endif; ?>
         </div>
 
-        <?php foreach ($groups as $group) : ?>
-            <fieldset>
+        <?php foreach ($groups as $group_key => $group) : ?>
+            <fieldset class="conference-submission-group conference-submission-group-<?php echo esc_attr($group_key); ?>">
                 <div class="conference-submission-section-head">
                     <h2><?php echo esc_html($group['title']); ?></h2>
                     <p class="conference-submission-help"><?php echo esc_html($group['description']); ?></p>
+                    <?php if (!empty($group['tips'])) : ?>
+                        <ul class="conference-submission-tips">
+                            <?php foreach ($group['tips'] as $tip) : ?>
+                                <li><?php echo esc_html($tip); ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
                 </div>
                 <?php foreach ($group['fields'] as $field_name => $field) : ?>
                     <?php

@@ -4,7 +4,7 @@ Theme URI: https://fyremezzonine-vniipo2026.tilda.ws/
 Author: Codex
 Author URI: https://openai.com/
 Description: One-page WordPress theme recreating the VNIIPO mezzanine fire safety conference landing page.
-Version: 1.1.0
+Version: 1.1.1
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
@@ -1781,6 +1781,53 @@ body:has(.conference-theme-arctic) .editor-menu-panel a {
   color: var(--fm-muted);
   line-height: 1.55;
   overflow-wrap: anywhere;
+}
+
+.conference-submission-tips {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.conference-submission-tips li {
+  position: relative;
+  margin: 0;
+  padding-left: 22px;
+  color: #3f4650;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.conference-submission-tips li::before {
+  content: "";
+  position: absolute;
+  top: 0.68em;
+  left: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--fm-blue);
+}
+
+.conference-submission-group-links,
+.conference-submission-group-venue_photos {
+  border-color: rgba(82, 90, 252, 0.18);
+}
+
+.conference-submission-group-links .conference-submission-section-head,
+.conference-submission-group-venue_photos .conference-submission-section-head {
+  background:
+    linear-gradient(90deg, rgba(82, 90, 252, 0.12), rgba(20, 85, 31, 0.06)),
+    #f8fafc;
+}
+
+.conference-submission-group-links .conference-submission-section-head h2::before,
+.conference-submission-group-venue_photos .conference-submission-section-head h2::before {
+  background: #3346d3;
 }
 
 .conference-submission-section-head + .conference-submission-field,
