@@ -153,72 +153,12 @@ function fyremezzonine_nav_fallback() {
 }
 
 function fyremezzonine_next_conference_id() {
-    $today = current_time('Y-m-d');
-    $query = new WP_Query(
-        array(
-            'post_type' => 'conference',
-            'post_status' => 'publish',
-            'posts_per_page' => 1,
-            'meta_key' => '_conference_start_date',
-            'orderby' => 'meta_value',
-            'order' => 'ASC',
-            'fields' => 'ids',
-            'meta_query' => array(
-                'relation' => 'OR',
-                array(
-                    'key' => '_conference_end_date',
-                    'value' => $today,
-                    'compare' => '>=',
-                    'type' => 'DATE',
-                ),
-                array(
-                    'relation' => 'AND',
-                    array(
-                        'key' => '_conference_end_date',
-                        'compare' => 'NOT EXISTS',
-                    ),
-                    array(
-                        'key' => '_conference_start_date',
-                        'value' => $today,
-                        'compare' => '>=',
-                        'type' => 'DATE',
-                    ),
-                ),
-                array(
-                    'relation' => 'AND',
-                    array(
-                        'key' => '_conference_end_date',
-                        'value' => '',
-                        'compare' => '=',
-                    ),
-                    array(
-                        'key' => '_conference_start_date',
-                        'value' => $today,
-                        'compare' => '>=',
-                        'type' => 'DATE',
-                    ),
-                ),
-            ),
-        )
-    );
-
-    if ($query->posts) {
-        return absint($query->posts[0]);
+    if (function_exists('fyremezzonine_manager_current_conference_id')) {
+        return fyremezzonine_manager_current_conference_id();
     }
 
-    $fallback = new WP_Query(
-        array(
-            'post_type' => 'conference',
-            'post_status' => 'publish',
-            'posts_per_page' => 1,
-            'meta_key' => '_conference_start_date',
-            'orderby' => 'meta_value',
-            'order' => 'DESC',
-            'fields' => 'ids',
-        )
-    );
-
-    return $fallback->posts ? absint($fallback->posts[0]) : 0;
+    $conference_id = absint(get_option('fyremezzonine_current_conference_id'));
+    return $conference_id && get_post_status($conference_id) === 'publish' ? $conference_id : 0;
 }
 
 function fyremezzonine_conference_meta($conference_id, $key, $fallback = '') {
@@ -236,6 +176,10 @@ function fyremezzonine_format_conference_date($date) {
 }
 
 function fyremezzonine_registration_closed($conference_id) {
+    if (absint($conference_id) !== fyremezzonine_next_conference_id() || get_post_status($conference_id) !== 'publish') {
+        return true;
+    }
+
     $deadline = fyremezzonine_conference_meta($conference_id, '_conference_registration_deadline');
 
     return $deadline && $deadline < current_time('Y-m-d');
@@ -285,6 +229,50 @@ function fyremezzonine_default_partner_groups() {
             ),
         ),
     );
+}
+
+function fyremezzonine_conference_venues($conference_id) {
+    $rows = json_decode((string) fyremezzonine_conference_meta($conference_id, '_conference_venues'), true);
+    $venues = array();
+
+    if (is_array($rows)) {
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $venue = array(
+                'name' => sanitize_text_field($row['name'] ?? ''),
+                'city' => sanitize_text_field($row['city'] ?? ''),
+                'address' => sanitize_text_field($row['address'] ?? ''),
+                'purpose' => sanitize_textarea_field($row['purpose'] ?? ''),
+                'directions' => sanitize_textarea_field($row['directions'] ?? ''),
+            );
+            if ($venue['name'] || $venue['address']) {
+                $venue['map_url'] = fyremezzonine_yandex_map_url('', '', '', $venue['address'] ?: $venue['name']);
+                $venues[] = $venue;
+            }
+        }
+    }
+
+    if (!$venues) {
+        $name = fyremezzonine_conference_meta($conference_id, '_conference_venue');
+        $city = fyremezzonine_conference_meta($conference_id, '_conference_city');
+        $address = fyremezzonine_conference_meta($conference_id, '_conference_route_address', $name);
+        $directions = fyremezzonine_conference_meta($conference_id, '_conference_route_directions');
+        if ($name || $address) {
+            $venues[] = array(
+                'name' => $name,
+                'city' => $city,
+                'address' => $address,
+                'purpose' => '',
+                'directions' => $directions,
+                'map_url' => fyremezzonine_yandex_map_url('', '', '', $address ?: $name),
+            );
+        }
+    }
+
+    return $venues;
 }
 
 function fyremezzonine_empty_partner_groups() {
@@ -337,10 +325,25 @@ function fyremezzonine_parse_topic_list($raw) {
         $items[] = array(
             'title' => $parts[0],
             'image_url' => $parts[1] ?? '',
+            'sections' => fyremezzonine_decode_topic_sections($parts[2] ?? ''),
         );
     }
 
     return $items;
+}
+
+function fyremezzonine_decode_topic_sections($raw) {
+    $raw = trim((string) $raw);
+    if ($raw === '') {
+        return array();
+    }
+
+    $decoded = json_decode(rawurldecode($raw), true);
+    if (!is_array($decoded)) {
+        $decoded = preg_split('/\s*;;\s*/', $raw);
+    }
+
+    return array_values(array_unique(array_filter(array_map('sanitize_text_field', $decoded))));
 }
 
 function fyremezzonine_parse_speaker_list($raw) {
@@ -473,6 +476,16 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
             'materials_intro' => 'Материалы конференции будут публиковаться в сборнике с индексацией в РИНЦ (Elibrary). Выпуск запланирован на август-сентябрь 2026 года.',
             'venue_heading' => 'Испытательный учебно-тренировочный полигон',
             'venue_intro' => 'На два дня полигон превратится в единую динамичную площадку научно-практической выставки технологий пожарно-спасательной отрасли.',
+            'venues' => array(
+                array(
+                    'name' => 'Испытательный учебно-тренировочный полигон',
+                    'city' => 'Оренбург',
+                    'address' => 'Нижняя Павловка, улица Полигонная, д. 1',
+                    'purpose' => 'Практические демонстрации техники, испытания и работа выставочной экспозиции.',
+                    'directions' => 'Движение от г. Оренбург по Илекскому шоссе, 31-й километр, поворот налево, по асфальтной дороге до конца.',
+                    'map_url' => fyremezzonine_yandex_map_url('', '', '', 'Нижняя Павловка, улица Полигонная, д. 1'),
+                ),
+            ),
             'route_address' => 'Нижняя Павловка, улица Полигонная, д. 1',
             'route_directions' => 'Движение от г. Оренбург по Илекскому шоссе, 31-й километр, поворот налево, по асфальтной дороге до конца.',
             'map_url' => fyremezzonine_yandex_map_url('', '', '', 'Нижняя Павловка, улица Полигонная, д. 1'),
@@ -494,6 +507,7 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
             $topics[] = array(
                 'title' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_title', $default_topics[$index - 1]['title']),
                 'image_url' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_image_url'),
+                'sections' => array(),
             );
         }
     }
@@ -510,11 +524,9 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
         );
     }
 
-    $route_address = fyremezzonine_conference_meta($conference_id, '_conference_route_address', fyremezzonine_conference_meta($conference_id, '_conference_venue', 'Нижняя Павловка, улица Полигонная, д. 1'));
-    $map_embed_url = fyremezzonine_conference_meta($conference_id, '_conference_map_embed_url');
-    $map_lat = fyremezzonine_conference_meta($conference_id, '_conference_map_lat');
-    $map_lon = fyremezzonine_conference_meta($conference_id, '_conference_map_lon');
-
+    $venues = fyremezzonine_conference_venues($conference_id);
+    $primary_venue = $venues ? $venues[0] : array('name' => '', 'city' => '', 'address' => '', 'purpose' => '', 'directions' => '', 'map_url' => '');
+    $route_address = $primary_venue['address'];
     $visual_theme = fyremezzonine_conference_visual_theme($conference_id);
 
     return array(
@@ -523,8 +535,8 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
         'excerpt' => has_excerpt($conference_id) ? get_the_excerpt($conference_id) : wp_trim_words(wp_strip_all_tags($post->post_content), 34),
         'content' => wp_strip_all_tags($post->post_content),
         'date_range' => fyremezzonine_conference_date_range($conference_id),
-        'city' => fyremezzonine_conference_meta($conference_id, '_conference_city', 'Оренбург'),
-        'venue' => fyremezzonine_conference_meta($conference_id, '_conference_venue', 'Оренбургский район, Нижнепавловский сельсовет, Полигонная улица 1'),
+        'city' => $primary_venue['city'],
+        'venue' => $primary_venue['name'],
         'deadline' => fyremezzonine_format_conference_date(fyremezzonine_conference_meta($conference_id, '_conference_registration_deadline')),
         'registration_closed' => fyremezzonine_registration_closed($conference_id),
         'visual_theme' => $visual_theme,
@@ -542,9 +554,10 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
         'materials_intro' => 'Материалы конференции будут публиковаться в сборнике с индексацией в РИНЦ (Elibrary). Выпуск запланирован на август-сентябрь 2026 года.',
         'venue_heading' => fyremezzonine_conference_meta($conference_id, '_conference_venue_heading', 'Испытательный учебно-тренировочный полигон'),
         'venue_intro' => fyremezzonine_conference_meta($conference_id, '_conference_venue_intro', 'На два дня площадка превратится в единую динамичную площадку научно-практической выставки технологий пожарно-спасательной отрасли.'),
+        'venues' => $venues,
         'route_address' => $route_address,
-        'route_directions' => fyremezzonine_conference_meta($conference_id, '_conference_route_directions', 'Движение от г. Оренбург по Илекскому шоссе, 31-й километр, поворот налево, по асфальтной дороге до конца.'),
-        'map_url' => fyremezzonine_yandex_map_url($map_embed_url, $map_lat, $map_lon, $route_address),
+        'route_directions' => $primary_venue['directions'],
+        'map_url' => $primary_venue['map_url'],
         'venue_image_url' => fyremezzonine_conference_meta($conference_id, '_conference_venue_image_url'),
         'collage_image_url' => fyremezzonine_conference_meta($conference_id, '_conference_collage_image_url'),
         'partner_groups' => fyremezzonine_conference_partner_groups($conference_id),

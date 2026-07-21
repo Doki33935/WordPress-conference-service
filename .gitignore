@@ -21,3 +21,7 @@ Thumbs.db
 *.log
 *.tmp
 *.bak
+
+# Local secrets
+.env
+work/.env

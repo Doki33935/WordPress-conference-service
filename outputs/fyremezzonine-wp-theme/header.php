@@ -17,7 +17,7 @@
 <?php
 $header_conference_id = is_singular('conference') ? get_the_ID() : fyremezzonine_next_conference_id();
 $header_registration_url = fyremezzonine_link('registration_url');
-$header_registration_closed = false;
+$header_registration_closed = !$header_conference_id;
 
 if ($header_conference_id) {
     $header_registration_url = add_query_arg('conference_id', $header_conference_id, $header_registration_url);
@@ -55,21 +55,29 @@ if ($header_conference_id) {
                 <a class="header-cta" href="<?php echo esc_url($header_registration_url); ?>">Принять участие</a>
             <?php endif; ?>
 
-            <?php if (current_user_can('edit_posts')) : ?>
+            <?php if (function_exists('fyremezzonine_manager_can_manage_conferences') && fyremezzonine_manager_can_manage_conferences()) : ?>
                 <details class="editor-menu">
                     <summary>Редактор</summary>
                     <div class="editor-menu-panel">
-                        <a href="<?php echo esc_url(home_url('/editor/new-conference/')); ?>">Создать конференцию</a>
-                        <a href="<?php echo esc_url(home_url('/editor/edit-conference/')); ?>">Изменить конференцию</a>
-                        <a href="<?php echo esc_url(home_url('/editor/registrations/')); ?>">Заявки и экспорт</a>
-                        <a href="<?php echo esc_url(home_url('/editor/partner-requests/')); ?>">Заявки на партнерство</a>
+                        <a href="<?php echo esc_url(home_url('/editor/conferences/')); ?>">Конференции</a>
+                        <a href="<?php echo esc_url(home_url('/editor/registrations/')); ?>">Заявки на участие</a>
+                        <a href="<?php echo esc_url(home_url('/editor/partnership/')); ?>">Партнерство</a>
                         <?php if (current_user_can('manage_options')) : ?>
                             <a href="<?php echo esc_url(admin_url()); ?>">Админка</a>
                         <?php endif; ?>
+                        <a class="editor-menu-logout" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">Выйти из профиля</a>
+                    </div>
+                </details>
+            <?php elseif (function_exists('fyremezzonine_manager_is_section_manager') && fyremezzonine_manager_is_section_manager()) : ?>
+                <details class="editor-menu">
+                    <summary>Секции</summary>
+                    <div class="editor-menu-panel">
+                        <a href="<?php echo esc_url(fyremezzonine_manager_section_statistics_url()); ?>">Статистика секций</a>
+                        <a class="editor-menu-logout" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">Выйти из профиля</a>
                     </div>
                 </details>
             <?php else : ?>
-                <a class="login-link" href="<?php echo esc_url(admin_url()); ?>">Войти</a>
+                <a class="login-link" href="<?php echo esc_url(home_url('/editor/login/')); ?>">Войти</a>
             <?php endif; ?>
         </div>
     </div>

@@ -9,6 +9,23 @@ $conference = fyremezzonine_next_conference_data();
 
 get_header();
 
+if (empty($conference['id'])) :
+    ?>
+    <main id="primary">
+        <section class="section">
+            <div class="section-inner page-layout">
+                <p class="section-eyebrow">Конференции ВНИИПО</p>
+                <h1 class="section-title">Текущая конференция пока не назначена</h1>
+                <p class="lead">Редактор может опубликовать следующую конференцию или выбрать дальнейшее действие в разделе управления конференциями.</p>
+                <a class="button button-blue" href="<?php echo esc_url(get_post_type_archive_link('conference')); ?>">Открыть все конференции</a>
+            </div>
+        </section>
+    </main>
+    <?php
+    get_footer();
+    return;
+endif;
+
 $hero_image_style = $conference['hero_image_url'] ? "--hero-image: url('" . esc_url($conference['hero_image_url']) . "');" : '--hero-image: none;';
 ?>
 
@@ -30,9 +47,6 @@ $hero_image_style = $conference['hero_image_url'] ? "--hero-image: url('" . esc_
                         <a class="button" href="<?php echo fyremezzonine_link('registration_url'); ?>">Принять участие</a>
                     <?php endif; ?>
                     <a class="button button-red" href="<?php echo esc_url($conference['program_url']); ?>">Программа конференции</a>
-                    <?php if (!empty($conference['chat_url'])) : ?>
-                        <a class="button button-blue" href="<?php echo esc_url($conference['chat_url']); ?>">Чат конференции</a>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -66,8 +80,19 @@ $hero_image_style = $conference['hero_image_url'] ? "--hero-image: url('" . esc_
                     <p><?php echo esc_html($conference['date_range']); ?></p>
                 </div>
                 <div class="info-card">
-                    <strong>Место проведения</strong>
-                    <p><?php echo esc_html($conference['venue']); ?></p>
+                    <strong><?php echo count($conference['venues']) > 1 ? 'Места проведения' : 'Место проведения'; ?></strong>
+                    <?php if (!empty($conference['venues'])) : ?>
+                        <ul class="venue-summary-list">
+                            <?php foreach ($conference['venues'] as $venue) : ?>
+                                <li>
+                                    <b><?php echo esc_html($venue['name'] ?: $venue['address']); ?></b>
+                                    <?php if (!empty($venue['purpose'])) : ?><small><?php echo esc_html($venue['purpose']); ?></small><?php endif; ?>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else : ?>
+                        <p>Уточняется</p>
+                    <?php endif; ?>
                 </div>
                 <div class="info-card">
                     <strong>Дедлайн регистрации</strong>
@@ -90,7 +115,14 @@ $hero_image_style = $conference['hero_image_url'] ? "--hero-image: url('" . esc_
                         <img class="topic-media" src="<?php echo esc_url($topic['image_url']); ?>" alt="">
                     <?php endif; ?>
                     <span class="topic-number"><?php echo esc_html(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)); ?></span>
-                    <p><?php echo esc_html($topic['title']); ?></p>
+                    <p class="topic-title"><?php echo esc_html($topic['title']); ?></p>
+                    <?php if (!empty($topic['sections'])) : ?>
+                        <ul class="topic-sections">
+                            <?php foreach ($topic['sections'] as $section) : ?>
+                                <li><?php echo esc_html($section); ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
                 </article>
                 <?php endforeach; ?>
             </div>
@@ -170,22 +202,31 @@ $hero_image_style = $conference['hero_image_url'] ? "--hero-image: url('" . esc_
                 <?php endforeach; ?>
             </div>
 
-            <div class="route-layout">
-                <div class="map-card" aria-label="Карта проезда к адресу Оренбургский район, Нижнепавловский сельсовет, Полигонная улица 1">
-                    <iframe src="<?php echo esc_url($conference['map_url']); ?>" loading="lazy" allowfullscreen></iframe>
-                </div>
-                <div class="route-card">
-                    <h3>Как добраться?</h3>
-                    <p>Адрес для Яндекс Карт: <?php echo esc_html($conference['route_address']); ?></p>
-                    <?php foreach (array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $conference['route_directions']))) as $paragraph) : ?>
-                    <p><?php echo esc_html($paragraph); ?></p>
-                    <?php endforeach; ?>
-                    <?php if ($conference['registration_closed']) : ?>
-                        <span class="button button-outline button-disabled" aria-disabled="true">Регистрация закрыта</span>
-                    <?php else : ?>
-                        <a class="button button-outline" href="<?php echo fyremezzonine_link('registration_url'); ?>">Зарегистрироваться</a>
-                    <?php endif; ?>
-                </div>
+            <div class="conference-venue-list">
+                <?php foreach ($conference['venues'] as $venue_index => $venue) : ?>
+                    <article class="route-layout conference-venue-item">
+                        <div class="map-card" aria-label="Карта проезда к адресу <?php echo esc_attr($venue['address']); ?>">
+                            <iframe src="<?php echo esc_url($venue['map_url']); ?>" loading="lazy" allowfullscreen></iframe>
+                        </div>
+                        <div class="route-card">
+                            <span class="conference-venue-number">Площадка <?php echo esc_html($venue_index + 1); ?></span>
+                            <h3><?php echo esc_html($venue['name'] ?: 'Место проведения'); ?></h3>
+                            <?php if ($venue['city']) : ?><p><?php echo esc_html($venue['city']); ?></p><?php endif; ?>
+                            <?php if (!empty($venue['purpose'])) : ?>
+                                <div class="venue-purpose"><strong>Что будет проходить на площадке</strong><?php echo wp_kses_post(wpautop($venue['purpose'])); ?></div>
+                            <?php endif; ?>
+                            <?php if ($venue['address']) : ?><p class="venue-address"><strong>Адрес</strong><?php echo esc_html($venue['address']); ?></p><?php endif; ?>
+                            <?php if (!empty($venue['directions'])) : ?>
+                                <div class="venue-directions"><strong>Как добраться</strong><?php echo wp_kses_post(wpautop($venue['directions'])); ?></div>
+                            <?php endif; ?>
+                            <?php if ($conference['registration_closed']) : ?>
+                                <span class="button button-outline button-disabled" aria-disabled="true">Регистрация закрыта</span>
+                            <?php else : ?>
+                                <a class="button button-outline" href="<?php echo fyremezzonine_link('registration_url'); ?>">Зарегистрироваться</a>
+                            <?php endif; ?>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
             </div>
 
             <?php if (!empty($conference['venue_image_url']) || !empty($conference['collage_image_url'])) : ?>

@@ -7,14 +7,12 @@
 
 get_header();
 
-$today = current_time('Y-m-d');
 $conferences = get_posts(
     array(
         'post_type' => 'conference',
         'post_status' => 'publish',
         'numberposts' => -1,
-        'meta_key' => '_conference_start_date',
-        'orderby' => 'meta_value',
+        'orderby' => 'date',
         'order' => 'ASC',
     )
 );
@@ -23,13 +21,13 @@ $conference_groups = array(
     'current' => array(
         'eyebrow' => 'Идут сейчас',
         'title' => 'Проходящие сейчас',
-        'description' => 'Конференции, которые уже начались и еще не завершились.',
+        'description' => 'Текущая конференция показывается на главной странице, и только на нее открыта регистрация.',
         'items' => array(),
     ),
     'future' => array(
         'eyebrow' => 'Скоро',
         'title' => 'Будущие конференции',
-        'description' => 'Ближайшие опубликованные события, на которые можно ориентироваться при планировании участия.',
+        'description' => 'Опубликованные события в очереди. Регистрация откроется, когда конференция станет текущей.',
         'items' => array(),
     ),
     'completed' => array(
@@ -41,17 +39,11 @@ $conference_groups = array(
 );
 
 foreach ($conferences as $conference_post) {
-    $start_date = (string) get_post_meta($conference_post->ID, '_conference_start_date', true);
-    $end_date = (string) get_post_meta($conference_post->ID, '_conference_end_date', true);
-    $compare_end_date = $end_date ?: $start_date;
-
-    if ($start_date && $start_date <= $today && $compare_end_date >= $today) {
-        $conference_groups['current']['items'][] = $conference_post;
-    } elseif ($compare_end_date && $compare_end_date < $today) {
-        $conference_groups['completed']['items'][] = $conference_post;
-    } else {
-        $conference_groups['future']['items'][] = $conference_post;
-    }
+    $lifecycle_status = function_exists('fyremezzonine_manager_lifecycle_status')
+        ? fyremezzonine_manager_lifecycle_status($conference_post->ID)
+        : 'future';
+    $group_key = $lifecycle_status === 'current' ? 'current' : ($lifecycle_status === 'completed' ? 'completed' : 'future');
+    $conference_groups[$group_key]['items'][] = $conference_post;
 }
 
 $conference_groups['completed']['items'] = array_reverse($conference_groups['completed']['items']);
@@ -63,6 +55,9 @@ $conference_groups['completed']['items'] = array_reverse($conference_groups['com
             <p class="section-eyebrow">Календарь</p>
             <h1 class="section-title">Конференции</h1>
             <p class="lead">Все опубликованные конференции разделены по статусу: что проходит сейчас, что запланировано дальше и что уже завершилось.</p>
+            <?php if (isset($_GET['lifecycle_notice']) && sanitize_key(wp_unslash($_GET['lifecycle_notice'])) === 'completed') : ?>
+                <div class="registration-message registration-success">Конференция завершена. Следующая опубликованная конференция назначена текущей автоматически.</div>
+            <?php endif; ?>
 
             <div class="conference-archive-groups">
                 <?php foreach ($conference_groups as $group_key => $group) : ?>
@@ -78,8 +73,9 @@ $conference_groups['completed']['items'] = array_reverse($conference_groups['com
                                 <?php foreach ($group['items'] as $conference_post) : ?>
                                     <?php
                                     $conference_id = $conference_post->ID;
-                                    $city = get_post_meta($conference_id, '_conference_city', true);
-                                    $venue = get_post_meta($conference_id, '_conference_venue', true);
+                                    $venue_rows = function_exists('fyremezzonine_conference_venues') ? fyremezzonine_conference_venues($conference_id) : array();
+                                    $city = $venue_rows ? $venue_rows[0]['city'] : get_post_meta($conference_id, '_conference_city', true);
+                                    $venue = $venue_rows ? $venue_rows[0]['name'] : get_post_meta($conference_id, '_conference_venue', true);
                                     $deadline = get_post_meta($conference_id, '_conference_registration_deadline', true);
                                     ?>
                                     <article class="conference-archive-card">

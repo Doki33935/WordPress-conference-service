@@ -14,6 +14,13 @@ services:
         define('WP_DEBUG', true);
         define('WP_DEBUG_LOG', true);
         define('WP_DEBUG_DISPLAY', false);
+      FYREMEZZONINE_SMTP_HOST: ${FYREMEZZONINE_SMTP_HOST:-smtp.mail.ru}
+      FYREMEZZONINE_SMTP_PORT: ${FYREMEZZONINE_SMTP_PORT:-2525}
+      FYREMEZZONINE_SMTP_ENCRYPTION: ${FYREMEZZONINE_SMTP_ENCRYPTION:-tls}
+      FYREMEZZONINE_SMTP_USERNAME: ${FYREMEZZONINE_SMTP_USERNAME:-}
+      FYREMEZZONINE_SMTP_PASSWORD: ${FYREMEZZONINE_SMTP_PASSWORD:-}
+      FYREMEZZONINE_SMTP_FROM_EMAIL: ${FYREMEZZONINE_SMTP_FROM_EMAIL:-}
+      FYREMEZZONINE_SMTP_FROM_NAME: ${FYREMEZZONINE_SMTP_FROM_NAME:-ВНИИПО Конференции}
     volumes:
       - wordpress_data:/var/www/html
       - ../outputs/fyremezzonine-wp-theme:/var/www/html/wp-content/themes/fyremezzonine-wp-theme
