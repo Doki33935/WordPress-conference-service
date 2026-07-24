@@ -4,10 +4,10 @@ Theme URI: https://fyremezzonine-vniipo2026.tilda.ws/
 Author: Codex
 Author URI: https://openai.com/
 Description: One-page WordPress theme recreating the VNIIPO mezzanine fire safety conference landing page.
-Version: 1.5.5
-Requires at least: 6.0
-Tested up to: 6.6
-Requires PHP: 7.4
+Version: 1.6.2
+Requires at least: 6.9
+Tested up to: 6.9
+Requires PHP: 8.2
 Text Domain: fyremezzonine
 */
 
@@ -33,19 +33,35 @@ Text Domain: fyremezzonine
 
 html {
   scroll-behavior: smooth;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 body {
   margin: 0;
+  max-width: 100%;
+  overflow-x: clip;
   background: var(--fm-bg);
   color: var(--fm-ink);
-  font-family: Inter, Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
   font-size: 18px;
   line-height: 1.55;
 }
 
 body.admin-bar .site-header {
   top: 32px;
+}
+
+.conference-form-trap {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 /* Conference workflow and editor access */
@@ -508,6 +524,17 @@ img {
   align-items: center;
   gap: 14px;
   min-width: 0;
+}
+
+.header-navigation-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.mobile-menu-toggle {
+  display: none;
 }
 
 .brand {
@@ -3642,6 +3669,22 @@ body:has(.conference-theme-arctic) .editor-menu-panel a:hover {
     padding: 64px 0;
   }
 
+  .primary-nav,
+  .primary-nav ul {
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 4px;
+    padding: 0;
+    overflow: visible;
+    white-space: normal;
+  }
+
+  .primary-nav a {
+    min-height: 34px;
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+
   .hero {
     min-height: 620px;
   }
@@ -4077,5 +4120,116 @@ body:has(.conference-theme-arctic) .editor-menu-panel a:hover {
   .partnership-comment-field,
   .partnership-editor-actions {
     grid-column: auto;
+  }
+}
+
+@media (max-width: 980px) {
+  .header-inner {
+    position: relative;
+    min-height: 72px;
+    padding: 10px 0;
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .brand {
+    min-width: 0;
+    gap: 9px;
+  }
+
+  .brand-mark {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+
+  .brand-text {
+    max-width: 220px;
+    font-size: 11px;
+  }
+
+  .header-navigation {
+    width: auto;
+    margin-left: auto;
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-grid;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    place-items: center;
+    border: 1px solid var(--fm-line);
+    border-radius: 8px;
+    color: var(--fm-ink);
+    background: var(--fm-white);
+    font: inherit;
+    font-size: 24px;
+    line-height: 1;
+    box-shadow: var(--fm-soft-shadow);
+    cursor: pointer;
+  }
+
+  .header-navigation-content {
+    position: absolute;
+    top: calc(100% + 1px);
+    right: 0;
+    z-index: 70;
+    display: none;
+    width: min(360px, calc(100vw - 28px));
+    max-height: calc(100vh - 90px);
+    padding: 14px;
+    overflow-y: auto;
+    border: 1px solid var(--fm-line);
+    border-radius: 8px;
+    background: var(--fm-white);
+    box-shadow: 0 20px 48px rgba(16, 24, 40, 0.18);
+  }
+
+  .header-navigation-content.is-open {
+    display: grid;
+    gap: 10px;
+  }
+
+  .header-navigation-content .primary-nav,
+  .header-navigation-content .primary-nav ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 4px;
+    padding: 0;
+    overflow: visible;
+    white-space: normal;
+  }
+
+  .header-navigation-content .primary-nav a {
+    width: 100%;
+    min-height: 38px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    color: #182230 !important;
+    font-size: 14px;
+  }
+
+  .header-navigation-content .primary-nav a:hover,
+  .header-navigation-content .primary-nav a:focus-visible {
+    background: #f2f4f7;
+  }
+
+  .header-navigation-content .header-cta,
+  .header-navigation-content .login-link,
+  .header-navigation-content .editor-menu,
+  .header-navigation-content .editor-menu summary {
+    width: 100%;
+  }
+
+  .header-navigation-content .editor-menu-panel {
+    position: static;
+    width: 100%;
+    margin-top: 8px;
+    box-shadow: none;
   }
 }

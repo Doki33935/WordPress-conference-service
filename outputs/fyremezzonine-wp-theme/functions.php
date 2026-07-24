@@ -24,16 +24,9 @@ add_action('after_setup_theme', 'fyremezzonine_setup');
 
 function fyremezzonine_assets() {
     wp_enqueue_style(
-        'fyremezzonine-fonts',
-        'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap',
-        array(),
-        null
-    );
-
-    wp_enqueue_style(
         'fyremezzonine-style',
         get_stylesheet_uri(),
-        array('fyremezzonine-fonts'),
+        array(),
         wp_get_theme()->get('Version')
     );
 
@@ -52,10 +45,6 @@ function fyremezzonine_conference_visual_theme($conference_id) {
     $allowed_themes = array('classic', 'arctic', 'ember');
 
     return in_array($theme, $allowed_themes, true) ? $theme : 'classic';
-}
-
-function fyremezzonine_default_hero_image($visual_theme = 'classic') {
-    return fyremezzonine_asset('hero-original.png');
 }
 
 function fyremezzonine_conference_hero_image($conference_id, $visual_theme = 'classic') {
@@ -78,11 +67,11 @@ function fyremezzonine_customize_register($wp_customize) {
         ),
         'program_url' => array(
             'label' => __('Program URL', 'fyremezzonine'),
-            'default' => 'https://disk.yandex.ru/i/WLLXTWGAA6FwAA',
+            'default' => '',
         ),
         'materials_url' => array(
             'label' => __('Materials requirements URL', 'fyremezzonine'),
-            'default' => 'https://disk.yandex.ru/d/tqGzlf1dG7btsg',
+            'default' => '',
         ),
         'branch_url' => array(
             'label' => __('Branch website URL', 'fyremezzonine'),
@@ -124,8 +113,8 @@ function fyremezzonine_sanitize_link($value) {
 function fyremezzonine_link($setting_id) {
     $defaults = array(
         'registration_url' => '/registration',
-        'program_url' => 'https://disk.yandex.ru/i/WLLXTWGAA6FwAA',
-        'materials_url' => 'https://disk.yandex.ru/d/tqGzlf1dG7btsg',
+        'program_url' => '',
+        'materials_url' => '',
         'branch_url' => 'https://oren.vniipo.ru/',
     );
 
@@ -194,41 +183,6 @@ function fyremezzonine_conference_date_range($conference_id) {
     }
 
     return fyremezzonine_format_conference_date($start);
-}
-
-function fyremezzonine_default_partner_groups() {
-    return array(
-        'organizers' => array(
-            'label' => 'Организатор',
-            'featured' => true,
-            'items' => array(
-                array('name' => 'Оренбургский филиал ФГБУ ВНИИПО МЧС России', 'url' => fyremezzonine_link('branch_url'), 'logo_url' => fyremezzonine_asset('logo-vniipo.jpg')),
-            ),
-        ),
-        'general_partners' => array(
-            'label' => 'Генеральные партнеры',
-            'wide' => true,
-            'items' => array(
-                array('name' => 'Fireproff', 'url' => 'https://fireproff.ru/', 'logo_url' => fyremezzonine_asset('logo-fireproff.png')),
-                array('name' => 'Anti-fire', 'url' => 'https://anti-fire.info/', 'logo_url' => fyremezzonine_asset('logo-antifire.png')),
-            ),
-        ),
-        'partners' => array(
-            'label' => 'Партнеры',
-            'items' => array(
-                array('name' => 'Партнер конференции', 'url' => 'https://pgs56.ru/', 'logo_url' => fyremezzonine_asset('logo-pgs56.png')),
-                array('name' => 'Каланча', 'url' => 'https://kalancha.ru/', 'logo_url' => fyremezzonine_asset('logo-kalancha.png')),
-            ),
-        ),
-        'media_partners' => array(
-            'label' => 'Информационные партнеры',
-            'items' => array(
-                array('name' => 'Рубеж', 'url' => 'https://ru-bezh.ru/', 'logo_url' => fyremezzonine_asset('logo-rubezh.jpg')),
-                array('name' => 'Такир', 'url' => 'https://takir.ru/', 'logo_url' => fyremezzonine_asset('logo-takir.png')),
-                array('name' => 'ПРО ПБ', 'url' => 'https://propb.ru/', 'logo_url' => fyremezzonine_asset('logo-propb.png')),
-            ),
-        ),
-    );
 }
 
 function fyremezzonine_conference_venues($conference_id) {
@@ -443,87 +397,26 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
     }
 
     if (!$conference_id) {
-        return array(
-            'id' => 0,
-            'title' => 'Пожарная безопасность складских помещений с мезонинным хранением',
-            'excerpt' => 'Научно-практическая конференция Оренбургского филиала ФГБУ ВНИИПО МЧС России.',
-            'content' => '',
-            'date_range' => '24.06.2026 - 25.06.2026',
-            'city' => 'Оренбург',
-            'venue' => 'Оренбургский район, Нижнепавловский сельсовет, Полигонная улица 1',
-            'deadline' => '25.06.2026',
-            'registration_closed' => false,
-            'visual_theme' => 'classic',
-            'program_url' => fyremezzonine_link('program_url'),
-            'chat_url' => '',
-            'partner_form_url' => home_url('/partnership/'),
-            'materials_url' => fyremezzonine_link('materials_url'),
-            'hero_image_url' => fyremezzonine_default_hero_image('classic'),
-            'topic_intro' => 'На конференции обсудят практические вопросы профилактики, оценки рисков и взаимодействия специалистов отрасли.',
-            'topics' => array(
-                array('title' => 'Анализ рисков и раннее выявление опасных факторов.', 'image_url' => fyremezzonine_asset('topic-1.png')),
-                array('title' => 'Практические меры предупреждения аварий и чрезвычайных ситуаций.', 'image_url' => fyremezzonine_asset('topic-2.png')),
-                array('title' => 'Опыт ВНИИПО, ведомственное взаимодействие и подготовка специалистов.', 'image_url' => fyremezzonine_asset('vniipo-logo.jpg')),
-            ),
-            'about_title' => 'Пожарная безопасность складских помещений с мезонинным хранением',
-            'about_lead' => 'Научно-практическая конференция Оренбургского филиала ФГБУ ВНИИПО МЧС России.',
-            'speakers' => array(),
-            'benefits' => array(
-                'Разбор практических сценариев предупреждения опасных ситуаций до наступления аварии.',
-                'Обсуждение современных подходов к мониторингу, оценке рисков и подготовке персонала.',
-                'Диалог с экспертами ВНИИПО, представителями отрасли и профильными специалистами.',
-            ),
-            'materials_intro' => 'Материалы конференции будут публиковаться в сборнике с индексацией в РИНЦ (Elibrary). Выпуск запланирован на август-сентябрь 2026 года.',
-            'venue_heading' => 'Испытательный учебно-тренировочный полигон',
-            'venue_intro' => 'На два дня полигон превратится в единую динамичную площадку научно-практической выставки технологий пожарно-спасательной отрасли.',
-            'venues' => array(
-                array(
-                    'name' => 'Испытательный учебно-тренировочный полигон',
-                    'city' => 'Оренбург',
-                    'address' => 'Нижняя Павловка, улица Полигонная, д. 1',
-                    'purpose' => 'Практические демонстрации техники, испытания и работа выставочной экспозиции.',
-                    'directions' => 'Движение от г. Оренбург по Илекскому шоссе, 31-й километр, поворот налево, по асфальтной дороге до конца.',
-                    'map_url' => fyremezzonine_yandex_map_url('', '', '', 'Нижняя Павловка, улица Полигонная, д. 1'),
-                ),
-            ),
-            'route_address' => 'Нижняя Павловка, улица Полигонная, д. 1',
-            'route_directions' => 'Движение от г. Оренбург по Илекскому шоссе, 31-й километр, поворот налево, по асфальтной дороге до конца.',
-            'map_url' => fyremezzonine_yandex_map_url('', '', '', 'Нижняя Павловка, улица Полигонная, д. 1'),
-            'venue_image_url' => fyremezzonine_asset('venue-original.jpg'),
-            'collage_image_url' => fyremezzonine_asset('collage.jpg'),
-            'partner_groups' => fyremezzonine_default_partner_groups(),
-        );
+        return array('id' => 0);
     }
 
     $post = get_post($conference_id);
-    $default_topics = array(
-        array('title' => 'Анализ рисков и раннее выявление опасных факторов.', 'image_url' => ''),
-        array('title' => 'Практические меры предупреждения аварий и чрезвычайных ситуаций.', 'image_url' => ''),
-        array('title' => 'Опыт ВНИИПО, ведомственное взаимодействие и подготовка специалистов.', 'image_url' => ''),
-    );
     $topics = fyremezzonine_parse_topic_list(fyremezzonine_conference_meta($conference_id, '_conference_topics'));
     if (!$topics) {
         for ($index = 1; $index <= 3; $index++) {
-            $topics[] = array(
-                'title' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_title', $default_topics[$index - 1]['title']),
+            $legacy_topic = array(
+                'title' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_title'),
                 'image_url' => fyremezzonine_conference_meta($conference_id, '_conference_topic_' . $index . '_image_url'),
                 'sections' => array(),
             );
+            if ($legacy_topic['title'] || $legacy_topic['image_url']) {
+                $topics[] = $legacy_topic;
+            }
         }
     }
 
     $benefits_raw = fyremezzonine_conference_meta($conference_id, '_conference_benefits');
     $benefits = array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $benefits_raw ?: '')));
-    if (!$benefits) {
-        $benefits = array(
-            'Разбор практических сценариев предупреждения опасных ситуаций до наступления аварии.',
-            'Обсуждение современных подходов к мониторингу, оценке рисков и подготовке персонала.',
-            'Диалог с экспертами ВНИИПО, представителями отрасли и профильными специалистами.',
-            'Площадка для обмена опытом между организациями, службами и производителями решений безопасности.',
-            'Формирование прикладных рекомендаций для объектов с повышенными технологическими рисками.',
-        );
-    }
-
     $venues = fyremezzonine_conference_venues($conference_id);
     $primary_venue = $venues ? $venues[0] : array('name' => '', 'city' => '', 'address' => '', 'purpose' => '', 'directions' => '', 'map_url' => '');
     $route_address = $primary_venue['address'];
@@ -545,15 +438,15 @@ function fyremezzonine_next_conference_data($conference_id = 0) {
         'partner_form_url' => home_url('/partnership/'),
         'materials_url' => fyremezzonine_link('materials_url'),
         'hero_image_url' => fyremezzonine_conference_hero_image($conference_id, $visual_theme),
-        'topic_intro' => fyremezzonine_conference_meta($conference_id, '_conference_topic_intro', 'На конференции «' . get_the_title($conference_id) . '» обсудят практические вопросы профилактики, оценки рисков и взаимодействия специалистов отрасли.'),
+        'topic_intro' => fyremezzonine_conference_meta($conference_id, '_conference_topic_intro'),
         'topics' => $topics,
         'about_title' => fyremezzonine_conference_meta($conference_id, '_conference_about_title', get_the_title($conference_id)),
         'about_lead' => fyremezzonine_conference_meta($conference_id, '_conference_about_lead', has_excerpt($conference_id) ? get_the_excerpt($conference_id) : wp_trim_words(wp_strip_all_tags($post->post_content), 34)),
         'speakers' => fyremezzonine_parse_speaker_list(fyremezzonine_conference_meta($conference_id, '_conference_speakers')),
         'benefits' => $benefits,
-        'materials_intro' => 'Материалы конференции будут публиковаться в сборнике с индексацией в РИНЦ (Elibrary). Выпуск запланирован на август-сентябрь 2026 года.',
-        'venue_heading' => fyremezzonine_conference_meta($conference_id, '_conference_venue_heading', 'Испытательный учебно-тренировочный полигон'),
-        'venue_intro' => fyremezzonine_conference_meta($conference_id, '_conference_venue_intro', 'На два дня площадка превратится в единую динамичную площадку научно-практической выставки технологий пожарно-спасательной отрасли.'),
+        'materials_intro' => fyremezzonine_conference_meta($conference_id, '_conference_materials_intro'),
+        'venue_heading' => fyremezzonine_conference_meta($conference_id, '_conference_venue_heading'),
+        'venue_intro' => fyremezzonine_conference_meta($conference_id, '_conference_venue_intro'),
         'venues' => $venues,
         'route_address' => $route_address,
         'route_directions' => $primary_venue['directions'],

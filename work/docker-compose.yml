@@ -1,6 +1,6 @@
 services:
   wordpress:
-    image: wordpress:6.6-php8.2-apache
+    image: wordpress:6.9.4-php8.3-apache
     container_name: fyremezzonine-wordpress
     restart: unless-stopped
     ports:
@@ -29,7 +29,7 @@ services:
       - db
 
   db:
-    image: mariadb:11.4
+    image: mariadb:11.4.10
     container_name: fyremezzonine-db
     restart: unless-stopped
     environment:

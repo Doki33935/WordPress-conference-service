@@ -1,0 +1,130 @@
+services:
+  caddy:
+    image: caddy:2.11.4-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - wordpress
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  wordpress:
+    image: wordpress:6.9.4-php8.3-apache
+    restart: unless-stopped
+    expose:
+      - "80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX:-wp_}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG', false);
+        define('WP_DEBUG_DISPLAY', false);
+        define('WP_ENVIRONMENT_TYPE', 'production');
+        define('DISALLOW_FILE_EDIT', true);
+        define('DISABLE_WP_CRON', true);
+        define('FORCE_SSL_ADMIN', true);
+        define('WP_AUTO_UPDATE_CORE', 'minor');
+        define('WP_POST_REVISIONS', 20);
+        define('EMPTY_TRASH_DAYS', 30);
+        if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && strpos($$_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false) {
+            $$_SERVER['HTTPS'] = 'on';
+        }
+      FYREMEZZONINE_SMTP_HOST: ${FYREMEZZONINE_SMTP_HOST:-smtp.mail.ru}
+      FYREMEZZONINE_SMTP_PORT: ${FYREMEZZONINE_SMTP_PORT:-2525}
+      FYREMEZZONINE_SMTP_ENCRYPTION: ${FYREMEZZONINE_SMTP_ENCRYPTION:-tls}
+      FYREMEZZONINE_SMTP_USERNAME: ${FYREMEZZONINE_SMTP_USERNAME:-}
+      FYREMEZZONINE_SMTP_PASSWORD: ${FYREMEZZONINE_SMTP_PASSWORD:-}
+      FYREMEZZONINE_SMTP_FROM_EMAIL: ${FYREMEZZONINE_SMTP_FROM_EMAIL:-}
+      FYREMEZZONINE_SMTP_FROM_NAME: ${FYREMEZZONINE_SMTP_FROM_NAME:-ВНИИПО Конференции}
+    volumes:
+      - wordpress_data:/var/www/html
+      - ../outputs/fyremezzonine-wp-theme:/var/www/html/wp-content/themes/fyremezzonine-wp-theme:ro
+      - ../outputs/fyremezzonine-conference-manager:/var/www/html/wp-content/plugins/fyremezzonine-conference-manager:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  wordpress-cron:
+    image: wordpress:6.9.4-php8.3-apache
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -c
+      - >-
+        while [ ! -f /var/www/html/wp-config.php ]; do sleep 5; done;
+        while true; do php -f /var/www/html/wp-cron.php; sleep 300; done
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX:-wp_}
+      FYREMEZZONINE_SMTP_HOST: ${FYREMEZZONINE_SMTP_HOST:-smtp.mail.ru}
+      FYREMEZZONINE_SMTP_PORT: ${FYREMEZZONINE_SMTP_PORT:-2525}
+      FYREMEZZONINE_SMTP_ENCRYPTION: ${FYREMEZZONINE_SMTP_ENCRYPTION:-tls}
+      FYREMEZZONINE_SMTP_USERNAME: ${FYREMEZZONINE_SMTP_USERNAME:-}
+      FYREMEZZONINE_SMTP_PASSWORD: ${FYREMEZZONINE_SMTP_PASSWORD:-}
+      FYREMEZZONINE_SMTP_FROM_EMAIL: ${FYREMEZZONINE_SMTP_FROM_EMAIL:-}
+      FYREMEZZONINE_SMTP_FROM_NAME: ${FYREMEZZONINE_SMTP_FROM_NAME:-ВНИИПО Конференции}
+    volumes:
+      - wordpress_data:/var/www/html
+      - ../outputs/fyremezzonine-wp-theme:/var/www/html/wp-content/themes/fyremezzonine-wp-theme:ro
+      - ../outputs/fyremezzonine-conference-manager:/var/www/html/wp-content/plugins/fyremezzonine-conference-manager:ro
+    depends_on:
+      wordpress:
+        condition: service_started
+      db:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  db:
+    image: mariadb:11.4.10
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${WORDPRESS_DB_NAME}
+      MARIADB_USER: ${WORDPRESS_DB_USER}
+      MARIADB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  wordpress_data:
+  db_data:
+  caddy_data:
+  caddy_config:

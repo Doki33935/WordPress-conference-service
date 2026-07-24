@@ -10,6 +10,7 @@ outputs/preview.html
 # Presentation scratch artifacts
 work/presentations/
 outputs/*.inspect.ndjson
+outputs/*-rebuilt.zip
 
 # OS/editor noise
 .DS_Store
@@ -25,3 +26,6 @@ Thumbs.db
 # Local secrets
 .env
 work/.env
+work/backups/
+deploy/.env.production
+deploy/backups/

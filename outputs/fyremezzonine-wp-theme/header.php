@@ -34,6 +34,8 @@ if ($header_conference_id) {
         </a>
 
         <div class="header-navigation">
+            <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="site-navigation-panel" aria-label="Открыть меню" title="Меню">&#9776;</button>
+            <div class="header-navigation-content" id="site-navigation-panel">
             <?php
             if (has_nav_menu('primary')) {
                 wp_nav_menu(
@@ -62,9 +64,7 @@ if ($header_conference_id) {
                         <a href="<?php echo esc_url(home_url('/editor/conferences/')); ?>">Конференции</a>
                         <a href="<?php echo esc_url(home_url('/editor/registrations/')); ?>">Заявки на участие</a>
                         <a href="<?php echo esc_url(home_url('/editor/partnership/')); ?>">Партнерство</a>
-                        <?php if (current_user_can('manage_options')) : ?>
-                            <a href="<?php echo esc_url(admin_url()); ?>">Админка</a>
-                        <?php endif; ?>
+                        <a href="<?php echo esc_url(admin_url('edit.php?post_type=conference')); ?>">Админка</a>
                         <a class="editor-menu-logout" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">Выйти из профиля</a>
                     </div>
                 </details>
@@ -79,6 +79,7 @@ if ($header_conference_id) {
             <?php else : ?>
                 <a class="login-link" href="<?php echo esc_url(home_url('/editor/login/')); ?>">Войти</a>
             <?php endif; ?>
+            </div>
         </div>
     </div>
 </header>

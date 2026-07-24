@@ -20,8 +20,8 @@ while (have_posts()) :
             <div class="section-inner">
                 <div class="hero-content">
                     <div class="hero-kicker" aria-label="Дата и место">
-                        <span><?php echo esc_html($conference['date_range']); ?></span>
-                        <span>г. <?php echo esc_html($conference['city']); ?></span>
+                        <?php if ($conference['date_range']) : ?><span><?php echo esc_html($conference['date_range']); ?></span><?php endif; ?>
+                        <?php if ($conference['city']) : ?><span>г. <?php echo esc_html($conference['city']); ?></span><?php endif; ?>
                     </div>
                     <p class="hero-label">Конференция</p>
                     <h1><?php echo esc_html($conference['title']); ?></h1>
@@ -31,7 +31,9 @@ while (have_posts()) :
                         <?php else : ?>
                             <a class="button" href="<?php echo esc_url($registration_url); ?>">Зарегистрироваться</a>
                         <?php endif; ?>
-                        <a class="button button-red" href="<?php echo esc_url($conference['program_url']); ?>">Программа конференции</a>
+                        <?php if ($conference['program_url']) : ?>
+                            <a class="button button-red" href="<?php echo esc_url($conference['program_url']); ?>">Программа конференции</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -47,11 +49,13 @@ while (have_posts()) :
                         <div class="conference-copy"><?php echo wp_kses_post(wpautop($conference['content'])); ?></div>
                     <?php endif; ?>
 
-                    <ul class="benefits">
-                        <?php foreach ($conference['benefits'] as $benefit) : ?>
-                            <li><?php echo esc_html($benefit); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
+                    <?php if (!empty($conference['benefits'])) : ?>
+                        <ul class="benefits">
+                            <?php foreach ($conference['benefits'] as $benefit) : ?>
+                                <li><?php echo esc_html($benefit); ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
                 </div>
 
                 <aside class="meta-stack" aria-label="Информация о конференции">
@@ -82,6 +86,7 @@ while (have_posts()) :
             </div>
         </section>
 
+        <?php if ($conference['topic_intro'] || !empty($conference['topics'])) : ?>
         <section class="section" id="participation">
             <div class="section-inner">
                 <p class="section-eyebrow">Структура конференции</p>
@@ -108,6 +113,7 @@ while (have_posts()) :
                 </div>
             </div>
         </section>
+        <?php endif; ?>
 
         <?php if (!empty($conference['speakers'])) : ?>
         <section class="section speakers">
@@ -139,20 +145,22 @@ while (have_posts()) :
         </section>
         <?php endif; ?>
 
+        <?php if ($conference['materials_intro'] || $conference['materials_url']) : ?>
         <section class="section materials" id="materials">
             <div class="section-inner">
                 <h2 class="section-title">Требования к оформлению материалов</h2>
-                <p class="lead"><?php echo esc_html($conference['materials_intro']); ?></p>
+                <?php if ($conference['materials_intro']) : ?><p class="lead"><?php echo esc_html($conference['materials_intro']); ?></p><?php endif; ?>
 
                 <div class="materials-box">
                     <div>
                         <h3>Конференция «<?php echo esc_html($conference['title']); ?>»</h3>
                         <p><?php echo esc_html($conference['date_range']); ?>, <?php echo esc_html($conference['city']); ?></p>
                     </div>
-                    <a class="button button-red" href="<?php echo esc_url($conference['materials_url']); ?>">Скачать требования к оформлению (.doc)</a>
+                    <?php if ($conference['materials_url']) : ?><a class="button button-red" href="<?php echo esc_url($conference['materials_url']); ?>">Скачать требования к оформлению</a><?php endif; ?>
                 </div>
             </div>
         </section>
+        <?php endif; ?>
 
         <?php if (fyremezzonine_partner_groups_have_items($conference['partner_groups'])) : ?>
             <section class="section" id="partners">
@@ -164,6 +172,7 @@ while (have_posts()) :
             </section>
         <?php endif; ?>
 
+        <?php if ($conference['venue_heading'] || $conference['venue_intro'] || !empty($conference['venues']) || $conference['venue_image_url'] || $conference['collage_image_url']) : ?>
         <section class="section venue">
             <div class="section-inner venue-stack">
                 <div class="venue-copy">
@@ -215,6 +224,7 @@ while (have_posts()) :
                 <?php endif; ?>
             </div>
         </section>
+        <?php endif; ?>
     </main>
 
 <?php
